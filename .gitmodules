@@ -10,3 +10,12 @@
 [submodule "SubModules/MatlabUtilities"]
 	path = SubModules/MatlabUtilities
 	url = https://github.com/razanskylab/MatlabUtilities.git
+[submodule "SubModules\\Image_Filter"]
+	path = SubModules\\Image_Filter
+	url = https://github.com/razanskylab/Image_Filter.git
+[submodule "SubModules/Frangi_Filter"]
+	path = SubModules/Frangi_Filter
+	url = https://github.com/razanskylab/Frangi_Filter.git
+[submodule "SubModules/AOVA"]
+	path = SubModules/AOVA
+	url = https://github.com/razanskylab/AOVA.git
