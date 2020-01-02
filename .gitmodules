@@ -4,8 +4,8 @@
 [submodule "SubModules/BaseClass"]
 	path = SubModules/BaseClass
 	url = https://github.com/razanskylab/BaseClass.git
-[submodule "SubModules\\FrequencyFilter"]
-	path = SubModules\\FrequencyFilter
+[submodule "SubModules/FrequencyFilter"]
+	path = SubModules/FrequencyFilter
 	url = https://github.com/razanskylab/FrequencyFilter.git
 [submodule "SubModules/MatlabUtilities"]
 	path = SubModules/MatlabUtilities
