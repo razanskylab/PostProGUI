@@ -1,0 +1,6 @@
+[submodule "SubModules/export_fig"]
+	path = SubModules/export_fig
+	url = https://github.com/altmany/export_fig.git
+[submodule "SubModules/BaseClass"]
+	path = SubModules/BaseClass
+	url = https://github.com/razanskylab/BaseClass.git
