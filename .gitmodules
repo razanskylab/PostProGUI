@@ -7,3 +7,6 @@
 [submodule "SubModules\\FrequencyFilter"]
 	path = SubModules\\FrequencyFilter
 	url = https://github.com/razanskylab/FrequencyFilter.git
+[submodule "SubModules/MatlabUtilities"]
+	path = SubModules/MatlabUtilities
+	url = https://github.com/razanskylab/MatlabUtilities.git
