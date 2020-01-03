@@ -83,11 +83,13 @@ function Apply_Image_Processing(PPA)
     end
 
     if PPA.GUI.AdjustContrastCheckBox.Value% affects mip image only
-      PPA.IMF.imadLimOut = [0 1];
+      PPA.Start_Wait_Bar('Adjusting contrast...');
       % auto calculate stretch limits?
+      PPA.IMF.imadLimOut = [0 1];
       PPA.IMF.imadAuto = PPA.GUI.AutoContrCheckBox.Value;
       PPA.IMF.imadLimIn = [PPA.GUI.ContrastLowLimEdit.Value PPA.GUI.ContrastUpLimEdit.Value];
       PPA.IMF.imadGamme = PPA.GUI.ContrastGammaEdit.Value;
+      PPA.Update_Status(sprintf('   auto: %i gamma: %3.2f', PPA.IMF.imadAuto, PPA.IMF.imadGamme));
       PPA.IMF.Adjust_Contrast();
     end
 
@@ -95,12 +97,12 @@ function Apply_Image_Processing(PPA)
     % NOTE we need this, so we don't keep re-applying frangi filtering on
     % already frangi-filtered images
     if PPA.GUI.UseFrangiCheckBox.Value
+      PPA.Start_Wait_Bar('Vesselness filtering...');
       PPA.Update_Frangi_Scales();
       PPA.Apply_Frangi(PPA.IMF.filt); % creates frangi scales, does plotting, updates frangiCombo
       PPA.IMF.filt = PPA.frangiCombo;
     end
 
-    
     PPA.depthInfo = depthIm; % needs to updated before procProj
     PPA.procProj = PPA.IMF.filt;
 

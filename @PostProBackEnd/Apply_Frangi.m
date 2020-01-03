@@ -3,11 +3,11 @@ function Apply_Frangi(PPA, unFilt)
   if nargin == 1
     unFilt = PPA.procProj;
   end
-  
+
   if isempty(unFilt)
     return;
   end
-  
+
   try
     unFilt = normalize(unFilt);
     PPA.ProgBar = uiprogressdlg(PPA.GUI.UIFigure, 'Title', 'Frangi Filtering ');
@@ -17,7 +17,10 @@ function Apply_Frangi(PPA, unFilt)
 
     % scalesToUse in micrometer
     sigmas = sort(PPA.scalesToUse);
-    % convert to pixel (rounding done later in for loop) 
+    scalesStr = sprintf(' %i um', sigmas);
+    PPA.Update_Status(sprintf('   scales:%s', scalesStr));
+
+    % convert to pixel (rounding done later in for loop)
     sigmas = sigmas ./ PPA.dR;
 
     nSigmas = length(sigmas);
@@ -29,16 +32,18 @@ function Apply_Frangi(PPA, unFilt)
     for iScale = 1:nSigmas
       PPA.ProgBar.Value = iScale ./ nSigmas; % update progress bar
       PPA.ProgBar.Message = sprintf('Filtering scale %i/%i...', iScale, nSigmas);
-      iSigma = sigmas(iScale) / 6;
+      % iSigma = sigmas(iScale);
+      iSigma = sigmas(iScale) / 6; % FIXME why the 6 here???
       iFilt = imgaussfilt(unFilt, iSigma, 'FilterSize', 2 * ceil(3 * iSigma) + 1);
       iFilt = builtin("_fibermetricmex", iFilt, sensitivity, inverted, iSigma);
       PPA.frangiScales(:, :, iScale) = iFilt;
     end
+
     close(PPA.ProgBar);
 
     % combine frangi filtered and original image
     PPA.Update_Frangi_Combo(unFilt);
-    
+
     % plot scale,  etc...
     PPA.Plot_Frangi();
 

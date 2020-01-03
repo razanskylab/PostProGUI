@@ -240,6 +240,9 @@ classdef PostProBackEnd < BaseClass
     % processed volume, the one we get projections from
     % NOTE this is the final volume we get the depth information from as well
     function set.procVol(PPA, newProcVol)
+      if PPA.ProgBar.CancelRequested
+        return;
+      end
       PPA.procVol = newProcVol;
       % FIXME convert depth info to actual mm
       [~, depthMap] = max(newProcVol, [], 3);

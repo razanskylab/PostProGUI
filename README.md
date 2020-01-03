@@ -54,7 +54,3 @@
 ## ToDos
 
 - optimize unsharp masking or get rid of it, find better sharping tools?
-- use frangi as guide for guided filtering!?! 
-  - also play with order, i.e. what is guide and what is input!
-  - replace guidedfilter with fastguidedfilter by same authors (up to 20x faster)
-
