@@ -19,3 +19,6 @@
 [submodule "SubModules/AOVA"]
 	path = SubModules/AOVA
 	url = https://github.com/razanskylab/AOVA.git
+[submodule "SubModules/MVolume"]
+	path = SubModules/MVolume
+	url = https://github.com/razanskylab/MVolume.git
