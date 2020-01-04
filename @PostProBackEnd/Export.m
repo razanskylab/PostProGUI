@@ -130,7 +130,10 @@ function Export(PPA)
     % export map file
     if exportMat
       PPA.Start_Wait_Bar('Exporting mat file...');
-      SaveStruct.depthMap = PPA.depthImage;
+      SaveStruct.depthMapRGB = PPA.depthImage;
+      SaveStruct.depthMap = PPA.depthInfo;
+      % mapRaw needed to load processed map into gui again
+      SaveStruct.mapRaw = PPA.procProj;
       SaveStruct.map = PPA.procProj;
       SaveStruct.x = PPA.x;
       SaveStruct.y = PPA.y;

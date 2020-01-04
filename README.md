@@ -3,9 +3,11 @@
 ## Overview
 
 ### Volume Processing
+
 ![image](https://user-images.githubusercontent.com/558053/71764036-261b5200-2ee3-11ea-9140-258850ba51ee.png)
 
 ### Image Processing
+
 ![image](https://user-images.githubusercontent.com/558053/71764025-0be17400-2ee3-11ea-84a9-e20000e0f01a.png)
 
 ## Usage
@@ -13,9 +15,11 @@
 ### Supported Data Formats
 
 1. Map Data - .mat file with the following variables:
-   - map: nX x nY matrix of type single/double
-   - dt: sampling period, i.e. 1./(sampling frequency), scalar 
+   - mapRaw: nX x nY matrix of type single/double
+   - depthMap: same size as mapRaw, containing depth info for each xy position
    - x, y: vectors of size nX/nY of type single/double defining size of image
+   - ![image](https://user-images.githubusercontent.com/558053/71764251-bc507780-2ee5-11ea-8d90-28584292e991.png)
+
 2. Volumetric Data - .mat file with the following variables:
    - volData
    - dt
@@ -23,6 +27,7 @@
    - ![image](https://user-images.githubusercontent.com/558053/71764000-b9a05300-2ee2-11ea-82dc-31744f20bc9c.png)
 3. MVolume Class - see <https://github.com/razanskylab/MVolume>
 4. TODO Tiff or Tiff-Stack
+5. TODO Load variables (Vol/Map) from workspace
 
 ## General Structure
 

@@ -7,6 +7,8 @@ function Load_Raw_File(PPA, filePath)
     end
 
     % check for new file?
+    PPA.Update_Status(' '); % new line
+    PPA.Update_Status(); % hor. divider
     PPA.Update_Status(); % hor. divider
     PPA.Start_Wait_Bar('Checking mat file contents.');
     MatFile = matfile(PPA.filePath);
@@ -18,13 +20,15 @@ function Load_Raw_File(PPA, filePath)
     hasZector = ismember('z', variableInfo);
     % check if this dataset is based on the "new" volDataset class
     % https://github.com/hofmannu/MVolume
-    PPA.isVolData = ismember('volData', variableInfo) || isNewVolData;
-    isNewVolData = ismember('volDataset', variableInfo);
+    isMVolume = ismember('volDataset', variableInfo);
+    % alternative is just variables stored in mat file
+    isMatFileVolume = ismember('volData', variableInfo);
+    isMatFileMap = ismember('mapRaw', variableInfo);
+    PPA.isVolData = isMatFileVolume || isMVolume;
     hasDepth = ismember('depthMap', variableInfo);
-    isMapData = ismember('mapRaw', variableInfo);
-    isOldMapData = ismember('map', variableInfo) &&~isMapData;
+    isOldMapData = ismember('map', variableInfo) &&~isMatFileMap;
     isValidFile = (PPA.isVolData && hasXYvectors && hasZector) || ...
-      (hasXYvectors && (isMapData || isOldMapData)) || isNewVolData;
+      (hasXYvectors && (isMatFileMap || isOldMapData)) || isMVolume;
 
     if ~isValidFile
       PPA.Stop_Wait_Bar();
@@ -32,14 +36,14 @@ function Load_Raw_File(PPA, filePath)
       return;
     end
 
-    if ((isMapData || isOldMapData) &&~hasDepth)
+    if ((isMatFileMap || isOldMapData) &&~hasDepth)
       PPA.Stop_Wait_Bar();
       uialert(PPA.GUI.UIFigure, 'No depth data in Map file!!', 'Depth data missing!');
       return;
     end
 
     % prepare projection panels based on XYZ data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if ~isNewVolData % could be map or volume data 
+    if ~isMVolume% could be map or volume data
       PPA.x = MatFile.x;
       PPA.y = MatFile.y;
     else
@@ -84,7 +88,7 @@ function Load_Raw_File(PPA, filePath)
 
       PPA.rawVol = []; % clear out old data
 
-      if ~isNewVolData % mat file containing volumetric data 
+      if ~isMVolume% mat file containing volumetric data
         PPA.dt = MatFile.dt;
         PPA.z = MatFile.z;
         PPA.rawVol = permute(single(MatFile.volData), [3 1 2]);
@@ -105,7 +109,7 @@ function Load_Raw_File(PPA, filePath)
       PPA.Update_Slice_Lines();
 
       % load and process MAP data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    elseif isMapData || isOldMapData
+    elseif isMatFileMap || isOldMapData
       PPA.Set_Controls('map_only');
       cla(PPA.GUI.yzSliceDisp);
       cla(PPA.GUI.xzSliceDisp);
@@ -118,13 +122,13 @@ function Load_Raw_File(PPA, filePath)
       % this is only required if the same data is loaded from a different location
       % as matlab will detect that the procVolProj property has not changed and
       % will thus not trigger some required set functions...
-      depthMap = MatFile.depthMap';
+      depthMap = MatFile.depthMap;
       PPA.depthInfo = single(depthMap); % needs to be set before procVolProj!
       PPA.rawDepthInfo = single(depthMap); % only set when loading for 2d data
       % NOTE depthmap does not need to be transposed
-      if isMapData
-        PPA.procVolProj = single(MatFile.mapRaw');
-      else
+      if isMatFileMap
+        PPA.procVolProj = single(MatFile.mapRaw);
+      elseif isOldMapData
         PPA.procVolProj = single(MatFile.map');
       end
 
