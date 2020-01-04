@@ -4,11 +4,11 @@
 
 ### Volume Processing
 
-![image](https://user-images.githubusercontent.com/558053/71764036-261b5200-2ee3-11ea-9140-258850ba51ee.png | width=100)
+![image](https://user-images.githubusercontent.com/558053/71764036-261b5200-2ee3-11ea-9140-258850ba51ee.png){:height="700px" width="400px"
 
 ### Image Processing
 
-![image](https://user-images.githubusercontent.com/558053/71764025-0be17400-2ee3-11ea-84a9-e20000e0f01a.png | width=100)
+![image](https://user-images.githubusercontent.com/558053/71764025-0be17400-2ee3-11ea-84a9-e20000e0f01a.png)
 
 ## Usage
 
