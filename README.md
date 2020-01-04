@@ -4,11 +4,11 @@
 
 ### Volume Processing
 
-![image](https://user-images.githubusercontent.com/558053/71764036-261b5200-2ee3-11ea-9140-258850ba51ee.png)
+![image](https://user-images.githubusercontent.com/558053/71764036-261b5200-2ee3-11ea-9140-258850ba51ee.png | width=100)
 
 ### Image Processing
 
-![image](https://user-images.githubusercontent.com/558053/71764025-0be17400-2ee3-11ea-84a9-e20000e0f01a.png)
+![image](https://user-images.githubusercontent.com/558053/71764025-0be17400-2ee3-11ea-84a9-e20000e0f01a.png | width=100)
 
 ## Usage
 
@@ -18,7 +18,7 @@
    - mapRaw: nX x nY matrix of type single/double
    - depthMap: same size as mapRaw, containing depth info for each xy position
    - x, y: vectors of size nX/nY of type single/double defining size of image
-   - ![image](https://user-images.githubusercontent.com/558053/71764251-bc507780-2ee5-11ea-8d90-28584292e991.png | width=100)
+   - ![image](https://user-images.githubusercontent.com/558053/71764251-bc507780-2ee5-11ea-8d90-28584292e991.png)
 
 2. Volumetric Data - .mat file with the following variables:
    - volData
