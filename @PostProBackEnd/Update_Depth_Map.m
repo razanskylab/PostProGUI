@@ -1,4 +1,5 @@
 function Update_Depth_Map(PPA, imPanel)
+
   persistent oldMip;
   persistent oldDepth;
 
@@ -11,6 +12,8 @@ function Update_Depth_Map(PPA, imPanel)
   if (isempty(PPA.procVolProj) || isempty(PPA.depthInfo))
     return;
   end
+
+  PPA.Start_Wait_Bar('Updating depth map...');
 
   % check if we have new data or if we don't have to update after all...
   mip = PPA.procProj;
@@ -27,7 +30,6 @@ function Update_Depth_Map(PPA, imPanel)
     imPanel = PPA.GUI.imDepthDisp;
   end
 
-  PPA.Start_Wait_Bar('Updating depth map...');
 
   % get all the variables we need here at the top, so we don't affect the
   % Values stored in PPA and displayed in the GUI

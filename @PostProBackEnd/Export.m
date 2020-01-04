@@ -12,6 +12,7 @@ function Export(PPA)
     exportMat = PPA.GUI.ExpMatFile.Value;
     exportLog = PPA.GUI.ExpLogFile.Value;
 
+    % overwrite existing files or creat new ones? ------------------------------
     if ~doOverwrite
       exportCnt = PPA.exportCounter + 1; % used to not overwrite (if checked)
       cntAppend = sprintf('_ver%03.0f', exportCnt);
@@ -20,7 +21,7 @@ function Export(PPA)
       exportCnt = PPA.exportCounter;
     end
 
-    % handle folder and file names, create export folder if neccesary
+    % handle folder and file names, create export folder if neccesary ----------
     exportFolder = PPA.GUI.expFolderPath.Value;
     nameBase = [PPA.GUI.expFileName.Value cntAppend];
 
@@ -28,7 +29,7 @@ function Export(PPA)
       mkdir(exportFolder);
     end
 
-    % generate depth maps and colormaps if we want to export images
+    % generate depth maps and colormaps if we want to export images ------------
     if exportOverview || exportNative
       exportMip = normalize(PPA.procProj); %normalize to be able to properly export
       exportMip = round(256 .* exportMip); % use 256 colors per default, more usually does not make sense
@@ -59,7 +60,7 @@ function Export(PPA)
       c.Ticks = PPA.tickLocations;
       c.TickLabels = PPA.zLabels;
 
-      % export figures
+      % export figures, i.e. overview figures with axis and colorbars etc------
       if PPA.GUI.ExpOverJpg.Value
         exportName = fullfile(exportFolder, [nameBase '_overview.jpg']);
         export_fig(fTemp, exportName);
@@ -88,6 +89,7 @@ function Export(PPA)
       close(fTemp);
     end
 
+    % export native resolution images, w or w/o compression, for best image quality
     if exportNative
       PPA.Start_Wait_Bar('Exporting native projections...');
 
@@ -123,6 +125,9 @@ function Export(PPA)
 
     end
 
+    % currently, volume exporting is not supported as this GUI is mostly
+    % aimed at getting pretty projections, but could be easily added
+    % export map file
     if exportMat
       PPA.Start_Wait_Bar('Exporting mat file...');
       SaveStruct.depthMap = PPA.depthImage;

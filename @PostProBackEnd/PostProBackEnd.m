@@ -99,6 +99,7 @@ classdef PostProBackEnd < BaseClass
     % seperate frangi scales
     frangiCombo(:, :) single {mustBeNumeric, mustBeFinite};
     % combination of frangiFilt & procProj, see Update_Frangi_Combo
+
   end
 
   % plot and other handles

@@ -16,21 +16,19 @@ function Load_Raw_File(PPA, filePath)
     hasXYvectors = ismember('x', variableInfo) && ismember('y', variableInfo);
     % map files don't have dt argument
     hasZector = ismember('z', variableInfo);
-    hasXYZvectors = hasXYvectors && hasZector;
     % check if this dataset is based on the "new" volDataset class
     % https://github.com/hofmannu/MVolume
-    isNewVolData = ismember('volDataset', variableInfo);
-
     PPA.isVolData = ismember('volData', variableInfo) || isNewVolData;
+    isNewVolData = ismember('volDataset', variableInfo);
+    hasDepth = ismember('depthMap', variableInfo);
     isMapData = ismember('mapRaw', variableInfo);
     isOldMapData = ismember('map', variableInfo) &&~isMapData;
-    hasDepth = ismember('depthMap', variableInfo);
-    isValidFile = (hasXYZvectors && PPA.isVolData) || ...
+    isValidFile = (PPA.isVolData && hasXYvectors && hasZector) || ...
       (hasXYvectors && (isMapData || isOldMapData)) || isNewVolData;
 
     if ~isValidFile
       PPA.Stop_Wait_Bar();
-      uialert(PPA.GUI.UIFigure, 'File does not contain volume or map data!', 'Wrong file!');
+      uialert(PPA.GUI.UIFigure, 'File content not in required format!', 'Can''t read file!');
       return;
     end
 
@@ -41,7 +39,7 @@ function Load_Raw_File(PPA, filePath)
     end
 
     % prepare projection panels based on XYZ data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if ~isNewVolData
+    if ~isNewVolData % could be map or volume data 
       PPA.x = MatFile.x;
       PPA.y = MatFile.y;
     else
@@ -51,10 +49,6 @@ function Load_Raw_File(PPA, filePath)
       PPA.x = volDataClass.vecX * 1e3;
       PPA.y = volDataClass.vecY * 1e3;
       PPA.z = volDataClass.vecZ * 1e3; % vol class always has z-vector (I hope)
-    end
-
-    if hasZector
-      PPA.z = MatFile.z;
     end
 
     [folderPath, fileName] = fileparts(PPA.filePath);
@@ -89,14 +83,14 @@ function Load_Raw_File(PPA, filePath)
       PPA.Start_Wait_Bar(statusText);
 
       PPA.rawVol = []; % clear out old data
-      % FIXME calculate depth info properly!!
-      if ~isNewVolData
+
+      if ~isNewVolData % mat file containing volumetric data 
         PPA.dt = MatFile.dt;
+        PPA.z = MatFile.z;
         PPA.rawVol = permute(single(MatFile.volData), [3 1 2]);
-      else
-        PPA.rawVol = volDataClass.vol;
-        % PPA.rawVol = permute(volDataClass.vol, [2 3 1]);
+      else % mat file containing MVolume class
         PPA.dt = volDataClass.dZ * 1e-3;
+        PPA.rawVol = volDataClass.vol;
       end
 
       % setup gui element limits etc based on volume size ----------------------

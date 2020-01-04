@@ -1,11 +1,29 @@
 # Post Processing App Notes
 
+## Overview
+
+## Usage
+
+### Supported Data Formats
+
+1. Map Data - .mat file with the following variables:
+   - map: nX x nY matrix of type single/double
+   - dt: sampling period, i.e. 1./(sampling frequency), scalar 
+   - x, y: vectors of size nX/nY of type single/double defining size of image
+2. Volumetric Data - .mat file with the following variables:
+   - volData
+   - dt
+   - x, y, z
+   - add image here
+3. MVolume Class - see <https://github.com/razanskylab/MVolume>
+4. TODO Tiff or Tiff-Stack
+
 ## General Structure
 
 - PostProGUI.mlapp
   - defines GUI layout and callbacks but basically no functionality
 - @PostProBackEnd
-  - class definition for class that does the actual processing, i.e. loading, processing and exporting of data
+  - class that does the actual processing, i.e. loading, processing and exporting of data
 
 ## PostProApp sub classes
 
