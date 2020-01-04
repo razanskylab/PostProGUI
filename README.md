@@ -18,7 +18,7 @@
    - mapRaw: nX x nY matrix of type single/double
    - depthMap: same size as mapRaw, containing depth info for each xy position
    - x, y: vectors of size nX/nY of type single/double defining size of image
-   - ![image](https://user-images.githubusercontent.com/558053/71764251-bc507780-2ee5-11ea-8d90-28584292e991.png)
+   - ![image](https://user-images.githubusercontent.com/558053/71764251-bc507780-2ee5-11ea-8d90-28584292e991.png | width=100)
 
 2. Volumetric Data - .mat file with the following variables:
    - volData
