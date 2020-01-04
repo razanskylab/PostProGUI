@@ -14,7 +14,7 @@
    - volData
    - dt
    - x, y, z
-   - add image here
+   - ![image](https://user-images.githubusercontent.com/558053/71764000-b9a05300-2ee2-11ea-82dc-31744f20bc9c.png)
 3. MVolume Class - see <https://github.com/razanskylab/MVolume>
 4. TODO Tiff or Tiff-Stack
 
