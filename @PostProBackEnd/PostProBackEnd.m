@@ -15,6 +15,9 @@ classdef PostProBackEnd < BaseClass
   %
 
   properties
+    doBatchProcessing(1,1) {mustBeNumericOrLogical, mustBeFinite} = 0; % flag which causes automatic processing and blocking of
+      % dialogs etc
+
     isVolData = 0; % true when 3D data was loaded, which has a big influence
     % on the  overall processing we are doing
 
@@ -106,11 +109,15 @@ classdef PostProBackEnd < BaseClass
   properties
     % handle to GUI app
     GUI;
+    LoadGUI; % handle to app for loading raw files
     ProgBar;
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   properties (Dependent = true)
+    fileName;
+    folderPath;
+
     nX; nY; nZ; % size of procVol
     zPlot; xPlot; yPlot;
     dR; % spatial resolution = pixel size
@@ -197,6 +204,16 @@ classdef PostProBackEnd < BaseClass
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods % SET / GET methods
+    % raw untouched vol
+    function fileName = get.fileName(PPA)
+      [~, fileName, ext] = fileparts(PPA.filePath);
+      fileName = [fileName ext]; % we also want the extention
+    end
+
+    function folderPath = get.folderPath(PPA)
+      folderPath = fileparts(PPA.filePath);
+    end
+          
     % SET functions for all volumes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % NOTE all volumes are updated if any of the "previous" volumes is changed
     % in the end, they are all dependet variables, but recal everything every
