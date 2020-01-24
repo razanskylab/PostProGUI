@@ -1,4 +1,7 @@
 function Preview_File_Content(PPA)
+  d = uiprogressdlg(PPA.LoadGUI.UIFigure, 'Title', 'Previewing file...', ...
+  'Indeterminate', 'on');
+  figure(PPA.LoadGUI.UIFigure);
   MatFile = matfile(PPA.filePath);
   FileContent = whos(MatFile);
 
@@ -24,4 +27,6 @@ function Preview_File_Content(PPA)
   % if we have a variable called map, display it...
   prevMap = uint8(normalize(MatFile.map) .* 255);
   PPA.LoadGUI.PrevImage.ImageSource = ind2rgb(prevMap, gray(256));
+  close(d);
+  figure(PPA.LoadGUI.UIFigure);
 end
