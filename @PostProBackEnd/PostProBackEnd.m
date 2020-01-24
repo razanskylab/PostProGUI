@@ -116,7 +116,9 @@ classdef PostProBackEnd < BaseClass
   properties
     % handle to GUI app
     GUI;
+    MasterGUI;
     LoadGUI; % handle to app for loading raw files
+    VolGUI;
     ProgBar;
   end
 

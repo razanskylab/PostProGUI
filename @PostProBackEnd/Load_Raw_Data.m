@@ -62,6 +62,8 @@ function Load_Raw_Data(PPA)
       case 4% image file
     end
 
+    PPA.Handle_Master_Gui_State('load_complete');
+
     close(ProgBar);
   catch ME
     close(ProgBar);
