@@ -15,11 +15,14 @@ classdef PostProBackEnd < BaseClass
   %
 
   properties
-    doBatchProcessing(1,1) {mustBeNumericOrLogical, mustBeFinite} = 0; % flag which causes automatic processing and blocking of
-      % dialogs etc
+    doBatchProcessing(1, 1) {mustBeNumericOrLogical, mustBeFinite} = 0; % flag which causes automatic processing and blocking of
+    % dialogs etc
+    processingEnabled = false; % if true, enables "automatic" processing cascade
 
     isVolData = 0; % true when 3D data was loaded, which has a big influence
     % on the  overall processing we are doing
+    fileType(1, 1) {mustBeNumeric, mustBeFinite} = 0; 
+    % 0 = invalid file, 1 = mat file, 2 = mVolume file, 3 = tiff stack, 4 = image file
 
     % sub-classes for processing
     FRFilt = Frangi_Filter();
@@ -30,6 +33,10 @@ classdef PostProBackEnd < BaseClass
     filePath = 'C:\Data';
     exportPath = [];
     batchPath = []; % folder to search for mat files for batch processing
+    % file info
+    MatFileVars; %  who('-file', PPA.filePath);
+    MatFile; %      matfile(PPA.filePath);
+    FileContent; %  whos(PPA.MatFile);
 
     % x,y,z - original position and depth vectors as loaded from the mat file
     % these are only changed during load, the vectors used for plotting are depended
@@ -117,6 +124,9 @@ classdef PostProBackEnd < BaseClass
   properties (Dependent = true)
     fileName;
     folderPath;
+    fileExists;
+    fileExt; 
+
 
     nX; nY; nZ; % size of procVol
     zPlot; xPlot; yPlot;
@@ -206,14 +216,38 @@ classdef PostProBackEnd < BaseClass
   methods % SET / GET methods
     % raw untouched vol
     function fileName = get.fileName(PPA)
-      [~, fileName, ext] = fileparts(PPA.filePath);
-      fileName = [fileName ext]; % we also want the extention
+      if ~isempty(PPA.filePath)
+        [~, fileName, ext] = fileparts(PPA.filePath);
+        fileName = [fileName ext]; % we also want the extention
+      else
+        fileName = [];
+      end
     end
 
     function folderPath = get.folderPath(PPA)
-      folderPath = fileparts(PPA.filePath);
+      if ~isempty(PPA.filePath)
+        folderPath = fileparts(PPA.filePath);
+      else
+        folderPath = [];
+      end
     end
-          
+
+    function fileExists = get.fileExists(PPA)
+      if ~isempty(PPA.filePath)
+        fileExists = (exist(PPA.filePath, 'file') == 2);
+      else
+        fileExists = false;
+      end
+    end
+
+    function fileExt = get.fileExt(PPA)
+      if ~isempty(PPA.filePath)
+        [~, ~, fileExt] = fileparts(PPA.filePath);
+      else
+        fileExt = [];
+      end
+    end
+
     % SET functions for all volumes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % NOTE all volumes are updated if any of the "previous" volumes is changed
     % in the end, they are all dependet variables, but recal everything every
@@ -225,7 +259,7 @@ classdef PostProBackEnd < BaseClass
     function set.rawVol(PPA, newRawVol)
       PPA.rawVol = newRawVol;
 
-      if ~isempty(newRawVol)
+      if ~isempty(newRawVol) && PPA.processingEnabled
         PPA.Down_Sample_Volume();
       end
 
@@ -295,7 +329,7 @@ classdef PostProBackEnd < BaseClass
     function set.procVolProj(PPA, newProj)
       PPA.procVolProj = newProj;
 
-      if ~isempty(PPA.procVolProj)
+      if ~isempty(PPA.procVolProj) && PPA.processingEnabled
         PPA.Apply_Image_Processing(); % this sets a new procProj
       end
 
