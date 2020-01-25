@@ -136,7 +136,6 @@ classdef PostProBackEnd < BaseClass
     xPlot; yPlot; zPlot; % XYZ vectors for plotting of volume data
     xPlotIm; yPlotIm; % XYZ vectors for plotting of map data
 
-    dR; % spatial resolution = pixel size
     % re-sampled versions of orig x and y vectors
     cropRange(1, :) {mustBeNumeric, mustBeFinite};
     centers(1, 3) {mustBeNumeric, mustBeFinite};
