@@ -13,9 +13,10 @@ function Load_Raw_Data(PPA)
       error('File format not correct!');
     end
 
-    progBarStr = sprintf('Loading raw data %s', PPA.fileName);
+    progBarStr = sprintf('Loading raw data %s\n', PPA.fileName);
     ProgBar = uiprogressdlg(PPA.LoadGUI.UIFigure, 'Title', progBarStr, ...
       'Indeterminate', 'on');
+    PPA.Update_Status(progBarStr);
 
     % clean out old data
     PPA.frangiFilt = [];
@@ -52,6 +53,8 @@ function Load_Raw_Data(PPA)
 
       case 2% mVolume file
         ProgBar.Message = 'Loading volDataset class...';
+        PPA.Update_Status(ProgBar.Message);
+
         volDataClass = PPA.MatFile.volDataset; % this takes quite a bit of time...
         PPA.x = volDataClass.vecX * 1e3;
         PPA.y = volDataClass.vecY * 1e3;

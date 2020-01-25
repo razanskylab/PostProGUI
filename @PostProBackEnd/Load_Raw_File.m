@@ -1,4 +1,4 @@
-function Load_Raw_File(PPA, filePath)
+function Load_Raw_File(PPA)
 
   try
     % setup imaging panels once for new data set

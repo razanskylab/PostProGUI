@@ -1,8 +1,11 @@
 function Preview_File_Content(PPA)
 
   try
-    ProgBar = uiprogressdlg(PPA.LoadGUI.UIFigure, 'Title', 'Previewing file...', ...
+    progBarStr = sprintf('Previewing file %s\n', PPA.fileName);
+    ProgBar = uiprogressdlg(PPA.LoadGUI.UIFigure, 'Title', progBarStr, ...
       'Indeterminate', 'on');
+    PPA.Update_Status(progBarStr);
+
     figure(PPA.LoadGUI.UIFigure);
     % make sure file exists...
     if ~PPA.fileExists

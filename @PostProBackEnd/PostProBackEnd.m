@@ -21,7 +21,7 @@ classdef PostProBackEnd < BaseClass
 
     isVolData = 0; % true when 3D data was loaded, which has a big influence
     % on the  overall processing we are doing
-    fileType(1, 1) {mustBeNumeric, mustBeFinite} = 0; 
+    fileType(1, 1) {mustBeNumeric, mustBeFinite} = 0;
     % 0 = invalid file, 1 = mat file, 2 = mVolume file, 3 = tiff stack, 4 = image file
 
     % sub-classes for processing
@@ -127,13 +127,16 @@ classdef PostProBackEnd < BaseClass
     fileName;
     folderPath;
     fileExists;
-    fileExt; 
+    fileExt;
 
+    nX; nY; nZ; % size of processed volume (or rawVol if procVol = [])
+    nXIm; nYIm; % size of interpolated/downsampled image
+    dX; dY; dZ; % resoltuion/step size of processed  volume
+    dXIm; dYIm; % resoltuion/step size of processed  volume
+    xPlot; yPlot; zPlot; % XYZ vectors for plotting of volume data
+    xPlotIm; yPlotIm; % XYZ vectors for plotting of map data
 
-    nX; nY; nZ; % size of procVol
-    zPlot; xPlot; yPlot;
     dR; % spatial resolution = pixel size
-    nXF; nYF; nZF; % actual size of interpolated/downsampled volume / image
     % re-sampled versions of orig x and y vectors
     cropRange(1, :) {mustBeNumeric, mustBeFinite};
     centers(1, 3) {mustBeNumeric, mustBeFinite};
@@ -183,16 +186,8 @@ classdef PostProBackEnd < BaseClass
         statusText = sprintf(repmat('-', 1, 66));
       end
 
-      PPA.GUI.StatusText.Value = sprintf('[Status] %s', statusText);
-      PPA.GUI.DebugText.Items = [PPA.GUI.DebugText.Items statusText];
-      PPA.GUI.DebugText.scroll('bottom');
-    end
-
-    function Update_Size_Info(PPA)
-      PPA.GUI.nX.Value = PPA.nXF;
-      PPA.GUI.nY.Value = PPA.nYF;
-      PPA.GUI.nZ.Value = PPA.nZF;
-      PPA.GUI.dR.Value = PPA.dR;
+      PPA.MasterGUI.DebugText.Items = [PPA.MasterGUI.DebugText.Items statusText];
+      PPA.MasterGUI.DebugText.scroll('bottom');
     end
 
   end
@@ -216,38 +211,47 @@ classdef PostProBackEnd < BaseClass
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods % SET / GET methods
-    % raw untouched vol
+
+    % file handling set/get methods %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function fileName = get.fileName(PPA)
+
       if ~isempty(PPA.filePath)
         [~, fileName, ext] = fileparts(PPA.filePath);
         fileName = [fileName ext]; % we also want the extention
       else
         fileName = [];
       end
+
     end
 
     function folderPath = get.folderPath(PPA)
+
       if ~isempty(PPA.filePath)
         folderPath = fileparts(PPA.filePath);
       else
         folderPath = [];
       end
+
     end
 
     function fileExists = get.fileExists(PPA)
+
       if ~isempty(PPA.filePath)
         fileExists = (exist(PPA.filePath, 'file') == 2);
       else
         fileExists = false;
       end
+
     end
 
     function fileExt = get.fileExt(PPA)
+
       if ~isempty(PPA.filePath)
         [~, ~, fileExt] = fileparts(PPA.filePath);
       else
         fileExt = [];
       end
+
     end
 
     % SET functions for all volumes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -381,19 +385,112 @@ classdef PostProBackEnd < BaseClass
 
     end
 
-    % OTHER set / get functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % set / get functions for postions etc %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % nX; nY; nZ; % size of processed volume (or rawVol if procVol = [])
+    % nXIm; nYIm; % size of interpolated/downsampled image
+    % dX; dY; dZ; % resoltuion/step size of processed  volume
+    % dXI; dYI; % resoltuion/step size of processed  volume
+    % zPlot; xPlot; yPlot; % XYZ vectors for plotting of volume data
+    % xPlotIm; yPlotIm; % XYZ vectors for plotting of map data
+
+    %---------------------------------------------------------------
+    %---------------------------------------------------------------
     function nX = get.nX(PPA)
-      nX = size(PPA.procVol, 1);
+
+      if isempty(PPA.procVol)
+        nX = size(PPA.rawVol, 2); % raw vol order [zxy]
+      else
+        nX = size(PPA.procVol, 1); % proc vol order [xyz]
+      end
+
     end
 
+    %---------------------------------------------------------------
+    function nXIm = get.nXIm(PPA)% size of interpolated/downsampled image
+      nXIm = size(PPA.procProj, 1);
+    end
+
+    %---------------------------------------------------------------
+    function xPlot = get.xPlot(PPA)
+
+      if PPA.doVolDownSampling
+        xPlot = PPA.x(1:PPA.volSplFactor(1):end);
+      else
+        xPlot = PPA.x;
+      end
+
+    end
+
+    %---------------------------------------------------------------
+    function xPlotIm = get.xPlotIm(PPA)
+      xPlotIm = PPA.xPlot;
+      % TODO - needs to be adjusted if interpolated
+    end
+
+    %---------------------------------------------------------------
+    function dX = get.dX(PPA)% step size of processed volume
+      dX = mean(diff(PPA.xPlot));
+    end
+
+    %---------------------------------------------------------------
+    function dXIm = get.dXIm(PPA)% step size of processed volume
+      dXIm = mean(diff(PPA.xPlotIm));
+    end
+
+    %---------------------------------------------------------------
     %---------------------------------------------------------------
     function nY = get.nY(PPA)
-      nY = size(PPA.procVol, 2);
+
+      if isempty(PPA.procVol)
+        nY = size(PPA.rawVol, 3); % raw vol order [zxy]
+      else
+        nY = size(PPA.procVol, 2); % proc vol order [xyz]
+      end
+
     end
 
     %---------------------------------------------------------------
+    function nYIm = get.nYIm(PPA)
+      nYIm = size(PPA.procProj, 2);
+    end
+
+    %---------------------------------------------------------------
+    function yPlot = get.yPlot(PPA)
+
+      if PPA.doVolDownSampling
+        yPlot = PPA.y(1:PPA.volSplFactor(1):end);
+      else
+        yPlot = PPA.y;
+      end
+
+    end
+
+    %---------------------------------------------------------------
+    function yPlotIm = get.yPlotIm(PPA)
+      yPlotIm = PPA.yPlot;
+      % TODO - needs to be adjusted if interpolated
+    end
+
+    %---------------------------------------------------------------
+    function dY = get.dY(PPA)% step size of processed volume
+      dY = mean(diff(PPA.yPlot));
+    end
+
+    %---------------------------------------------------------------
+    function dYIm = get.dYIm(PPA)% step size of processed volume
+      dYIm = mean(diff(PPA.yPlotIm));
+    end
+
+    %---------------------------------------------------------------
+    %---------------------------------------------------------------
     function nZ = get.nZ(PPA)
-      nZ = size(PPA.procVol, 3);
+
+      if isempty(PPA.procVol)
+        nZ = size(PPA.rawVol, 1); % raw vol order [zxy]
+      else
+        nZ = size(PPA.procVol, 3); % proc vol order [xyz]
+      end
+
     end
 
     %---------------------------------------------------------------
@@ -404,13 +501,18 @@ classdef PostProBackEnd < BaseClass
       else
         zPlot = PPA.z;
       end
-
       % cropping ranges do not take into account downsampling
       if PPA.doVolCropping
         zPlot = zPlot(PPA.cropRange);
       end
-
     end
+
+    %---------------------------------------------------------------
+    function dZ = get.dZ(PPA)% step size of processed volume
+      dZ = mean(diff(PPA.zPlot));
+    end
+
+    % OTHER set / get functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %---------------------------------------------------------------
     function cropRange = get.cropRange(PPA)
@@ -433,28 +535,6 @@ classdef PostProBackEnd < BaseClass
       else
         cropRange = 1:PPA.nZ; % nZ is number of samples of proc Volume...
         % thus it takes into account downsampling already...
-      end
-
-    end
-
-    %---------------------------------------------------------------
-    function xPlot = get.xPlot(PPA)
-
-      if PPA.doVolDownSampling
-        xPlot = PPA.x(1:PPA.volSplFactor(1):end);
-      else
-        xPlot = PPA.x;
-      end
-
-    end
-
-    %---------------------------------------------------------------
-    function yPlot = get.yPlot(PPA)
-
-      if PPA.doVolDownSampling
-        yPlot = PPA.y(1:PPA.volSplFactor(1):end);
-      else
-        yPlot = PPA.y;
       end
 
     end
@@ -521,32 +601,6 @@ classdef PostProBackEnd < BaseClass
 
     end
 
-    %---------------------------------------------------------------
-    function nXF = get.nXF(PPA)
-      nXF = size(PPA.procProj, 1);
-    end
-
-    function nYF = get.nYF(PPA)
-      nYF = size(PPA.procProj, 2);
-    end
-
-    function nZF = get.nZF(PPA)
-      nZF = size(PPA.procVol, 3);
-    end
-
-    function dR = get.dR(PPA)
-      dR = mean(diff(PPA.x)) * 1e3; % in micron
-
-      if PPA.doVolDownSampling
-        dR = dR .* PPA.volSplFactor(1);
-      end
-
-      if PPA.doImInterpolate
-        dR = dR ./ PPA.imInterpFct;
-      end
-
-    end
-
     % Image processing settings from GUI ---------------------------------------
     function doImSpotRemoval = get.doImSpotRemoval(PPA)
       doImSpotRemoval = PPA.GUI.SpotRemovalCheckBox.Value;
@@ -563,17 +617,6 @@ classdef PostProBackEnd < BaseClass
     function imInterpFct = get.imInterpFct(PPA)
       imInterpFct = PPA.GUI.imInterpFct.Value;
     end
-
-    %---------------------------------------------------------------
-    % function frangiFilt = get.frangiFilt(PPA)
-    %   % make sure to calculate frangi fitlered image...
-    %   if isempty(PPA.frangiFilt)
-    %     PPA.Apply_Frangi();
-    %   else
-    %     frangiFilt = PPA.frangiFilt;
-    %   end
-
-    % end
 
   end
 

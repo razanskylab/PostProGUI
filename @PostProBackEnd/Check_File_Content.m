@@ -27,8 +27,9 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
 
       % check if this dataset is based on the "new" volDataset class
       % https://github.com/hofmannu/MVolume
-%       isMVolume = ismember('volDataset', PPA.MatFileVars);
-      isMVolume = strcmp(PPA.FileContent(1).class,'VolumetricDataset');
+      %       isMVolume = ismember('volDataset', PPA.MatFileVars);
+      isMVolume = strcmp(PPA.FileContent(1).class, 'VolumetricDataset');
+
       if isMVolume
         PPA.fileType = 2; % we handle the volDataset class differently...
       end
