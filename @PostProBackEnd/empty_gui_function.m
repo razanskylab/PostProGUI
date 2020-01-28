@@ -1,13 +1,12 @@
-function Function_Name_Here(PPA)
+function empty_gui_function(PPA)
   % Function_Name_Here()
   % what is this function doing?
   try
-    titleStr = sprintf('');
-    d = uiprogressdlg(PPA.LoadGUI.UIFigure, 'Title', titleStr, ...
-      'Indeterminate', 'on');
-    close(d);
+    % PPA.Start_Wait_Bar(PPA.LoadGUI, 'test')
+    PPA.Start_Wait_Bar(PPA.App, 'test')
+    
   catch ME
-    close(d);
+    PPA.Stop_Wait_Bar();
     rethrow(ME);
   end
 

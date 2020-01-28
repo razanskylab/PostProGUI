@@ -66,6 +66,15 @@ classdef PostProBackEnd < BaseClass
 
     % frangi scales are either entered manually or calculated, thus not a dependend variable
     scalesToUse;
+
+    % projections from the processed volume (procVol)
+    % NOTE: do not make part of AbortSet as otherwise clahe filtering settings
+    % will be ignored
+    procVolProj(:, :) single {mustBeNumeric, mustBeFinite}; % untouched proj. from procVol
+    xzProc(:, :) single {mustBeNumeric, mustBeFinite};
+    yzProc(:, :) single {mustBeNumeric, mustBeFinite};
+    xzSlice(:, :) single {mustBeNumeric, mustBeFinite};
+    yzSlice(:, :) single {mustBeNumeric, mustBeFinite};
   end
 
   properties (AbortSet)
@@ -90,12 +99,6 @@ classdef PostProBackEnd < BaseClass
     % NOTE all volumes are updated if any of the "previous" volumes is changed
     % in the end, they are all dependet variables, but recalculating everything
 
-    procVolProj(:, :) single {mustBeNumeric, mustBeFinite}; % untouched proj. from procVol
-    xzProc(:, :) single {mustBeNumeric, mustBeFinite};
-    yzProc(:, :) single {mustBeNumeric, mustBeFinite};
-    xzSlice(:, :) single {mustBeNumeric, mustBeFinite};
-    yzSlice(:, :) single {mustBeNumeric, mustBeFinite};
-
     % final processed image <----
     procProj(:, :) single {mustBeNumeric, mustBeFinite};
 
@@ -114,11 +117,11 @@ classdef PostProBackEnd < BaseClass
 
   % plot and other handles
   properties
-    % handle to GUI app
-    GUI;
+    % handles to GUI apps
     MasterGUI;
     LoadGUI; % handle to app for loading raw files
     VolGUI;
+    MapGUI;
     ProgBar;
   end
 
@@ -167,9 +170,9 @@ classdef PostProBackEnd < BaseClass
     function PPA = PostProBackEnd()
     end
 
-    function Start_Wait_Bar(PPA, waitBarText)
+    function Start_Wait_Bar(PPA, GuiApp, waitBarText)
       % start Indeterminate progress bar
-      PPA.ProgBar = uiprogressdlg(PPA.GUI.UIFigure, 'Title', waitBarText, ...
+      PPA.ProgBar = uiprogressdlg(GuiApp.UIFigure, 'Title', waitBarText, ...
         'Indeterminate', 'on');
       PPA.Update_Status(waitBarText);
       drawnow();
@@ -304,12 +307,7 @@ classdef PostProBackEnd < BaseClass
       depthMap = PPA.z(depthMap); % replace idx value with actual depth in mm
       PPA.depthInfo = single(depthMap);
       PPA.rawDepthInfo = single(depthMap);
-      PPA.procVolProj = PPA.Get_Volume_Projections(newProcVol, 3); %% xy projection, i.e. normal MIP
-      PPA.xzProc = PPA.Get_Volume_Projections(newProcVol, 2);
-      PPA.yzProc = PPA.Get_Volume_Projections(newProcVol, 1);
-      PPA.Update_Slice_Lines();
-      % when we are done with all of this, we stop the waitbar...
-      PPA.Stop_Wait_Bar();
+      PPA.Update_Vol_Projections();
     end
 
     % SET functions for all projections / MIPS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -320,12 +318,10 @@ classdef PostProBackEnd < BaseClass
     % this is also the basis for the depth map and what we export
     function set.procProj(PPA, newProj)
       PPA.procProj = newProj;
-      PPA.Update_Image_Panel(PPA.GUI.FiltDisp, newProj, 3);
-      % PPA.Update_Image_Panel(PPA.GUI.imFiltDisp, newProj,3);
-      plotAx = PPA.GUI.imFiltDisp.Children(1);
-      set(plotAx, 'cdata', newProj);
-      PPA.Update_Depth_Map(PPA.GUI.imDepthDisp);
-      PPA.Stop_Wait_Bar();
+      % TODO once we have map GUI
+      % plotAx = PPA.MapGUI.imFiltDisp.Children(1);
+      % set(plotAx, 'cdata', newProj);
+      % PPA.Update_Depth_Map(PPA.MapGUI.imDepthDisp);
     end
 
     % untouched proj. from procVol NOTE this is the one we set when we only load
@@ -333,8 +329,13 @@ classdef PostProBackEnd < BaseClass
     % enhancements etc...
     function set.procVolProj(PPA, newProj)
       PPA.procVolProj = newProj;
+      
+      if ~isempty(PPA.procVolProj)
+          newProj = PPA.Apply_Image_Processing_Simple(newProj);
+          PPA.Update_Image_Panel(PPA.VolGUI.FiltDisp, newProj, 3);
+      end
 
-      if ~isempty(PPA.procVolProj) && PPA.processingEnabled
+      if ~isempty(PPA.procVolProj) && ~isempty(PPA.MapGUI) && PPA.processingEnabled
         PPA.Apply_Image_Processing(); % this sets a new procProj
       end
 
@@ -346,7 +347,7 @@ classdef PostProBackEnd < BaseClass
 
       if ~isempty(PPA.xzProc)
         newProj = PPA.Apply_Image_Processing_Simple(newProj);
-        PPA.Update_Image_Panel(PPA.GUI.xzProjDisp, newProj, 2);
+        PPA.Update_Image_Panel(PPA.VolGUI.xzProjDisp, newProj, 2);
       end
 
     end
@@ -357,7 +358,7 @@ classdef PostProBackEnd < BaseClass
 
       if ~isempty(PPA.yzProc)
         newProj = PPA.Apply_Image_Processing_Simple(newProj);
-        PPA.Update_Image_Panel(PPA.GUI.yzProjDisp, newProj, 1);
+        PPA.Update_Image_Panel(PPA.VolGUI.yzProjDisp, newProj, 1);
       end
 
     end
@@ -368,7 +369,7 @@ classdef PostProBackEnd < BaseClass
 
       if ~isempty(PPA.xzSlice)
         newProj = PPA.Apply_Image_Processing_Simple(newProj);
-        PPA.Update_Image_Panel(PPA.GUI.xzSliceDisp, newProj, 2);
+        PPA.Update_Image_Panel(PPA.VolGUI.xzSliceDisp, newProj, 2);
       end
 
     end
@@ -379,7 +380,7 @@ classdef PostProBackEnd < BaseClass
 
       if ~isempty(PPA.yzSlice)
         newProj = PPA.Apply_Image_Processing_Simple(newProj);
-        PPA.Update_Image_Panel(PPA.GUI.yzSliceDisp, newProj, 1);
+        PPA.Update_Image_Panel(PPA.VolGUI.yzSliceDisp, newProj, 1);
       end
 
     end
@@ -521,8 +522,8 @@ classdef PostProBackEnd < BaseClass
         % downsampling
 
         % get "original" start and stop indicies e.g. 50:450
-        startIdx = PPA.GUI.zCropLowEdit.Value;
-        stopIdx = PPA.GUI.zCropHighEdit.Value;
+        startIdx = PPA.VolGUI.zCropLowEdit.Value;
+        stopIdx = PPA.VolGUI.zCropHighEdit.Value;
 
         % correct for potential volumetric downsampling e.g. 50:450 -> 25:225
         if PPA.doVolDownSampling
@@ -538,38 +539,38 @@ classdef PostProBackEnd < BaseClass
 
     end
 
-    % volume processing settings, taken from GUI -------------------------------
+    % volume processing settings, taken from VolGUI -------------------------------
     function doVolCropping = get.doVolCropping(PPA)
-      doVolCropping = PPA.GUI.CropCheck.Value;
+      doVolCropping = PPA.VolGUI.CropCheck.Value;
     end
 
     %---------------------------------------------------------------
     function doVolDownSampling = get.doVolDownSampling(PPA)
-      doVolDownSampling = PPA.GUI.DwnSplCheck.Value;
+      doVolDownSampling = PPA.VolGUI.DwnSplCheck.Value;
     end
 
     %---------------------------------------------------------------
     function volSplFactor = get.volSplFactor(PPA)
-      volSplFactor(1) = PPA.GUI.DwnSplFactorEdit.Value;
-      volSplFactor(2) = PPA.GUI.DepthDwnSplFactorEdit.Value;
+      volSplFactor(1) = PPA.VolGUI.DwnSplFactorEdit.Value;
+      volSplFactor(2) = PPA.VolGUI.DepthDwnSplFactorEdit.Value;
     end
 
     %---------------------------------------------------------------
     function volMedFilt = get.volMedFilt(PPA)
-      volMedFilt(1) = PPA.GUI.MedFiltX.Value;
-      volMedFilt(2) = PPA.GUI.MedFiltY.Value;
-      volMedFilt(3) = PPA.GUI.MedFiltZ.Value;
+      volMedFilt(1) = PPA.VolGUI.MedFiltX.Value;
+      volMedFilt(2) = PPA.VolGUI.MedFiltY.Value;
+      volMedFilt(3) = PPA.VolGUI.MedFiltZ.Value;
     end
 
     %---------------------------------------------------------------
     function doVolPolarity = get.doVolPolarity(PPA)
-      doVolPolarity = PPA.GUI.PolarityCheck.Value;
+      doVolPolarity = PPA.VolGUI.PolarityCheck.Value;
     end
 
     %---------------------------------------------------------------
     function volPolarity = get.volPolarity(PPA)
 
-      switch PPA.GUI.PolarityDropDown.Value
+      switch PPA.VolGUI.PolarityDropDown.Value
         case 'Positive'
           volPolarity = 1;
         case 'Negative'
@@ -584,7 +585,7 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function doVolMedianFilter = get.doVolMedianFilter(PPA)
-      doVolMedianFilter = PPA.GUI.MedFiltCheck.Value;
+      doVolMedianFilter = PPA.VolGUI.MedFiltCheck.Value;
     end
 
     %---------------------------------------------------------------
@@ -602,19 +603,19 @@ classdef PostProBackEnd < BaseClass
 
     % Image processing settings from GUI ---------------------------------------
     function doImSpotRemoval = get.doImSpotRemoval(PPA)
-      doImSpotRemoval = PPA.GUI.SpotRemovalCheckBox.Value;
+      doImSpotRemoval = PPA.MapGUI.SpotRemovalCheckBox.Value;
     end
 
     function imSpotLevel = get.imSpotLevel(PPA)
-      imSpotLevel = PPA.GUI.imSpotRem.Value;
+      imSpotLevel = PPA.MapGUI.imSpotRem.Value;
     end
 
     function doImInterpolate = get.doImInterpolate(PPA)
-      doImInterpolate = PPA.GUI.InterpolateCheckBox.Value;
+      doImInterpolate = PPA.MapGUI.InterpolateCheckBox.Value;
     end
 
     function imInterpFct = get.imInterpFct(PPA)
-      imInterpFct = PPA.GUI.imInterpFct.Value;
+      imInterpFct = PPA.MapGUI.imInterpFct.Value;
     end
 
   end

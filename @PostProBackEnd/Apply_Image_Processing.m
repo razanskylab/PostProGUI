@@ -1,9 +1,6 @@
 function Apply_Image_Processing(PPA)
 
   try
-    PPA.Update_Status(); % prints hor. bar
-    PPA.Update_Controls();
-
     if isempty(PPA.procVolProj)
       return;
     end

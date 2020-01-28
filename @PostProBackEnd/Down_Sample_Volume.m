@@ -9,7 +9,7 @@ function Down_Sample_Volume(PPA)
 
     if PPA.doVolDownSampling
       statusText = sprintf('Downsampling volumetric data (lateral x%i depth x%i).', PPA.volSplFactor);
-      PPA.Start_Wait_Bar(statusText);
+      PPA.Start_Wait_Bar(PPA.VolGUI,statusText);
       PPA.dsVol = PPA.rawVol(1:PPA.volSplFactor(2):end, ...
         1:PPA.volSplFactor(1):end, 1:PPA.volSplFactor(1):end);
       PPA.Stop_Wait_Bar();

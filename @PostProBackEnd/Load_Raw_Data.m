@@ -18,6 +18,9 @@ function Load_Raw_Data(PPA)
       'Indeterminate', 'on');
     PPA.Update_Status(progBarStr);
 
+    % disable automatic raw volume processing cascade 
+    PPA.processingEnabled = false; % this will start the raw-processing cascade
+
     % clean out old data
     PPA.frangiFilt = [];
     PPA.frangiScales = [];
@@ -36,12 +39,12 @@ function Load_Raw_Data(PPA)
           PPA.dt = PPA.MatFile.dt;
           PPA.z = PPA.MatFile.z;
           PPA.rawVol = permute(single(PPA.MatFile.volData), [3 1 2]);
-        end
-
-        if ismember('mapRaw', PPA.MatFileVars)% new map data
-          PPA.procVolProj = single(PPA.MatFile.mapRaw);
-        elseif ismember('map', PPA.MatFileVars)% old map data
-          PPA.procVolProj = single(PPA.MatFile.map'); % transpose needed!
+        else
+          if ismember('mapRaw', PPA.MatFileVars)% new map data
+            PPA.procVolProj = single(PPA.MatFile.mapRaw);
+          elseif ismember('map', PPA.MatFileVars)% old map data
+            PPA.procVolProj = single(PPA.MatFile.map'); % transpose needed!
+          end
         end
 
         % check if we have a depth map as well?
@@ -65,9 +68,10 @@ function Load_Raw_Data(PPA)
       case 4% image file
     end
 
-    PPA.Handle_Master_Gui_State('load_complete');
 
     close(ProgBar);
+    PPA.Handle_Master_Gui_State('load_complete');
+
   catch ME
     close(ProgBar);
     rethrow(ME);

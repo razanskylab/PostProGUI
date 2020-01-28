@@ -28,6 +28,7 @@ function Handle_Master_Gui_State(PPA, ~)
       [num2sip(volBytes, 3, false, true) 'B'];
 
     % auto load next step in processing...
+    PPA.processingEnabled = true(); % this will start the raw-processing cascade
     PPA.MasterGUI.Open_Vol_Gui();
   else
     PPA.MasterGUI.VolumeProcessingButton.Enable = false;
@@ -64,11 +65,11 @@ function Handle_Master_Gui_State(PPA, ~)
   % bring figure windows to front if needed
   figure(PPA.MasterGUI.UIFigure);
 
-  if ishandle(PPA.VolGUI)
+  if ~isempty(PPA.VolGUI)
     figure(PPA.VolGUI.UIFigure);
   end
 
-  if ishandle(PPA.VolGUI)
+  if ~isempty(PPA.MapGUI)
     figure(PPA.MapGUI.UIFigure);
   end
 

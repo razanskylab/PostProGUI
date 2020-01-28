@@ -1,23 +1,16 @@
-function [filtIm] = Apply_Image_Processing_Simple(PPA,baseIm)
+function [filtIm] = Apply_Image_Processing_Simple(PPA, baseIm)
 
-  interpFactor = PPA.GUI.imInterpFct.Value;
-  IMF = Image_Filter(baseIm);
-
-  if PPA.GUI.InterpolateCheckBox.Value
-    IMF.Interpolate(interpFactor);
-    % also interpolate depth data, so they match for later overlay...
-  end
-
-  if PPA.GUI.ContrastCheck.Value
+  if PPA.VolGUI.VolClaheCheckBox.Value
+    IMF = Image_Filter(baseIm);
     % setup clahe filter with latest values
-    IMF.claheDistr = PPA.GUI.ClaheDistr.Value;
-    IMF.claheNBins = str2double(PPA.GUI.ClaheBins.Value);
-    IMF.claheLim = PPA.GUI.ClaheClipLim.Value;
-    nTiles = str2double(PPA.GUI.ClaheTiles.Value);
-    IMF.claheNTiles = [nTiles nTiles];
+    % IMF.claheDistr = PPA.GUI.ClaheDistr.Value;
+    IMF.claheNBins = 256;
+    IMF.claheLim = PPA.VolGUI.ClipLimitEditField.Value;
+    IMF.claheNTiles = [32 32];
     IMF.Apply_CLAHE();
+    filtIm = IMF.filt;
+  else
+    filtIm = baseIm;
   end
-
-  filtIm = IMF.filt;
 
 end
