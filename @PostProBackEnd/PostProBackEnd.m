@@ -308,6 +308,7 @@ classdef PostProBackEnd < BaseClass
       PPA.depthInfo = single(depthMap);
       PPA.rawDepthInfo = single(depthMap);
       PPA.Update_Vol_Projections();
+      PPA.Handle_Master_Gui_State('vol_processing_complete');
     end
 
     % SET functions for all projections / MIPS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -318,10 +319,9 @@ classdef PostProBackEnd < BaseClass
     % this is also the basis for the depth map and what we export
     function set.procProj(PPA, newProj)
       PPA.procProj = newProj;
-      % TODO once we have map GUI
-      % plotAx = PPA.MapGUI.imFiltDisp.Children(1);
-      % set(plotAx, 'cdata', newProj);
-      % PPA.Update_Depth_Map(PPA.MapGUI.imDepthDisp);
+      if ~isempty(newProj) &&~isempty(PPA.MapGUI)
+        PPA.Update_Map_Projections(newProj);
+      end
     end
 
     % untouched proj. from procVol NOTE this is the one we set when we only load
@@ -330,11 +330,13 @@ classdef PostProBackEnd < BaseClass
     function set.procVolProj(PPA, newProj)
       PPA.procVolProj = newProj;
       
+      % do simple clahe filtering and show image in VolGUI
       if ~isempty(PPA.procVolProj)
-          newProj = PPA.Apply_Image_Processing_Simple(newProj);
-          PPA.Update_Image_Panel(PPA.VolGUI.FiltDisp, newProj, 3);
+        newProj = PPA.Apply_Image_Processing_Simple(newProj);
+        PPA.Update_Image_Panel(PPA.VolGUI.FiltDisp, newProj, 3);
       end
 
+      % apply image processing cascade to new projection, then updates maps 
       if ~isempty(PPA.procVolProj) && ~isempty(PPA.MapGUI) && PPA.processingEnabled
         PPA.Apply_Image_Processing(); % this sets a new procProj
       end

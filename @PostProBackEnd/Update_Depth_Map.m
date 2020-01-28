@@ -3,11 +3,6 @@ function Update_Depth_Map(PPA, imPanel)
   persistent oldMip;
   persistent oldDepth;
 
-  % unly update dept map when we are in the depth map panel
-  if PPA.GUI.TabGroup.SelectedTab ~= PPA.GUI.ImageProcessingTab
-    return;
-  end
-
   % check if we actually have data to work with
   if (isempty(PPA.procVolProj) || isempty(PPA.depthInfo))
     return;
@@ -25,21 +20,21 @@ function Update_Depth_Map(PPA, imPanel)
   end
 
   if nargin == 1
-    imPanel = PPA.GUI.imDepthDisp;
+    imPanel = PPA.MapGUI.imDepthDisp;
   end
 
-  PPA.Start_Wait_Bar('Updating depth map...');
+  PPA.Start_Wait_Bar(PPA.MapGUI, 'Updating depth map...');
 
   % get all the variables we need here at the top, so we don't affect the
   % Values stored in PPA and displayed in the GUI
 
-  minAmp = PPA.GUI.MinAmpEditField.Value ./ 100;
-  transparency = PPA.GUI.TranspEditField.Value; % 0-500
-  claheLim = PPA.GUI.ContrastSlider.Value; % returns 10-90
-  maskFrontCMap = PPA.GUI.depthColor.Value; % 'jet''parula' or 'hot', ...
-  surfaceOffset = PPA.GUI.surfaceoffsetEditField.Value; % in percent, just because...
-  depthOffset = PPA.GUI.depthoffsetEditField.Value; % in percent as well
-  depthMapSmooth = PPA.GUI.SmoothPxEditField.Value;
+  minAmp = PPA.MapGUI.MinAmpEditField.Value ./ 100;
+  transparency = PPA.MapGUI.TranspEditField.Value; % 0-500
+  claheLim = PPA.MapGUI.ContrastSlider.Value; % returns 10-90
+  maskFrontCMap = PPA.MapGUI.depthColor.Value; % 'jet''parula' or 'hot', ...
+  surfaceOffset = PPA.MapGUI.surfaceoffsetEditField.Value; % in percent, just because...
+  depthOffset = PPA.MapGUI.depthoffsetEditField.Value; % in percent as well
+  depthMapSmooth = PPA.MapGUI.SmoothPxEditField.Value;
   maskBackCMap = 'gray';
 
   %% Convert GUI inputs to usable Values %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -86,9 +81,9 @@ function Update_Depth_Map(PPA, imPanel)
   % NOTE uses the seperate slider for contrast, get other clahe Values
   % from clahe filtering panel
   if (claheLim > 0)% if contrast == 0 don't apply CLAHE
-    claheDistr = PPA.GUI.ClaheDistr.Value;
-    claheNBins = str2double(PPA.GUI.ClaheBins.Value);
-    nTiles = str2double(PPA.GUI.ClaheTiles.Value);
+    claheDistr = PPA.MapGUI.ClaheDistr.Value;
+    claheNBins = str2double(PPA.MapGUI.ClaheBins.Value);
+    nTiles = str2double(PPA.MapGUI.ClaheTiles.Value);
     nTiles = [nTiles nTiles];
     mip = adapthisteq(mip, 'Distribution', claheDistr, 'NBins', claheNBins, ...
       'ClipLimit', claheLim, 'NumTiles', nTiles);
@@ -150,7 +145,7 @@ function Update_Depth_Map(PPA, imPanel)
   % convert the depth mask to true color
   frontIm = ind2rgb(frontIm, maskFrontCMap);
 
-  if PPA.GUI.DebugMode.Value
+  if PPA.MasterGUI.DebugMode.Value
     figure();
     imshow(frontIm);
     title('Depth Map Front Mask');
@@ -183,22 +178,22 @@ function Update_Depth_Map(PPA, imPanel)
   nbins = max([nbins 40]); % have at least 20 bins though...
   normalizationType = 'countdensity';
   histoColor = Colors.sherpaBlue;
-  H = histogram(PPA.GUI.histoAx, fullDepth, nbins, 'Normalization', normalizationType);
+  H = histogram(PPA.MapGUI.histoAx, fullDepth, nbins, 'Normalization', normalizationType);
   H.FaceColor = histoColor;
   H.FaceAlpha = 0.50;
   H.EdgeColor = 'none';
-  hold(PPA.GUI.histoAx, 'on');
-  axis(PPA.GUI.histoAx, 'tight');
-  origYLim = PPA.GUI.histoAx.YLim;
+  hold(PPA.MapGUI.histoAx, 'on');
+  axis(PPA.MapGUI.histoAx, 'tight');
+  origYLim = PPA.MapGUI.histoAx.YLim;
 
   histoColor = Colors.capeHoney;
-  H = histogram(PPA.GUI.histoAx, depth, nbins, 'Normalization', normalizationType);
+  H = histogram(PPA.MapGUI.histoAx, depth, nbins, 'Normalization', normalizationType);
   H.FaceColor = histoColor;
   H.FaceAlpha = 0.75;
   H.EdgeColor = 'none';
-  hold(PPA.GUI.histoAx, 'off');
-  axis(PPA.GUI.histoAx, 'tight');
-  PPA.GUI.histoAx.YLim = origYLim; % restore orig ylim so that truncating does not distort axis so much...
+  hold(PPA.MapGUI.histoAx, 'off');
+  axis(PPA.MapGUI.histoAx, 'tight');
+  PPA.MapGUI.histoAx.YLim = origYLim; % restore orig ylim so that truncating does not distort axis so much...
 
   % remaining clean up and misc --------------------------------------------------------
   imPanel.BackgroundColor = 'white';

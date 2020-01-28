@@ -1,4 +1,8 @@
-function Setup_UIAxis(PPA, UIAxis)
+function Setup_UIAxis(PPA, UIAxis, showColorbar)
+
+  if nargin < 3 
+    showColorbar = false;
+  end
   disableDefaultInteractivity(UIAxis);
   UIAxis.Toolbar.Visible = 'off';
   axis(UIAxis, 'tight');
@@ -7,4 +11,7 @@ function Setup_UIAxis(PPA, UIAxis)
   cla(UIAxis); % clear axis, also removes all children
   imagesc(UIAxis, nan(1));
 
+  if showColorbar
+    colorbar(UIAxis);
+  end 
 end
