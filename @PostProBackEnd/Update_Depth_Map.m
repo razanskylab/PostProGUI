@@ -121,7 +121,7 @@ function Update_Depth_Map(PPA, imPanel)
   tickValues = linspace(surfaceLimit, depthLimit, nDepthLabels);
 
   for iLabel = 1:nDepthLabels
-    zLabels{iLabel} = sprintf('%2.1f mm', tickValues(iLabel));
+    zLabels{iLabel} = sprintf('%2.1f mm', tickValues(iLabel)); %#ok<AGROW>
   end
 
   %zLabels{1} = 'closer';

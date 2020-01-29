@@ -97,7 +97,7 @@ function Apply_Image_Processing(PPA)
     if ~isempty(PPA.MapGUI)
       PPA.Update_Map_Projections(PPA.IMF.filt);
     end
-
+    PPA.Handle_Master_Gui_State('map_processing_complete');
     PPA.Stop_Wait_Bar();
 
   catch me

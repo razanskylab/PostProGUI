@@ -29,4 +29,16 @@ function [byteSize] = Get_Byte_Size_Maps(PPA)
   s = whos('currentMap');
   byteSize = byteSize + s.bytes;
 
+  currentMap = PPA.depthInfo;
+  s = whos('currentMap');
+  byteSize = byteSize + s.bytes;
+
+  currentMap = PPA.maskFrontCMap;
+  s = whos('currentMap');
+  byteSize = byteSize + s.bytes;
+
+  currentMap = PPA.depthImage;
+  s = whos('currentMap');
+  byteSize = byteSize + s.bytes;
+
 end

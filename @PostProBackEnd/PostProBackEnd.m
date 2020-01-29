@@ -401,10 +401,12 @@ classdef PostProBackEnd < BaseClass
     %---------------------------------------------------------------
     function nX = get.nX(PPA)
 
-      if isempty(PPA.procVol)
-        nX = size(PPA.rawVol, 2); % raw vol order [zxy]
-      else
+      if ~isempty(PPA.procVol)
         nX = size(PPA.procVol, 1); % proc vol order [xyz]
+      elseif ~isempty(PPA.rawVol)
+        nX = size(PPA.rawVol, 2); % raw vol order [zxy]
+      else 
+        nX = 0; % better return 0 than [] for most cases...
       end
 
     end
@@ -445,12 +447,13 @@ classdef PostProBackEnd < BaseClass
     %---------------------------------------------------------------
     function nY = get.nY(PPA)
 
-      if isempty(PPA.procVol)
-        nY = size(PPA.rawVol, 3); % raw vol order [zxy]
-      else
+      if ~isempty(PPA.procVol)
         nY = size(PPA.procVol, 2); % proc vol order [xyz]
+      elseif ~isempty(PPA.rawVol)
+        nY = size(PPA.rawVol, 3); % raw vol order [zxy]
+      else 
+        nY = 0; % better return 0 than [] for most cases...
       end
-
     end
 
     %---------------------------------------------------------------
@@ -489,10 +492,12 @@ classdef PostProBackEnd < BaseClass
     %---------------------------------------------------------------
     function nZ = get.nZ(PPA)
 
-      if isempty(PPA.procVol)
-        nZ = size(PPA.rawVol, 1); % raw vol order [zxy]
-      else
+      if ~isempty(PPA.procVol)
         nZ = size(PPA.procVol, 3); % proc vol order [xyz]
+      elseif ~isempty(PPA.rawVol)
+        nZ = size(PPA.rawVol, 1); % raw vol order [zxy]
+      else 
+        nZ = 0;
       end
 
     end
@@ -547,12 +552,20 @@ classdef PostProBackEnd < BaseClass
 
     % volume processing settings, taken from VolGUI -------------------------------
     function doVolCropping = get.doVolCropping(PPA)
-      doVolCropping = PPA.VolGUI.CropCheck.Value;
+      if ~isempty(PPA.VolGUI)
+        doVolCropping = PPA.VolGUI.CropCheck.Value;
+      else
+        doVolCropping = false;
+      end
     end
 
     %---------------------------------------------------------------
     function doVolDownSampling = get.doVolDownSampling(PPA)
-      doVolDownSampling = PPA.VolGUI.DwnSplCheck.Value;
+      if ~isempty(PPA.VolGUI)
+        doVolDownSampling = PPA.VolGUI.DwnSplCheck.Value;
+      else
+        doVolDownSampling = false;
+      end
     end
 
     %---------------------------------------------------------------
