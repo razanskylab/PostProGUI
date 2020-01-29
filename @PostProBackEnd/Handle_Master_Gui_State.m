@@ -31,7 +31,6 @@ function Handle_Master_Gui_State(PPA, stateString)
       else
         PPA.MasterGUI.VolumeProcessingButton.Enable = false;
         PPA.MasterGUI.VolumeProcessingButton.Enable = false;
-        PPA.LoadGUI.UIFigure.Visible = 'off';
         % update volume info status ------------------------------------------------
         PPA.MasterGUI.nXVol.Enable = false;
         PPA.MasterGUI.nYVol.Enable = false;

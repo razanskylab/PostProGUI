@@ -307,7 +307,7 @@ classdef PostProBackEnd < BaseClass
       depthMap = PPA.z(depthMap); % replace idx value with actual depth in mm
       PPA.depthInfo = single(depthMap);
       PPA.rawDepthInfo = single(depthMap);
-      PPA.Update_Vol_Projections();
+      PPA.Update_Vol_Projections(); % set procProj and others
       PPA.Handle_Master_Gui_State('vol_processing_complete');
     end
 
@@ -319,9 +319,11 @@ classdef PostProBackEnd < BaseClass
     % this is also the basis for the depth map and what we export
     function set.procProj(PPA, newProj)
       PPA.procProj = newProj;
-      if ~isempty(newProj) &&~isempty(PPA.MapGUI)
-        PPA.Update_Map_Projections(newProj);
-      end
+
+      % if ~isempty(newProj) &&~isempty(PPA.MapGUI)
+      %   PPA.Update_Map_Projections(newProj);
+      % end
+
     end
 
     % untouched proj. from procVol NOTE this is the one we set when we only load
@@ -329,15 +331,15 @@ classdef PostProBackEnd < BaseClass
     % enhancements etc...
     function set.procVolProj(PPA, newProj)
       PPA.procVolProj = newProj;
-      
+
       % do simple clahe filtering and show image in VolGUI
       if ~isempty(PPA.procVolProj)
         newProj = PPA.Apply_Image_Processing_Simple(newProj);
         PPA.Update_Image_Panel(PPA.VolGUI.FiltDisp, newProj, 3);
       end
 
-      % apply image processing cascade to new projection, then updates maps 
-      if ~isempty(PPA.procVolProj) && ~isempty(PPA.MapGUI) && PPA.processingEnabled
+      % apply image processing cascade to new projection, then updates maps
+      if ~isempty(PPA.procVolProj) &&~isempty(PPA.MapGUI) && PPA.processingEnabled
         PPA.Apply_Image_Processing(); % this sets a new procProj
       end
 
@@ -503,10 +505,12 @@ classdef PostProBackEnd < BaseClass
       else
         zPlot = PPA.z;
       end
+
       % cropping ranges do not take into account downsampling
       if PPA.doVolCropping
         zPlot = zPlot(PPA.cropRange);
       end
+
     end
 
     %---------------------------------------------------------------

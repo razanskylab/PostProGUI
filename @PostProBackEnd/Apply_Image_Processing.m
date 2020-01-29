@@ -1,11 +1,12 @@
 function Apply_Image_Processing(PPA)
 
   try
+
     if isempty(PPA.procVolProj)
       return;
     end
-
-    PPA.Start_Wait_Bar(PPA.MapGUI,'Processing 2D image data...');
+    PPA.Handle_Map_Controls();
+    PPA.Start_Wait_Bar(PPA.MapGUI, 'Processing 2D image data...');
 
     % get variables etc from from GUI
     PPA.IMF = Image_Filter(PPA.procVolProj);
@@ -17,7 +18,7 @@ function Apply_Image_Processing(PPA)
 
     % spot removal - affects image and depth map
     if PPA.doImSpotRemoval
-      PPA.Start_Wait_Bar(PPA.MapGUI,'Removing image spots...');
+      PPA.Start_Wait_Bar(PPA.MapGUI, 'Removing image spots...');
       PPA.Update_Status(sprintf('   levels: %2.0f', PPA.imSpotLevel));
       PPA.IMF.spotLevels = PPA.imSpotLevel;
       [~, depthIm] = PPA.IMF.Remove_Spots(depthIm); % also updates PPA.IMF.filt internaly
@@ -25,7 +26,7 @@ function Apply_Image_Processing(PPA)
 
     % interpolate - also affects image and depth map
     if PPA.doImInterpolate
-      PPA.Start_Wait_Bar(PPA.MapGUI,'Interpolating image data...');
+      PPA.Start_Wait_Bar(PPA.MapGUI, 'Interpolating image data...');
       PPA.Update_Status(sprintf('   factor: %2.0f', PPA.imInterpFct));
       PPA.IMF.Interpolate(PPA.imInterpFct);
       % also interpolate depth data, so they match for later overlay...
@@ -37,7 +38,7 @@ function Apply_Image_Processing(PPA)
 
     % clahe - affects mip image only
     if PPA.MapGUI.ContrastCheck.Value
-      PPA.Start_Wait_Bar(PPA.MapGUI,'CLAHE filtering image data...');
+      PPA.Start_Wait_Bar(PPA.MapGUI, 'CLAHE filtering image data...');
       PPA.Update_Status(sprintf('   distribution: %s | bins: %s | limit: %2.3f | tiles: %s', ...
         PPA.MapGUI.ClaheDistr.Value, PPA.MapGUI.ClaheBins.Value, PPA.MapGUI.ClaheClipLim.Value, PPA.MapGUI.ClaheTiles.Value));
       % setup clahe filter with latest values
@@ -52,7 +53,7 @@ function Apply_Image_Processing(PPA)
 
     % wiener filter - affects mip image only
     if PPA.MapGUI.WienerCheckBox.Value
-      PPA.Start_Wait_Bar(PPA.MapGUI,'Wiener filtering image data...');
+      PPA.Start_Wait_Bar(PPA.MapGUI, 'Wiener filtering image data...');
       PPA.Update_Status(sprintf('   neighborhood size: %2.0f', PPA.MapGUI.WienerSize.Value));
       PPA.IMF.nWienerPixel = PPA.MapGUI.WienerSize.Value;
       PPA.IMF.Apply_Wiener();
@@ -60,7 +61,7 @@ function Apply_Image_Processing(PPA)
 
     % image guided filtering
     if PPA.MapGUI.ImageGuidedCheckBox.Value% affects mip image only
-      PPA.Start_Wait_Bar(PPA.MapGUI,'Image guided filtering...');
+      PPA.Start_Wait_Bar(PPA.MapGUI, 'Image guided filtering...');
       PPA.IMF.imGuideNhoodSize = PPA.MapGUI.ImGuideSizeEditField.Value;
       PPA.IMF.imGuideSmoothValue = PPA.MapGUI.ImGuideSmoothSlider.Value.^2;
       PPA.Update_Status(sprintf('   neighborhood size: %2.0f | smoothness: %2.5f', ...
@@ -69,7 +70,7 @@ function Apply_Image_Processing(PPA)
     end
 
     if PPA.MapGUI.AdjustContrastCheckBox.Value% affects mip image only
-      PPA.Start_Wait_Bar(PPA.MapGUI,'Adjusting contrast...');
+      PPA.Start_Wait_Bar(PPA.MapGUI, 'Adjusting contrast...');
       % auto calculate stretch limits?
       PPA.IMF.imadLimOut = [0 1];
       PPA.IMF.imadAuto = PPA.MapGUI.AutoContrCheckBox.Value;
@@ -83,7 +84,7 @@ function Apply_Image_Processing(PPA)
     % NOTE we need this, so we don't keep re-applying frangi filtering on
     % already frangi-filtered images
     if PPA.MapGUI.UseFrangiCheckBox.Value
-      PPA.Start_Wait_Bar(PPA.MapGUI,'Vesselness filtering...');
+      PPA.Start_Wait_Bar(PPA.MapGUI, 'Vesselness filtering...');
       PPA.Update_Frangi_Scales();
       PPA.Apply_Frangi(PPA.IMF.filt); % creates frangi scales, does plotting, updates frangiCombo
       PPA.IMF.filt = PPA.frangiCombo;
@@ -91,6 +92,13 @@ function Apply_Image_Processing(PPA)
 
     PPA.depthInfo = depthIm; % needs to updated before procProj
     PPA.procProj = PPA.IMF.filt;
+    PPA.Start_Wait_Bar(PPA.MapGUI, 'Updating map projections...')
+
+    if ~isempty(PPA.MapGUI)
+      PPA.Update_Map_Projections(PPA.IMF.filt);
+    end
+
+    PPA.Stop_Wait_Bar();
 
   catch me
     PPA.Stop_Wait_Bar();
