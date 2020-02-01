@@ -195,8 +195,6 @@ function Update_Depth_Map(PPA, imPanel)
   axis(PPA.MapGUI.histoAx, 'tight');
   PPA.MapGUI.histoAx.YLim = origYLim; % restore orig ylim so that truncating does not distort axis so much...
 
-  % remaining clean up and misc --------------------------------------------------------
-  imPanel.BackgroundColor = 'white';
   PPA.Stop_Wait_Bar();
 
 end

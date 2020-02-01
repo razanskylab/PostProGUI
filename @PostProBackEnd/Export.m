@@ -2,15 +2,15 @@ function Export(PPA)
 
   try
     PPA.Update_Status(); % prints hor. bar
-    PPA.Start_Wait_Bar('Exporting maps...');
+    PPA.Start_Wait_Bar(PPA.ExportGUI,'Exporting maps...');
 
     % figure out what we actually should export...
-    exportOverview = PPA.GUI.ExpOverview.Value;
-    exportNative = PPA.GUI.ExpNative.Value;
-    exportDepth = PPA.GUI.ExpDepthMap.Value;
-    doOverwrite = PPA.GUI.ExpOverWrite.Value;
-    exportMat = PPA.GUI.ExpMatFile.Value;
-    exportLog = PPA.GUI.ExpLogFile.Value;
+    exportOverview = PPA.ExportGUI.ExpOverview.Value;
+    exportNative = PPA.ExportGUI.ExpNative.Value;
+    exportDepth = PPA.ExportGUI.ExpDepthMap.Value;
+    doOverwrite = PPA.ExportGUI.ExpOverWrite.Value;
+    expImMat = PPA.ExportGUI.ExpImMat.Value;
+    exportLog = PPA.ExportGUI.ExpLogFile.Value;
 
     % overwrite existing files or creat new ones? ------------------------------
     if ~doOverwrite
@@ -22,8 +22,8 @@ function Export(PPA)
     end
 
     % handle folder and file names, create export folder if neccesary ----------
-    exportFolder = PPA.GUI.expFolderPath.Value;
-    nameBase = [PPA.GUI.expFileName.Value cntAppend];
+    exportFolder = PPA.ExportGUI.expFolderPath.Value;
+    nameBase = [PPA.ExportGUI.expFileName.Value cntAppend];
 
     if ~exist(exportFolder, 'dir')
       mkdir(exportFolder);
@@ -33,11 +33,11 @@ function Export(PPA)
     if exportOverview || exportNative
       exportMip = normalize(PPA.procProj); %normalize to be able to properly export
       exportMip = round(256 .* exportMip); % use 256 colors per default, more usually does not make sense
-      eval(['mipColorMap = ' PPA.GUI.cBars.Value '(256);']); % turn string to actual colormap matrix
+      eval(['mipColorMap = ' PPA.MasterGUI.cBars.Value '(256);']); % turn string to actual colormap matrix
     end
 
     if exportOverview
-      PPA.Start_Wait_Bar('Exporting overview projections...');
+      PPA.Start_Wait_Bar(PPA.ExportGUI,'Exporting overview projections...');
 
       % create invisible temp figure, plot mip and depth map with colorbars and use
       % export_fig for proper exporting
@@ -61,28 +61,28 @@ function Export(PPA)
       c.TickLabels = PPA.zLabels;
 
       % export figures, i.e. overview figures with axis and colorbars etc------
-      if PPA.GUI.ExpOverJpg.Value
+      if PPA.ExportGUI.ExpOverJpg.Value
         exportName = fullfile(exportFolder, [nameBase '_overview.jpg']);
         export_fig(fTemp, exportName);
       end
 
-      if PPA.GUI.ExpOverTiff.Value
+      if PPA.ExportGUI.ExpOverTiff.Value
         exportName = fullfile(exportFolder, [nameBase '_overview.tiff']);
         export_fig(fTemp, exportName);
       end
 
-      if PPA.GUI.ExpOverPng.Value
+      if PPA.ExportGUI.ExpOverPng.Value
         exportName = fullfile(exportFolder, [nameBase '_overview.png']);
         export_fig(fTemp, exportName);
       end
 
-      if PPA.GUI.ExpOverPdf.Value && doOverwrite
+      if PPA.ExportGUI.ExpOverPdf.Value && doOverwrite
         exportName = fullfile(exportFolder, [nameBase '_overview.pdf']);
         export_fig(fTemp, exportName);
       end
 
-      if PPA.GUI.ExpOverPdf.Value &&~doOverwrite
-        exportName = fullfile(exportFolder, [PPA.GUI.expFileName.Value '_overview.pdf']);
+      if PPA.ExportGUI.ExpOverPdf.Value &&~doOverwrite
+        exportName = fullfile(exportFolder, [PPA.ExportGUI.expFileName.Value '_overview.pdf']);
         export_fig(fTemp, exportName, '-append');
       end
 
@@ -91,34 +91,34 @@ function Export(PPA)
 
     % export native resolution images, w or w/o compression, for best image quality
     if exportNative
-      PPA.Start_Wait_Bar('Exporting native projections...');
+      PPA.Start_Wait_Bar(PPA.ExportGUI,'Exporting native projections...');
 
-      if PPA.GUI.ExpNativePng.Value
+      if PPA.ExportGUI.ExpNativePng.Value
         exportName = fullfile(exportFolder, [nameBase '_map.png']);
         imwrite(exportMip, mipColorMap, exportName);
       end
 
-      if PPA.GUI.ExpNativePng.Value && exportDepth
+      if PPA.ExportGUI.ExpNativePng.Value && exportDepth
         exportName = fullfile(exportFolder, [nameBase '_depthmap.png']);
         imwrite(PPA.depthImage, exportName);
       end
 
-      if PPA.GUI.ExpNativeJpg.Value
+      if PPA.ExportGUI.ExpNativeJpg.Value
         exportName = fullfile(exportFolder, [nameBase '_map.jpg']);
         imwrite(exportMip, mipColorMap, exportName);
       end
 
-      if PPA.GUI.ExpNativeJpg.Value && exportDepth
+      if PPA.ExportGUI.ExpNativeJpg.Value && exportDepth
         exportName = fullfile(exportFolder, [nameBase '_depthmap.jpg']);
         imwrite(PPA.depthImage, exportName);
       end
 
-      if PPA.GUI.ExpNativeTiff.Value
+      if PPA.ExportGUI.ExpNativeTiff.Value
         exportName = fullfile(exportFolder, [nameBase '_map.tiff']);
         imwrite(double(exportMip), mipColorMap, exportName);
       end
 
-      if PPA.GUI.ExpNativeTiff.Value && exportDepth
+      if PPA.ExportGUI.ExpNativeTiff.Value && exportDepth
         exportName = fullfile(exportFolder, [nameBase '_depthmap.tiff']);
         imwrite(PPA.depthImage, exportName);
       end
@@ -128,8 +128,8 @@ function Export(PPA)
     % currently, volume exporting is not supported as this GUI is mostly
     % aimed at getting pretty projections, but could be easily added
     % export map file
-    if exportMat
-      PPA.Start_Wait_Bar('Exporting mat file...');
+    if expImMat
+      PPA.Start_Wait_Bar(PPA.ExportGUI,'Exporting mat file...');
       SaveStruct.depthMapRGB = PPA.depthImage;
       SaveStruct.depthMap = PPA.depthInfo;
       % mapRaw needed to load processed map into gui again
@@ -144,7 +144,7 @@ function Export(PPA)
     if exportLog
       exportName = fullfile(exportFolder, [nameBase '.txt']);
       fid = fopen(exportName, 'w+');
-      fprintf(fid, '%s\n', PPA.GUI.DebugText.Items{:});
+      fprintf(fid, '%s\n', PPA.ExportGUI.DebugText.Items{:});
       fclose(fid);
     end
 

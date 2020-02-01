@@ -122,7 +122,9 @@ classdef PostProBackEnd < BaseClass
     LoadGUI; % handle to app for loading raw files
     VolGUI;
     MapGUI;
-    ProgBar;
+    ExportGUI;
+
+    ProgBar; % storage for progress bar(s)
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -202,6 +204,10 @@ classdef PostProBackEnd < BaseClass
         newFiltValue = 1;
       end
 
+    end
+
+    function isVisible = Is_Visible(AppHandle)
+      isVisible = ~isempty(AppHandle) && strcmp(AppHandle.UIFigure.Visible, 'on');
     end
 
   end
@@ -304,21 +310,16 @@ classdef PostProBackEnd < BaseClass
       PPA.rawDepthInfo = single(depthMap);
       PPA.Update_Vol_Projections(); % set procProj and others
       PPA.Handle_Master_Gui_State('vol_processing_complete');
+      PPA.Handle_Export_Controls();
     end
 
     % SET functions for all projections / MIPS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % final processed image
-    % NOTE this is what we show on "front" panel, in the Image processing and
-    % also the frangi filter panel
-    % this is also the basis for the depth map and what we export
+    % this is the basis for the depth map and what we export
     function set.procProj(PPA, newProj)
       PPA.procProj = newProj;
-
-      % if ~isempty(newProj) &&~isempty(PPA.MapGUI)
-      %   PPA.Update_Map_Projections(newProj);
-      % end
-
+      PPA.Handle_Export_Controls();
     end
 
     % untouched proj. from procVol NOTE this is the one we set when we only load
