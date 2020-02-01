@@ -170,16 +170,11 @@ classdef PostProBackEnd < BaseClass
     function PPA = PostProBackEnd()
     end
 
-    function Start_Wait_Bar(PPA, GuiApp, waitBarText)
-      % start Indeterminate progress bar
-      PPA.ProgBar = uiprogressdlg(GuiApp.UIFigure, 'Title', waitBarText, ...
-        'Indeterminate', 'on');
-      PPA.Update_Status(waitBarText);
-      drawnow();
-    end
-
     function Stop_Wait_Bar(PPA)
-      close(PPA.ProgBar);
+      for iBar = 1:numel(PPA.ProgBar)
+        close(PPA.ProgBar{iBar});
+      end
+      PPA.ProgBar = [];
     end
 
     function Update_Status(PPA, statusText)
@@ -339,7 +334,9 @@ classdef PostProBackEnd < BaseClass
       end
 
       % apply image processing cascade to new projection, then updates maps
-      if ~isempty(PPA.procVolProj) &&~isempty(PPA.MapGUI) && PPA.processingEnabled
+      doApplyImageProc = ~isempty(PPA.procVolProj) &&~isempty(PPA.MapGUI) && ...
+        PPA.processingEnabled && strcmp(PPA.MapGUI.UIFigure.Visible, 'on');
+      if doApplyImageProc
         PPA.Apply_Image_Processing(); % this sets a new procProj
       end
 
@@ -413,7 +410,7 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function nXIm = get.nXIm(PPA)% size of interpolated/downsampled image
-      nXIm = size(PPA.procProj, 1);
+      nXIm = size(PPA.procProj, 2);
     end
 
     %---------------------------------------------------------------
@@ -429,8 +426,11 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function xPlotIm = get.xPlotIm(PPA)
-      xPlotIm = PPA.xPlot;
-      % TODO - needs to be adjusted if interpolated
+      if PPA.imInterpFct
+        xPlotIm = linspace(PPA.xPlot(1), PPA.xPlot(end), PPA.nXIm);
+      else
+        xPlotIm = PPA.xPlot;
+      end
     end
 
     %---------------------------------------------------------------
@@ -458,7 +458,7 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function nYIm = get.nYIm(PPA)
-      nYIm = size(PPA.procProj, 2);
+      nYIm = size(PPA.procProj, 1);
     end
 
     %---------------------------------------------------------------
@@ -474,8 +474,11 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function yPlotIm = get.yPlotIm(PPA)
-      yPlotIm = PPA.yPlot;
-      % TODO - needs to be adjusted if interpolated
+      if PPA.imInterpFct
+        yPlotIm = linspace(PPA.yPlot(1), PPA.yPlot(end), PPA.nYIm);
+      else
+        yPlotIm = PPA.yPlot;
+      end
     end
 
     %---------------------------------------------------------------
@@ -622,19 +625,35 @@ classdef PostProBackEnd < BaseClass
 
     % Image processing settings from GUI ---------------------------------------
     function doImSpotRemoval = get.doImSpotRemoval(PPA)
-      doImSpotRemoval = PPA.MapGUI.SpotRemovalCheckBox.Value;
+      if ~isempty(PPA.MapGUI)
+        doImSpotRemoval = PPA.MapGUI.SpotRemovalCheckBox.Value;
+      else
+        doImSpotRemoval = 0;
+      end
     end
 
     function imSpotLevel = get.imSpotLevel(PPA)
-      imSpotLevel = PPA.MapGUI.imSpotRem.Value;
+      if ~isempty(PPA.MapGUI)
+        imSpotLevel = PPA.MapGUI.imSpotRem.Value;
+      else
+        imSpotLevel = [];
+      end
     end
 
     function doImInterpolate = get.doImInterpolate(PPA)
-      doImInterpolate = PPA.MapGUI.InterpolateCheckBox.Value;
+      if ~isempty(PPA.MapGUI) || (PPA.imInterpFct == 1)
+        doImInterpolate = PPA.MapGUI.InterpolateCheckBox.Value;
+      else
+        doImInterpolate = 0;
+      end
     end
 
     function imInterpFct = get.imInterpFct(PPA)
-      imInterpFct = PPA.MapGUI.imInterpFct.Value;
+      if ~isempty(PPA.MapGUI)
+        imInterpFct = PPA.MapGUI.imInterpFct.Value;
+      else
+        imInterpFct = 1;
+      end 
     end
 
   end

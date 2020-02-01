@@ -45,21 +45,16 @@ function Handle_Master_Gui_State(PPA, stateString)
     case 'default'
   end
 
-  if false% get map info here
-    % nXMap = PPA.nXF;
-    % mapBytes = Get_Byte_Size_Maps();
-    % PPA.MasterGUI.TotalMemoryEditField.Value = ...
-    %   [num2sip(mapBytes, 3, false, true) 'B'];
-  end
-
   % bring figure windows to front if needed
+  % for all but master gui, also check if they are visible, as otherwise
+  % they will be made visible, which we don't want
   figure(PPA.MasterGUI.UIFigure);
 
-  if ~isempty(PPA.VolGUI)
+  if ~isempty(PPA.VolGUI) && strcmp(PPA.VolGUI.UIFigure.Visible, 'on')
     figure(PPA.VolGUI.UIFigure);
   end
 
-  if ~isempty(PPA.MapGUI)
+  if ~isempty(PPA.MapGUI) && strcmp(PPA.MapGUI.UIFigure.Visible, 'on')
     figure(PPA.MapGUI.UIFigure);
   end
 
@@ -93,9 +88,9 @@ function update_vol_size_display(PPA)
   PPA.MasterGUI.nXVol.Value = PPA.nX;
   PPA.MasterGUI.nYVol.Value = PPA.nY;
   PPA.MasterGUI.nZVol.Value = PPA.nZ;
-  PPA.MasterGUI.dXVol.Value = PPA.dX;
-  PPA.MasterGUI.dYVol.Value = PPA.dY;
-  PPA.MasterGUI.dZVol.Value = PPA.dZ;
+  PPA.MasterGUI.dXVol.Value = PPA.dX*1e3;
+  PPA.MasterGUI.dYVol.Value = PPA.dY * 1e3;
+  PPA.MasterGUI.dZVol.Value = PPA.dZ * 1e3;
   volBytes = PPA.Get_Byte_Size_Volumes();
   PPA.MasterGUI.VolMemory.Value = ...
     [num2sip(volBytes, 3, false, true) 'B'];
@@ -124,8 +119,8 @@ end
 function update_map_size_display(PPA)
   PPA.MasterGUI.nXMap.Value = PPA.nXIm;
   PPA.MasterGUI.nYMap.Value = PPA.nYIm;
-  PPA.MasterGUI.dXIm.Value = PPA.dXIm;
-  PPA.MasterGUI.dYIm.Value = PPA.dYIm;
+  PPA.MasterGUI.dXIm.Value = PPA.dXIm * 1e3;
+  PPA.MasterGUI.dYIm.Value = PPA.dYIm * 1e3;
   mapBytes = PPA.Get_Byte_Size_Maps();
   PPA.MasterGUI.MapMemory.Value = ...
     [num2sip(mapBytes, 3, false, true) 'B'];

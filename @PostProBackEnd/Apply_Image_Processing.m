@@ -2,9 +2,11 @@ function Apply_Image_Processing(PPA)
 
   try
 
-    if isempty(PPA.procVolProj)
+    if isempty(PPA.procVolProj) 
+      % we don't have any volume data...this should not happen, but lets be safe
       return;
     end
+
     PPA.Handle_Map_Controls();
     PPA.Start_Wait_Bar(PPA.MapGUI, 'Processing 2D image data...');
 
