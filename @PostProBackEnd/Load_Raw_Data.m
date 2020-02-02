@@ -8,11 +8,6 @@ function Load_Raw_Data(PPA)
       error('File does not exist!');
     end
 
-    if ~PPA.fileType
-      % if we get this error, something also went wrong....
-      error('File format not correct!');
-    end
-
     progBarStr = sprintf('Loading raw data %s\n', PPA.fileName);
     ProgBar = uiprogressdlg(PPA.LoadGUI.UIFigure, 'Title', progBarStr, ...
       'Indeterminate', 'on');
@@ -31,7 +26,33 @@ function Load_Raw_Data(PPA)
     PPA.rawDepthInfo = [];
 
     switch PPA.fileType
-      case 1% normal mat file
+      case 0 % no file, so we try loading from workspace
+        PPA.x = evalin('base', 'x');
+        PPA.y = evalin('base', 'y');
+
+        if PPA.isVolData% we have volume data, so use it!
+          PPA.dt = evalin('base', 'dt');
+          PPA.z = evalin('base', 'z');
+          PPA.rawVol = evalin('base', 'volData');
+          PPA.rawVol = permute(single(PPA.rawVol), [3 1 2]);
+        else % map data 
+
+          if ismember('mapRaw', PPA.MatFileVars)% new map data
+            PPA.procVolProj = single(evalin('base', 'mapRaw'));
+          elseif ismember('map', PPA.MatFileVars)% old map data
+            PPA.procVolProj = single(evalin('base', 'map'));
+          end
+
+        end
+
+        % check if we have a depth map as well?
+        if ~PPA.isVolData && evalin('base', 'exist("depthMap")');
+          % for map data, we require a
+          PPA.depthInfo = single(evalin('base', 'depthMap'));
+          PPA.rawDepthInfo = single(evalin('base', 'depthMap'));
+        end
+
+      case 1 % normal mat file
         PPA.x = PPA.MatFile.x;
         PPA.y = PPA.MatFile.y;
 

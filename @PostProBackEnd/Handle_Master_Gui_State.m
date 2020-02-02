@@ -31,17 +31,12 @@ function Handle_Master_Gui_State(PPA, stateString)
       end
 
     case 'vol_processing_complete'
-      % TODO ExportVolumesButton function needs to be implemented
       % after volume processing, we can do map processing
       PPA.MasterGUI.MapProcessingButton.Enable = true;
       update_vol_size_display(PPA); % local function, see below
       control_map_size_elements(PPA, true); % local function, see below
       PPA.MasterGUI.ExportButton.Enable = true;
     case 'map_processing_complete'
-      % TODO ExportVolumesButton function needs to be implemented
-      % after volume processing, we can do map processing
-      % PPA.MasterGUI.MapProcessingButton.Enable = true;
-      % TODO - Update size info on front panel
       PPA.MasterGUI.ExportButton.Enable = true;
       update_map_size_display(PPA); % local function, see below
     case 'default'

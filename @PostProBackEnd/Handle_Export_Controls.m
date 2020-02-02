@@ -6,13 +6,11 @@ function Handle_Export_Controls(PPA)
     PPA.ExportGUI.ExpVolMat.Enable = hasVol;
     % TODO VTK export function needs to be implemented
     % PPA.ExportGUI.ExpVolVtk.Enable = hasVol;
-    % TODO workspace export function needs to be implemented
-    % PPA.ExportGUI.ExpVolWrk.Enable = hasVol; 
+    PPA.ExportGUI.ExpVolWrk.Enable = hasVol; 
         
     hasMap = ~isempty(PPA.procProj);
     PPA.ExportGUI.ExpImMat.Enable = hasMap;
-    % TODO workspace export function needs to be implemented
-    % PPA.ExportGUI.ExpWrkIm.Enable = hasMap; 
+    PPA.ExportGUI.ExpWrkIm.Enable = hasMap; 
     
     PPA.ExportGUI.ExpImMat.Enable = hasMap;
 
