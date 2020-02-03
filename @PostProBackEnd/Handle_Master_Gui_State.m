@@ -19,14 +19,12 @@ function Handle_Master_Gui_State(PPA, stateString)
         PPA.processingEnabled = true(); % this will start the raw-processing cascade
         PPA.MasterGUI.Open_Vol_Gui();
       else
-        PPA.MasterGUI.VolumeProcessingButton.Enable = false;
-        PPA.MasterGUI.VolumeProcessingButton.Enable = false;
         % update volume info status ------------------------------------------------
         control_vol_size_elements(PPA, false); % local function, see below
 
         % auto load next step in processing...
         PPA.MasterGUI.Open_Map_Gui();
-        PPA.MasterGUI.VolumeProcessingButton.Enable = true;
+        PPA.MasterGUI.VolumeProcessingButton.Enable = false;
         PPA.MasterGUI.MapProcessingButton.Enable = true;
       end
 

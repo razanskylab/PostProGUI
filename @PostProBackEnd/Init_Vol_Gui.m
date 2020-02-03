@@ -3,6 +3,16 @@ function Init_Vol_Gui(PPA)
   % called after Gui app is loaded, sets limits etc. based on
   % specific volume currently handeled by PPA
   try
+    % check if we actually have data
+    if isempty(PPA.rawVol)
+      % uialert(PPA.VolGUI.UIFigure, 'We have no volume data!', ...
+      %   'We have no volume data!');
+      notUsed = uiconfirm(PPA.VolGUI.UIFigure, 'We have no volume data!', 'We have no volume data!', ...
+        'Icon', 'warning', 'Options', {'Ok I guess...'}); %#ok<NASGU>
+      PPA.VolGUI.UIFigure.Visible = 'off'; % make it dissapear!
+      return;
+    end
+
     PPA.Start_Wait_Bar(PPA.VolGUI, 'Initializing Volume Gui...')
     maxZ = size(PPA.rawVol, 1);
     PPA.VolGUI.zCropLowEdit.Limits = [1 maxZ];

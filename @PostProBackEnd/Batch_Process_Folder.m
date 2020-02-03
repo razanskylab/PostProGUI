@@ -1,36 +1,60 @@
 function Batch_Process_Folder(PPA)
 
   try
+    folder = uigetdir(PPA.folderPath);
+
+    if folder
+      PPA.batchPath = folder;
+    else
+      uialert(PPA.ExportGUI.UIFigure, 'No folder selected!', 'No folder selected!');
+      return;
+    end
+
+    % TODO based on PPA.fileType, we should look for mat data, tiff stacks etc..
     filePaths = find_all_files_in_path(PPA.batchPath, ...
       'extention', '.mat', ...
       'verboseOutput', false, ...
       'searchSubFolders', false);
     nFiles = numel(filePaths);
 
+    if ~nFiles
+      uialert(PPA.ExportGUI.UIFigure, 'No compatible files found!', 'No compatible files found!');
+      return;
+    end
+
     for iFile = 1:nFiles
 
       try
         fprintf('Processing file %i / %i\n', iFile, nFiles);
-        currentFilePath = filePaths{iFile};
-        % load the file, during load we already set the volumes and projections
-        % and doing so, but using the set methods, we already apply
-        % all the processing we need
-        PPA.Load_Raw_File(currentFilePath);
-        % switch to the image processing tab to also get the depth map
-        PPA.GUI.TabGroup.SelectedTab = PPA.GUI.ImageProcessingTab;
-        PPA.Update_Depth_Map();
-        % then export all of this!
+        PPA.filePath = filePaths{iFile};
+        PPA.Preview_File_Content();
+        % PPA.Check_File_Content();
+        PPA.Load_Raw_Data();
+        PPA.processingEnabled = true; % this will start the raw-processing cascade
+
+        if ~isempty(PPA.rawVol)%
+          PPA.MasterGUI.Open_Vol_Gui(); % handles processing etc...
+        end
+
+        if ~isempty(PPA.procProj)%
+          PPA.Apply_Image_Processing();
+          PPA.MasterGUI.Open_Map_Gui(); % handles processing etc...
+        end
+
+        PPA.ExportGUI.expFileName.Value = PPA.fileName;
+        PPA.exportPath = fullfile(PPA.folderPath,'gui_export');
+        PPA.ExportGUI.expFolderPath.Value = PPA.exportPath;
         PPA.Export();
       catch me
-        warnMesasge = sprintf('Processing file %s failed', currentFilePath);
-        short_warn(warnMesasge);
-        short_warn(getReport(me, 'basic', 'hyperlinks', 'on'))
+        warnMessage = sprintf('Processing file %s failed', currentFilePath);
+        short_warn(warnMessage);
+        short_warn(getReport(me, 'basic', 'hyperlinks', 'on'));
       end
 
     end
 
-  catch me
-    rethrow(me);
+  catch me2
+    rethrow(me2);
   end
 
 end

@@ -173,9 +173,11 @@ classdef PostProBackEnd < BaseClass
     end
 
     function Stop_Wait_Bar(PPA)
+
       for iBar = 1:numel(PPA.ProgBar)
         close(PPA.ProgBar{iBar});
       end
+
       PPA.ProgBar = [];
     end
 
@@ -329,7 +331,7 @@ classdef PostProBackEnd < BaseClass
       PPA.procVolProj = newProj;
 
       % do simple clahe filtering and show image in VolGUI
-      if ~isempty(PPA.procVolProj)
+      if ~isempty(PPA.procVolProj) && PPA.isVolData
         newProj = PPA.Apply_Image_Processing_Simple(newProj);
         PPA.Update_Image_Panel(PPA.VolGUI.FiltDisp, newProj, 3);
       end
@@ -337,6 +339,7 @@ classdef PostProBackEnd < BaseClass
       % apply image processing cascade to new projection, then updates maps
       doApplyImageProc = ~isempty(PPA.procVolProj) &&~isempty(PPA.MapGUI) && ...
         PPA.processingEnabled && strcmp(PPA.MapGUI.UIFigure.Visible, 'on');
+
       if doApplyImageProc
         PPA.Apply_Image_Processing(); % this sets a new procProj
       end
@@ -403,7 +406,7 @@ classdef PostProBackEnd < BaseClass
         nX = size(PPA.procVol, 1); % proc vol order [xyz]
       elseif ~isempty(PPA.rawVol)
         nX = size(PPA.rawVol, 2); % raw vol order [zxy]
-      else 
+      else
         nX = 0; % better return 0 than [] for most cases...
       end
 
@@ -427,11 +430,13 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function xPlotIm = get.xPlotIm(PPA)
+
       if PPA.imInterpFct
         xPlotIm = linspace(PPA.xPlot(1), PPA.xPlot(end), PPA.nXIm);
       else
         xPlotIm = PPA.xPlot;
       end
+
     end
 
     %---------------------------------------------------------------
@@ -452,9 +457,10 @@ classdef PostProBackEnd < BaseClass
         nY = size(PPA.procVol, 2); % proc vol order [xyz]
       elseif ~isempty(PPA.rawVol)
         nY = size(PPA.rawVol, 3); % raw vol order [zxy]
-      else 
+      else
         nY = 0; % better return 0 than [] for most cases...
       end
+
     end
 
     %---------------------------------------------------------------
@@ -475,11 +481,13 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function yPlotIm = get.yPlotIm(PPA)
+
       if PPA.imInterpFct
         yPlotIm = linspace(PPA.yPlot(1), PPA.yPlot(end), PPA.nYIm);
       else
         yPlotIm = PPA.yPlot;
       end
+
     end
 
     %---------------------------------------------------------------
@@ -500,7 +508,7 @@ classdef PostProBackEnd < BaseClass
         nZ = size(PPA.procVol, 3); % proc vol order [xyz]
       elseif ~isempty(PPA.rawVol)
         nZ = size(PPA.rawVol, 1); % raw vol order [zxy]
-      else 
+      else
         nZ = 0;
       end
 
@@ -556,20 +564,24 @@ classdef PostProBackEnd < BaseClass
 
     % volume processing settings, taken from VolGUI -------------------------------
     function doVolCropping = get.doVolCropping(PPA)
+
       if ~isempty(PPA.VolGUI)
         doVolCropping = PPA.VolGUI.CropCheck.Value;
       else
         doVolCropping = false;
       end
+
     end
 
     %---------------------------------------------------------------
     function doVolDownSampling = get.doVolDownSampling(PPA)
+
       if ~isempty(PPA.VolGUI)
         doVolDownSampling = PPA.VolGUI.DwnSplCheck.Value;
       else
         doVolDownSampling = false;
       end
+
     end
 
     %---------------------------------------------------------------
@@ -626,35 +638,43 @@ classdef PostProBackEnd < BaseClass
 
     % Image processing settings from GUI ---------------------------------------
     function doImSpotRemoval = get.doImSpotRemoval(PPA)
+
       if ~isempty(PPA.MapGUI)
         doImSpotRemoval = PPA.MapGUI.SpotRemovalCheckBox.Value;
       else
         doImSpotRemoval = 0;
       end
+
     end
 
     function imSpotLevel = get.imSpotLevel(PPA)
+
       if ~isempty(PPA.MapGUI)
         imSpotLevel = PPA.MapGUI.imSpotRem.Value;
       else
         imSpotLevel = [];
       end
+
     end
 
     function doImInterpolate = get.doImInterpolate(PPA)
+
       if ~isempty(PPA.MapGUI) || (PPA.imInterpFct == 1)
         doImInterpolate = PPA.MapGUI.InterpolateCheckBox.Value;
       else
         doImInterpolate = 0;
       end
+
     end
 
     function imInterpFct = get.imInterpFct(PPA)
+
       if ~isempty(PPA.MapGUI)
         imInterpFct = PPA.MapGUI.imInterpFct.Value;
       else
         imInterpFct = 1;
-      end 
+      end
+
     end
 
   end
