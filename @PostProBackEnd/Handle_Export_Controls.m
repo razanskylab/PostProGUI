@@ -15,20 +15,22 @@ function Handle_Export_Controls(PPA)
     PPA.ExportGUI.ExpImMat.Enable = hasMap;
 
     PPA.ExportGUI.ExpOverview.Enable = hasMap;
-    PPA.ExportGUI.ExpOverJpg.Enable = hasMap;
-    PPA.ExportGUI.ExpOverPdf.Enable = hasMap;
-    PPA.ExportGUI.ExpOverPng.Enable = hasMap;
-    PPA.ExportGUI.ExpOverTiff.Enable = hasMap;
+    PPA.ExportGUI.ExpOverJpg.Enable = hasMap && PPA.ExportGUI.ExpOverview.Value;
+    PPA.ExportGUI.ExpOverPdf.Enable = hasMap && PPA.ExportGUI.ExpOverview.Value;
+    PPA.ExportGUI.ExpOverPng.Enable = hasMap && PPA.ExportGUI.ExpOverview.Value;
+    PPA.ExportGUI.ExpOverTiff.Enable = hasMap && PPA.ExportGUI.ExpOverview.Value;
 
     PPA.ExportGUI.ExpNative.Enable = hasMap;
-    PPA.ExportGUI.ExpNativeJpg.Enable = hasMap;
-    PPA.ExportGUI.ExpNativeTiff.Enable = hasMap;
-    PPA.ExportGUI.ExpNativePng.Enable = hasMap;
+    PPA.ExportGUI.ExpNativeJpg.Enable = hasMap && PPA.ExportGUI.ExpNative.Value;
+    PPA.ExportGUI.ExpNativeTiff.Enable = hasMap && PPA.ExportGUI.ExpNative.Value;
+    PPA.ExportGUI.ExpNativePng.Enable = hasMap && PPA.ExportGUI.ExpNative.Value;
 
     hasDeptMap = ~isempty(PPA.depthImage);
     PPA.ExportGUI.ExpDepthMap.Enable = hasDeptMap;
 
     PPA.ExportGUI.StartBatchProcessButton.Enable = (hasMap || hasVol);
+    PPA.ExportGUI.ExportDataButton.Enable = (hasMap || hasVol);
+    PPA.ExportGUI.SelectExportPathButton.Enable = (hasMap || hasVol);
   end
 
 end

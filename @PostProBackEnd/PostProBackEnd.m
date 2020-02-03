@@ -173,11 +173,6 @@ classdef PostProBackEnd < BaseClass
     end
 
     function Stop_Wait_Bar(PPA)
-
-      for iBar = 1:numel(PPA.ProgBar)
-        close(PPA.ProgBar{iBar});
-      end
-
       PPA.ProgBar = [];
     end
 

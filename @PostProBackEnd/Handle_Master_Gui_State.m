@@ -18,6 +18,9 @@ function Handle_Master_Gui_State(PPA, stateString)
         % auto load next step in processing...
         PPA.processingEnabled = true(); % this will start the raw-processing cascade
         PPA.MasterGUI.Open_Vol_Gui();
+        if PPA.Is_Visible(PPA.VolGUI)
+          figure(PPA.VolGUI.UIFigure);
+        end
       else
         % update volume info status ------------------------------------------------
         control_vol_size_elements(PPA, false); % local function, see below
@@ -26,6 +29,9 @@ function Handle_Master_Gui_State(PPA, stateString)
         PPA.MasterGUI.Open_Map_Gui();
         PPA.MasterGUI.VolumeProcessingButton.Enable = false;
         PPA.MasterGUI.MapProcessingButton.Enable = true;
+        if PPA.Is_Visible(PPA.MapGUI)
+          figure(PPA.MapGUI.UIFigure);
+        end
       end
 
     case 'vol_processing_complete'
@@ -34,9 +40,12 @@ function Handle_Master_Gui_State(PPA, stateString)
       update_vol_size_display(PPA); % local function, see below
       control_map_size_elements(PPA, true); % local function, see below
       PPA.MasterGUI.ExportButton.Enable = true;
+      figure(PPA.VolGUI.UIFigure);
+
     case 'map_processing_complete'
       PPA.MasterGUI.ExportButton.Enable = true;
       update_map_size_display(PPA); % local function, see below
+      figure(PPA.MapGUI.UIFigure);
     case 'default'
   end
 
@@ -45,13 +54,8 @@ function Handle_Master_Gui_State(PPA, stateString)
   % they will be made visible, which we don't want
   figure(PPA.MasterGUI.UIFigure);
 
-  if PPA.Is_Visible(PPA.VolGUI)
-    figure(PPA.VolGUI.UIFigure);
-  end
 
-  if PPA.Is_Visible(PPA.MapGUI)
-    figure(PPA.MapGUI.UIFigure);
-  end
+
 
 end
 

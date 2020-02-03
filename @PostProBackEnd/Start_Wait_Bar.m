@@ -2,10 +2,10 @@ function Start_Wait_Bar(PPA, CallingGui, waitBarText)
   % handles wait bars for all open GUI windows, so that one displays the current 
   % status and the other ones are blocked, as to not let the user do multiple 
   % things at once....
-  PPA.ProgBar = [];
+  % PPA.ProgBar = [];
   
   % start Indeterminate progress bar
-  PPA.ProgBar{1} = uiprogressdlg(CallingGui.UIFigure, 'Title', waitBarText, ...
+  PPA.ProgBar = uiprogressdlg(CallingGui.UIFigure, 'Title', waitBarText, ...
     'Indeterminate', 'on');
 
   % if ~isempty(PPA.VolGUI) && set_this_gui(PPA.VolGUI, CallingGui)% set_this_gui is local (see below)

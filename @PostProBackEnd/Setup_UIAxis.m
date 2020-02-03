@@ -12,6 +12,7 @@ function Setup_UIAxis(PPA, UIAxis, showColorbar)
   imagesc(UIAxis, nan(1));
 
   if showColorbar
-    colorbar(UIAxis);
+    c = colorbar(UIAxis);
+    c.Location = 'southoutside';
   end 
 end

@@ -1,4 +1,7 @@
-function Update_Depth_Map(PPA, imPanel)
+function Update_Depth_Map(PPA, doForceUpdate)
+  % doForceUpdate == 1  forces update of depth map, even if mip and depth info 
+  % has not changed. We need this so that changes to depth map settings in the 
+  % GUI are not ignored when this function is called
 
   persistent oldMip;
   persistent oldDepth;
@@ -8,21 +11,21 @@ function Update_Depth_Map(PPA, imPanel)
     return;
   end
 
+  if nargin == 1
+    doForceUpdate = 0; 
+  end
   % check if we have new data or if we don't have to update after all...
   mip = PPA.procProj;
   depth = PPA.depthInfo;
 
-  if isempty(oldMip) || isempty(oldDepth)
+  if isempty(oldMip) || isempty(oldDepth) || doForceUpdate
     oldMip = mip;
     oldDepth = depth;
   elseif isequal(oldMip, mip) && isequal(oldDepth, depth)
     return;
   end
 
-  if nargin == 1
-    imPanel = PPA.MapGUI.imDepthDisp;
-  end
-
+  imPanel = PPA.MapGUI.imDepthDisp;
   PPA.Start_Wait_Bar(PPA.MapGUI, 'Updating depth map...');
 
   % get all the variables we need here at the top, so we don't affect the
@@ -32,8 +35,9 @@ function Update_Depth_Map(PPA, imPanel)
   transparency = PPA.MapGUI.TranspEditField.Value; % 0-500
   claheLim = PPA.MapGUI.ContrastSlider.Value; % returns 10-90
   maskFrontCMap = PPA.MapGUI.depthColor.Value; % 'jet''parula' or 'hot', ...
-  surfaceOffset = PPA.MapGUI.surfaceoffsetEditField.Value; % in percent, just because...
-  depthOffset = PPA.MapGUI.depthoffsetEditField.Value; % in percent as well
+  surfaceOffset = PPA.MapGUI.surfaceoffsetSlider.Value; % in percent, just because...
+  depthOffset = -PPA.MapGUI.depthoffsetSlider.Value; % in percent as well, 
+    % NOTE minus sign for depthoffsetSlider is correct as range is -100<->0
   depthMapSmooth = PPA.MapGUI.SmoothPxEditField.Value;
   maskBackCMap = 'gray';
 
@@ -100,7 +104,8 @@ function Update_Depth_Map(PPA, imPanel)
   % offset depth map limits by using manually entered values
   % convert percent low/high limit to actual mm values
   fullRange = depthLimit - surfaceLimit;
-  depthOffset = depthOffset ./ 100 * fullRange ./ 2; % maximum possible offset (100%) is half the depth range
+  depthOffset = depthOffset ./ 100 * fullRange ./ 2; 
+    % maximum possible offset (100%) is half the depth range
   surfaceOffset = surfaceOffset ./ 100 * fullRange ./ 2;
   surfaceLimit = surfaceLimit + surfaceOffset;
   depthLimit = depthLimit - depthOffset;
@@ -160,7 +165,7 @@ function Update_Depth_Map(PPA, imPanel)
   depthImage = back .* frontIm .* transparency;
   imagesc(imPanel, PPA.xPlot, PPA.yPlot, depthImage);
   colormap(imPanel, maskFrontCMap);
-  c = colorbar(imPanel);
+  c = colorbar(imPanel,'Location','southoutside');
   c.TickLength = 0;
   c.Ticks = tickLocations;
   c.TickLabels = zLabels;
@@ -175,7 +180,7 @@ function Update_Depth_Map(PPA, imPanel)
   % plot/update depth histograms --------------------------------------------------------
   % settings for histogram, could be put somewhere else some day but here is fine for now
   nbins = round(fullDepthRange ./ 0.06); % get a bin for every 100 um
-  nbins = max([nbins 40]); % have at least 20 bins though...
+  nbins = max([nbins 40]); % have at least 40 bins though...
   normalizationType = 'countdensity';
   histoColor = Colors.sherpaBlue;
   H = histogram(PPA.MapGUI.histoAx, fullDepth, nbins, 'Normalization', normalizationType);
