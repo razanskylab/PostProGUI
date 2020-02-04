@@ -13,20 +13,26 @@ function Load_Raw_Data(PPA)
       'Indeterminate', 'on');
     PPA.Update_Status(progBarStr);
 
-    % disable automatic raw volume processing cascade 
+    % disable automatic raw volume processing cascade
     PPA.processingEnabled = false; % this will start the raw-processing cascade
 
-    % clean out old data
-    PPA.frangiFilt = [];
-    PPA.frangiScales = [];
-    PPA.frangiCombo = [];
+    % clean out old data -------------------------------------------------------
+    if ~isempty(PPA.FraFilt)
+      PPA.FraFilt.raw = [];
+      PPA.FraFilt.filt = [];
+      PPA.FraFilt.filtScales = [];
+      PPA.FraFilt.fusedFrangi = [];
+    end
+
     PPA.rawVol = [];
     PPA.procVolProj = [];
     PPA.depthInfo = [];
     PPA.rawDepthInfo = [];
+    PPA.procProj = [];
 
+    % fill in new data -------------------------------------------------------
     switch PPA.fileType
-      case 0 % no file, so we try loading from workspace
+      case 0% no file, so we try loading from workspace
         PPA.x = evalin('base', 'x');
         PPA.y = evalin('base', 'y');
 
@@ -35,7 +41,7 @@ function Load_Raw_Data(PPA)
           PPA.z = evalin('base', 'z');
           PPA.rawVol = evalin('base', 'volData');
           PPA.rawVol = permute(single(PPA.rawVol), [3 1 2]);
-        else % map data 
+        else % map data
 
           if ismember('mapRaw', PPA.MatFileVars)% new map data
             PPA.procVolProj = single(evalin('base', 'mapRaw'));
@@ -52,7 +58,7 @@ function Load_Raw_Data(PPA)
           PPA.rawDepthInfo = single(evalin('base', 'depthMap'));
         end
 
-      case 1 % normal mat file
+      case 1% normal mat file
         PPA.x = PPA.MatFile.x;
         PPA.y = PPA.MatFile.y;
 
@@ -61,11 +67,13 @@ function Load_Raw_Data(PPA)
           PPA.z = PPA.MatFile.z;
           PPA.rawVol = permute(single(PPA.MatFile.volData), [3 1 2]);
         else
+
           if ismember('mapRaw', PPA.MatFileVars)% new map data
             PPA.procVolProj = single(PPA.MatFile.mapRaw);
           elseif ismember('map', PPA.MatFileVars)% old map data
             PPA.procVolProj = single(PPA.MatFile.map'); % transpose needed!
           end
+
         end
 
         % check if we have a depth map as well?
@@ -88,7 +96,6 @@ function Load_Raw_Data(PPA)
       case 3%  tiff stack
       case 4% image file
     end
-
 
     close(ProgBar);
     PPA.Handle_Master_Gui_State('load_complete');

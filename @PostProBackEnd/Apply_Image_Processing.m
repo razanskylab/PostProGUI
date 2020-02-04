@@ -82,14 +82,17 @@ function Apply_Image_Processing(PPA)
       PPA.IMF.Adjust_Contrast();
     end
 
-    PPA.preFrangi = PPA.IMF.filt; % update pre-frangi
+    % PPA.preFrangi = PPA.IMF.filt; % update pre-frangi
     % NOTE we need this, so we don't keep re-applying frangi filtering on
     % already frangi-filtered images
     if PPA.MapGUI.UseFrangiCheckBox.Value
       PPA.Start_Wait_Bar(PPA.MapGUI, 'Vesselness filtering...');
-      PPA.Update_Frangi_Scales();
-      PPA.Apply_Frangi(PPA.IMF.filt); % creates frangi scales, does plotting, updates frangiCombo
-      PPA.IMF.filt = PPA.frangiCombo;
+      % update frangi variables
+      PPA.FraFilt.x = PPA.xPlotIm;
+      PPA.FraFilt.raw = PPA.IMF.filt;
+      PPA.FraFilt.y = PPA.yPlotIm;
+      PPA.FraFilt.Apply_Frangi(); % update frangi plot...
+      PPA.IMF.filt = PPA.FraFilt.fusedFrangi;
     end
 
     PPA.depthInfo = depthIm; % needs to updated before procProj

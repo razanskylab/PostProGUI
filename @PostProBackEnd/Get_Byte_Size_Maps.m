@@ -5,27 +5,11 @@ function [byteSize] = Get_Byte_Size_Maps(PPA)
   %#ok<*NASGU> 
   byteSize = 0;
 
-  currentMap = PPA.procVolProj; % raw untouched vol
+  currentMap = PPA.procVolProj; 
   s = whos('currentMap');
   byteSize = byteSize + s.bytes;
 
-  currentMap = PPA.procProj; % downsampled volume...
-  s = whos('currentMap');
-  byteSize = byteSize + s.bytes;
-
-  currentMap = PPA.preFrangi; % cropped volume
-  s = whos('currentMap');
-  byteSize = byteSize + s.bytes;
-
-  currentMap = PPA.frangiFilt; % freq. filtered volume
-  s = whos('currentMap');
-  byteSize = byteSize + s.bytes;
-
-  currentMap = PPA.frangiScales; % median filtered volume
-  s = whos('currentMap');
-  byteSize = byteSize + s.bytes;
-
-  currentMap = PPA.frangiCombo;
+  currentMap = PPA.procProj;
   s = whos('currentMap');
   byteSize = byteSize + s.bytes;
 
@@ -38,6 +22,23 @@ function [byteSize] = Get_Byte_Size_Maps(PPA)
   byteSize = byteSize + s.bytes;
 
   currentMap = PPA.depthImage;
+  s = whos('currentMap');
+  byteSize = byteSize + s.bytes;
+
+  
+  currentMap = PPA.FraFilt.raw; 
+  s = whos('currentMap');
+  byteSize = byteSize + s.bytes;
+
+  currentMap = PPA.FraFilt.filt;
+  s = whos('currentMap');
+  byteSize = byteSize + s.bytes;
+
+  currentMap = PPA.FraFilt.filtScales; 
+  s = whos('currentMap');
+  byteSize = byteSize + s.bytes;
+
+  currentMap = PPA.FraFilt.fusedFrangi;
   s = whos('currentMap');
   byteSize = byteSize + s.bytes;
 
