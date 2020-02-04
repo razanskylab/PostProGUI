@@ -25,7 +25,7 @@ classdef PostProBackEnd < BaseClass
     % 0 = invalid file, 1 = mat file, 2 = mVolume file, 3 = tiff stack, 4 = image file
 
     % sub-classes for processing
-    FRFilt = Frangi_Filter();
+    FraFilt = Frangi_Filter();
     FreqFilt = FilterClass();
     IMF = Image_Filter.empty; % is filled/reset during Apply_Image_Processing
 
@@ -64,9 +64,6 @@ classdef PostProBackEnd < BaseClass
     tickLocations;
     exportCounter(1, 1) {mustBeNumeric, mustBeFinite};
 
-    % frangi scales are either entered manually or calculated, thus not a dependend variable
-    scalesToUse;
-
     % projections from the processed volume (procVol)
     % NOTE: do not make part of AbortSet as otherwise clahe filtering settings
     % will be ignored
@@ -101,18 +98,6 @@ classdef PostProBackEnd < BaseClass
 
     % final processed image <----
     procProj(:, :) single {mustBeNumeric, mustBeFinite};
-
-    % frangi filtering related images ------------------------------------------
-    % MAP before frangi filtering but after applying all other filters
-    preFrangi(:, :) single {mustBeNumeric, mustBeFinite};
-    % MAP after frangi filtering and after applying all other filters
-    frangiFilt(:, :) single {mustBeNumeric, mustBeFinite};
-    % MAP of frangi scales
-    frangiScales(:, :, :) single {mustBeNumeric, mustBeFinite};
-    % seperate frangi scales
-    frangiCombo(:, :) single {mustBeNumeric, mustBeFinite};
-    % combination of frangiFilt & procProj, see Update_Frangi_Combo
-
   end
 
   % plot and other handles
