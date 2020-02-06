@@ -1,31 +1,31 @@
-function Update_Depth_Map(PPA, doForceUpdate)
-  % doForceUpdate == 1  forces update of depth map, even if mip and depth info 
-  % has not changed. We need this so that changes to depth map settings in the 
+function Update_Depth_Map(PPA, ~)
+  % doForceUpdate == 1  forces update of depth map, even if mip and depth info
+  % has not changed. We need this so that changes to depth map settings in the
   % GUI are not ignored when this function is called
 
-  persistent oldMip;
-  persistent oldDepth;
+  % persistent oldMip;
+  % persistent oldDepth;
 
   % check if we actually have data to work with
   if (isempty(PPA.procVolProj) || isempty(PPA.depthInfo))
     return;
   end
 
-  if nargin == 1
-    doForceUpdate = 0; 
-  end
+  % if nargin == 1
+  %   doForceUpdate = 0;
+  % end
   % check if we have new data or if we don't have to update after all...
   mip = PPA.procProj;
   depth = PPA.depthInfo;
 
-  if isempty(oldMip) || isempty(oldDepth) || doForceUpdate
-    oldMip = mip;
-    oldDepth = depth;
-  elseif isequal(oldMip, mip) && isequal(oldDepth, depth)
-    return;
-  end
+  % if isempty(oldMip) || isempty(oldDepth) || doForceUpdate
+  %   oldMip = mip;
+  %   oldDepth = depth;
+  % elseif isequal(oldMip, mip) && isequal(oldDepth, depth)
+  %   short_warn('same old data...')
+  %   return;
+  % end
 
-  imPanel = PPA.MapGUI.imDepthDisp;
   PPA.Start_Wait_Bar(PPA.MapGUI, 'Updating depth map...');
 
   % get all the variables we need here at the top, so we don't affect the
@@ -36,8 +36,8 @@ function Update_Depth_Map(PPA, doForceUpdate)
   claheLim = PPA.MapGUI.ContrastSlider.Value; % returns 10-90
   maskFrontCMap = PPA.MapGUI.depthColor.Value; % 'jet''parula' or 'hot', ...
   surfaceOffset = PPA.MapGUI.surfaceoffsetSlider.Value; % in percent, just because...
-  depthOffset = -PPA.MapGUI.depthoffsetSlider.Value; % in percent as well, 
-    % NOTE minus sign for depthoffsetSlider is correct as range is -100<->0
+  depthOffset = -PPA.MapGUI.depthoffsetSlider.Value; % in percent as well,
+  % NOTE minus sign for depthoffsetSlider is correct as range is -100<->0
   depthMapSmooth = PPA.MapGUI.SmoothPxEditField.Value;
   maskBackCMap = 'gray';
 
@@ -104,8 +104,8 @@ function Update_Depth_Map(PPA, doForceUpdate)
   % offset depth map limits by using manually entered values
   % convert percent low/high limit to actual mm values
   fullRange = depthLimit - surfaceLimit;
-  depthOffset = depthOffset ./ 100 * fullRange ./ 2; 
-    % maximum possible offset (100%) is half the depth range
+  depthOffset = depthOffset ./ 100 * fullRange ./ 2;
+  % maximum possible offset (100%) is half the depth range
   surfaceOffset = surfaceOffset ./ 100 * fullRange ./ 2;
   surfaceLimit = surfaceLimit + surfaceOffset;
   depthLimit = depthLimit - depthOffset;
@@ -163,9 +163,9 @@ function Update_Depth_Map(PPA, doForceUpdate)
   % this makes exporting etc A LOT easier...
   % frontIm = medfilt2(frontIm,[3 3]);
   depthImage = back .* frontIm .* transparency;
-  imagesc(imPanel, PPA.xPlot, PPA.yPlot, depthImage);
-  colormap(imPanel, maskFrontCMap);
-  c = colorbar(imPanel,'Location','southoutside');
+  imagesc(PPA.MapGUI.imDepthDisp, PPA.xPlot, PPA.yPlot, depthImage);
+  colormap(PPA.MapGUI.imDepthDisp, maskFrontCMap);
+  c = colorbar(PPA.MapGUI.imDepthDisp, 'Location', 'southoutside');
   c.TickLength = 0;
   c.Ticks = tickLocations;
   c.TickLabels = zLabels;
@@ -200,6 +200,7 @@ function Update_Depth_Map(PPA, doForceUpdate)
   axis(PPA.MapGUI.histoAx, 'tight');
   PPA.MapGUI.histoAx.YLim = origYLim; % restore orig ylim so that truncating does not distort axis so much...
 
-  PPA.Stop_Wait_Bar();
+  drawnow; % forces to update images before releasing progbar...
+  PPA.ProgBar = [];
 
 end

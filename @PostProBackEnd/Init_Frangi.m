@@ -12,7 +12,9 @@ function Init_Frangi(PPA)
       PPA.FraFilt.y = PPA.yPlotIm;
     end
 
-    PPA.FraFilt.Open_GUI();
+    if isempty(PPA.FraFilt.GUI)
+      PPA.FraFilt.Open_GUI();
+    end
 
   catch ME
     PPA.Stop_Wait_Bar();
