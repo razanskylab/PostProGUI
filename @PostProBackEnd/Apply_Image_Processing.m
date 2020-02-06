@@ -103,6 +103,7 @@ function Apply_Image_Processing(PPA)
       PPA.Update_Map_Projections(PPA.IMF.filt);
     end
     PPA.Handle_Master_Gui_State('map_processing_complete');
+    
     PPA.ProgBar = [];
 
   catch me
