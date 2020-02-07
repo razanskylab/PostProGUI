@@ -33,6 +33,6 @@ function Update_Image_Panel(PPA, UIAxis, newImage, dim)
 
   end
 
-  UIAxis.BackgroundColor = 'white';
+  % UIAxis.BackgroundColor = 'white';
 
 end

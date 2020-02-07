@@ -4,9 +4,9 @@ function Crop_Volume(PPA)
   % See also Med_Filt_Volume(), Down_Sample_Volume(),
   try
 
-    if PPA.GUI.CropCheck.Value
+    if PPA.VolGUI.CropCheck.Value
       statusText = sprintf('Cropping volumetric data (%i:%i).', minmax(PPA.cropRange));
-      PPA.Start_Wait_Bar(statusText);
+      PPA.Start_Wait_Bar(PPA.VolGUI, statusText);
       PPA.cropVol = PPA.dsVol(PPA.cropRange, :, :);
       PPA.Stop_Wait_Bar();
     else

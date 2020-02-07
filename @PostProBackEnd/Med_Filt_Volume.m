@@ -4,10 +4,10 @@
       try
 
         if PPA.doVolMedianFilter
-          PPA.Start_Wait_Bar('Median filtering volumetric data.');
+          PPA.Start_Wait_Bar(PPA.VolGUI, 'Median filtering volumetric data.');
           statusText = sprintf('Median filtering volumetric data (%i %i %i).', ...
             PPA.volMedFilt(1), PPA.volMedFilt(2), PPA.volMedFilt(3));
-          PPA.Start_Wait_Bar(statusText);
+          PPA.Start_Wait_Bar(PPA.VolGUI,statusText);
           PPA.filtVol = medfilt3(PPA.freqVol, ...
             [PPA.volMedFilt(1), PPA.volMedFilt(2), PPA.volMedFilt(3)]);
           PPA.Stop_Wait_Bar();
