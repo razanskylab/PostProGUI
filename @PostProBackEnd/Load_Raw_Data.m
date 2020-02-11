@@ -65,6 +65,7 @@ function Load_Raw_Data(PPA)
         if PPA.isVolData% we have volume data, so use it!
           PPA.dt = PPA.MatFile.dt;
           PPA.z = PPA.MatFile.z;
+          % NOTE rawVol stored in order [z x y] for performance!
           PPA.rawVol = permute(single(PPA.MatFile.volData), [3 1 2]);
         else
 
@@ -94,6 +95,21 @@ function Load_Raw_Data(PPA)
         PPA.dt = volDataClass.dZ * 1e-3;
         PPA.rawVol = volDataClass.vol;
       case 3%  tiff stack
+        ProgBar.Message = 'Loading tiff stack...';
+        [dx,dy,dz,dt,nCh,ch] = get_vol_info_from_user();
+        tempVol = single(tiff_to_mat(PPA.filePath));
+        if nCh > 1
+          % if channels are interleaved, we start at channel ch and take every 
+          % nth channel
+          tempVol = tempVol(:,:,ch:nCh:end);
+        end
+        PPA.rawVol = permute(single(tempVol), [3 1 2]);
+          % NOTE rawVol stored in order [z x y] for performance!
+        [nX, nY, nZ] = size(tempVol);
+        PPA.x = (0:(nX-1)).*dx;
+        PPA.y = (0:(nY-1)).*dy;
+        PPA.z = (0:(nZ-1)).*dz;
+        PPA.dt = dt;
       case 4% image file
     end
 
@@ -105,4 +121,22 @@ function Load_Raw_Data(PPA)
     rethrow(ME);
   end
 
+end
+
+function [dx,dy,dz,dt,nCh,ch] = get_vol_info_from_user()
+  answer = NaN; 
+  prompt = {'dx:','dy:','dz:','# Channels:','use channel:'};
+  dlgtitle = 'Manually enter volume size!';
+  dims = [1 1 1 1 1];
+  definput = {'1','1','1','1','1'};
+  while any(isnan(answer))
+    answer = inputdlg(prompt,dlgtitle,dims,definput);
+    answer = str2double(answer); % everything not a number will be NaN!
+  end
+  dx = answer(1);
+  dy = answer(2);
+  dz = answer(3);
+  dt = 1./(250e6); % kinda arb. dt, as it depends on speed of sound etc...
+  nCh = answer(4); % number of channels for de-interlacing
+  ch = answer(5); % which channel to use?
 end

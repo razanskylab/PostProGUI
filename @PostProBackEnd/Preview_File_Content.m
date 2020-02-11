@@ -19,28 +19,33 @@ function Preview_File_Content(PPA)
     % get file info
     [isValidFile, needsInfo] = PPA.Check_File_Content();
 
-    names = cell(numel(PPA.FileContent), 1);
-    sizes = cell(numel(PPA.FileContent), 1);
-    bytes = cell(numel(PPA.FileContent), 1);
+    % if we have a mat file, we preview the mat file content
+    if ~isempty(PPA.FileContent)
+      names = cell(numel(PPA.FileContent), 1);
+      sizes = cell(numel(PPA.FileContent), 1);
+      bytes = cell(numel(PPA.FileContent), 1);
 
-    for iData = 1:numel(PPA.FileContent)
-      names{iData} = PPA.FileContent(iData).name;
-      sizes{iData} = sprintf('%i ', PPA.FileContent(iData).size);
-      bytes{iData} = [num2sip(PPA.FileContent(iData).bytes, 3, false, true) 'B'];
-    end
+      for iData = 1:numel(PPA.FileContent)
+        names{iData} = PPA.FileContent(iData).name;
+        sizes{iData} = sprintf('%i ', PPA.FileContent(iData).size);
+        bytes{iData} = [num2sip(PPA.FileContent(iData).bytes, 3, false, true) 'B'];
+      end
 
-    % update table with info on file names, size, etc
-    PPA.LoadGUI.UITable.Data = table(names, sizes, bytes);
+      % update table with info on file names, size, etc
+      PPA.LoadGUI.UITable.Data = table(names, sizes, bytes);
 
-    if isValidFile &&~needsInfo
-      PPA.LoadGUI.FullInfoLamp.Color = Colors.DarkGreen;
-      PPA.LoadGUI.GoodFormatLamp.Color = Colors.DarkGreen;
-    elseif isValidFile && needsInfo
-      PPA.LoadGUI.GoodFormatLamp.Color = Colors.DarkGreen;
-      PPA.LoadGUI.FullInfoLamp.Color = Colors.DarkOrange;
+      if isValidFile &&~needsInfo
+        PPA.LoadGUI.FullInfoLamp.Color = Colors.DarkGreen;
+        PPA.LoadGUI.GoodFormatLamp.Color = Colors.DarkGreen;
+      elseif isValidFile && needsInfo
+        PPA.LoadGUI.GoodFormatLamp.Color = Colors.DarkGreen;
+        PPA.LoadGUI.FullInfoLamp.Color = Colors.DarkOrange;
+      else
+        PPA.LoadGUI.GoodFormatLamp.Color = Colors.DarkRed;
+        PPA.LoadGUI.FullInfoLamp.Color = [1 1 1];
+      end
     else
-      PPA.LoadGUI.GoodFormatLamp.Color = Colors.DarkRed;
-      PPA.LoadGUI.FullInfoLamp.Color = [1 1 1];
+      PPA.LoadGUI.UITable.Data = [];
     end
 
     % get preview map if possible ----------------------------------------------
@@ -48,13 +53,17 @@ function Preview_File_Content(PPA)
     % if we have a large volume file (e.g. urs datasets) with no map either
     % we don't preview it either, as we would have to load variable first and we
     % don't want to do that yet as it can take quite some time
-    isImage = false; % TODO if we are loading tiff stacks or images, preview them
-
+    isImage = (PPA.fileType == 3) || (PPA.fileType == 4); % tiff stack || image
     % if we have a variable called map, display it...
-    hasMap = ismember('map', PPA.MatFileVars); % old map data
+    hasMap = ~isempty(PPA.MatFileVars) && ismember('map', PPA.MatFileVars); % old map data
 
     if hasMap
       prevMap = PPA.MatFile.map;
+    elseif (PPA.fileType == 3) % is a tiff stack
+      % for preview, we just want a quick MIP!
+      prevMap = max(double(tiff_to_mat(PPA.filePath)),[],3);
+    elseif (PPA.fileType == 4); % normal image
+      prevMap = double(imread(PPA.filePath));
     end
 
     if hasMap || isImage

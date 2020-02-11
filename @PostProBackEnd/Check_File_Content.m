@@ -3,7 +3,8 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
 
   PPA.MatFile = [];
   PPA.FileContent = [];
-  PPA.fileType = 0; % 0 = invalid, 1 = mat, 2 = tiff, 3 = image
+  PPA.fileType = 0; 
+  % 0 = invalid file, 1 = mat file, 2 = mVolume file, 3 = tiff stack, 4 = image file
   needsInfo = false;
   %TODO
   % add check and functionality of these file types
@@ -17,7 +18,7 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
   switch PPA.fileExt
     case '.mat'
       % check if the file we are previewing / loading has all the required infos...
-      PPA.fileType = 1; % 1 = mat file, 2 = tiff stack, 3 = image file
+      PPA.fileType = 1; % 1 = mat file
 
       PPA.MatFileVars = who('-file', PPA.filePath);
       PPA.MatFile = matfile(PPA.filePath);
@@ -49,22 +50,31 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
         isValidFile = hasXYvectors && (hasMapRaw || hasMapOnly);
       end
 
-    case '.tiff'
-      error('Unknow file!');
-      % PPA.fileType = 2/3; % could be either
+    case {'.tiff','.tif'}
+      % PPA.fileType = 3/4; % could be either
       % needsInfo
+      isValidFile = 1;
+      tiffInfo = imfinfo(PPA.filePath);
+      nImages = length(tiffInfo);
+      if (nImages > 1)
+        PPA.fileType = 3;
+        isVolData = true;
+      else
+        PPA.fileType = 4;
+      end
+      needsInfo = true; % ask for resolution? 
+      
     case '.jpg'
       error('Unknow file!');
       % PPA.fileType = 3;
-
-    case '.png'
+      
+    case '.png' 
       error('Unknow file!');
       % PPA.fileType = 3;
 
     otherwise
-      error('Unknow file!');
-      % PPA.fileType = 0;
-
+      PPA.fileType = 0;
+      error('Unknow file extention: %s!',PPA.fileExt);
   end
 
   if ~isValidFile
