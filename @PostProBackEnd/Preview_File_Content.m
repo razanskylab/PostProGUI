@@ -62,7 +62,7 @@ function Preview_File_Content(PPA)
     elseif (PPA.fileType == 3) % is a tiff stack
       % for preview, we just want a quick MIP!
       prevMap = max(double(tiff_to_mat(PPA.filePath)),[],3);
-    elseif (PPA.fileType == 4); % normal image
+    elseif (PPA.fileType == 4) % normal image
       prevMap = double(imread(PPA.filePath));
     end
 

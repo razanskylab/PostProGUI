@@ -52,7 +52,7 @@ function Load_Raw_Data(PPA)
         end
 
         % check if we have a depth map as well?
-        if ~PPA.isVolData && evalin('base', 'exist("depthMap")');
+        if ~PPA.isVolData && evalin('base', 'exist("depthMap")')
           % for map data, we require a
           PPA.depthInfo = single(evalin('base', 'depthMap'));
           PPA.rawDepthInfo = single(evalin('base', 'depthMap'));

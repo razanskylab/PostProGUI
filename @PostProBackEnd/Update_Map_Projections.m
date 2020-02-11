@@ -6,8 +6,8 @@ function Update_Map_Projections(PPA, newProj)
 
     plotAx = PPA.MapGUI.imFiltDisp.Children(1);
     set(plotAx, 'cdata', newProj);
-    set(plotAx, 'xdata', PPA.xPlot);
-    set(plotAx, 'ydata', PPA.yPlot);
+    set(plotAx, 'ydata', PPA.xPlot);
+    set(plotAx, 'xdata', PPA.yPlot);
     PPA.MapGUI.imFiltDisp.CLim = minmax(newProj); % update colorbar limits
 
     PPA.Update_Depth_Map();

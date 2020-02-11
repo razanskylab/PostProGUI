@@ -28,23 +28,25 @@ function Update_Depth_Map(PPA, ~)
 
   PPA.Start_Wait_Bar(PPA.MapGUI, 'Updating depth map...');
 
+  %% Convert GUI inputs to usable Values %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % get all the variables we need here at the top, so we don't affect the
   % Values stored in PPA and displayed in the GUI
-
   minAmp = PPA.MapGUI.MinAmpEditField.Value ./ 100;
   transparency = PPA.MapGUI.TranspEditField.Value; % 0-500
-  claheLim = PPA.MapGUI.ContrastSlider.Value; % returns 10-90
   maskFrontCMap = PPA.MapGUI.depthColor.Value; % 'jet''parula' or 'hot', ...
-  surfaceOffset = PPA.MapGUI.surfaceoffsetSlider.Value; % in percent, just because...
-  depthOffset = -PPA.MapGUI.depthoffsetSlider.Value; % in percent as well,
+  shiftType = PPA.MapGUI.CropDepthDropDown.Value; % 'Relative (above)' or 'Absolute (below)'
+  relSurfaceOffset = PPA.MapGUI.surfaceoffsetSlider.Value; % 0 <-> 0.5
+  relDepthOffset = -PPA.MapGUI.depthoffsetSlider.Value; % -0.5 <-> 0 
+  absSurfaceCut = PPA.MapGUI.topcutEditField.Value; % 0 <-> 0.5
+  absDepthCut = PPA.MapGUI.depthcutEditField.Value; % -0.5 <-> 0 
   % NOTE minus sign for depthoffsetSlider is correct as range is -100<->0
-  depthMapSmooth = PPA.MapGUI.SmoothPxEditField.Value;
+  globalOffset = PPA.MapGUI.OffsetmmEditField.Value; 
+  shiftFinalDepthMap = PPA.MapGUI.shiftEditField.Value; 
+    % absolute, global offset, addded in the end, shifts cmap up/down
+  depthMapSmooth = PPA.MapGUI.SmoothEditField.Value;
   maskBackCMap = 'gray';
-
-  %% Convert GUI inputs to usable Values %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   num_colors = 256;
   transparency = transparency ./ 100; % 100% -> 1
-  claheLim = claheLim ./ 100 * 0.1; % 100% -> 0.1
 
   % get background and foreground colormaps %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   eval(['maskBackCMap = ' maskBackCMap '(num_colors);']); % turn string to actual colormap matrix
@@ -75,25 +77,16 @@ function Update_Depth_Map(PPA, ~)
   end
 
   % process fore and background %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % depth = raw depth info, usually max location of procVol
+  
+  % process mip, just normalize and adjust contrast if required ----------------
   % mip = processed mip to used as background for depth map
-  % mip = fillmissing(mip,'linear'); % should not be needed
-  % mip(isnan(mip)) = 0; % replaces all potential NANs
   mip = normalize(mip);
 
-  % clahe the already processed image before overlaying depth mask
-  % NOTE uses the seperate slider for contrast, get other clahe Values
-  % from clahe filtering panel
-  if (claheLim > 0)% if contrast == 0 don't apply CLAHE
-    claheDistr = PPA.MapGUI.ClaheDistr.Value;
-    claheNBins = str2double(PPA.MapGUI.ClaheBins.Value);
-    nTiles = str2double(PPA.MapGUI.ClaheTiles.Value);
-    nTiles = [nTiles nTiles];
-    mip = adapthisteq(mip, 'Distribution', claheDistr, 'NBins', claheNBins, ...
-      'ClipLimit', claheLim, 'NumTiles', nTiles);
-    mip = normalise(mip); % brink back to "normal" range
-  end
-
+  
+  % process depth map...lot more happenning here--------------------------------
+  % depth = raw depth info, usually max location of procVol
+  depth = depth + globalOffset; % like the name suggest, add the global offset
+  
   % ignore pixels with amps less that minAmp
   depthRangeMap = depth;
   ignorePixel = (mip < minAmp);
@@ -101,36 +94,35 @@ function Update_Depth_Map(PPA, ~)
   depthRangeMap = fillmissing(depthRangeMap, 'nearest');
   surfaceLimit = min(depthRangeMap(:));
   depthLimit = max(depthRangeMap(:));
-  % offset depth map limits by using manually entered values
-  % convert percent low/high limit to actual mm values
-  fullRange = depthLimit - surfaceLimit;
-  depthOffset = depthOffset ./ 100 * fullRange ./ 2;
-  % maximum possible offset (100%) is half the depth range
-  surfaceOffset = surfaceOffset ./ 100 * fullRange ./ 2;
-  surfaceLimit = surfaceLimit + surfaceOffset;
-  depthLimit = depthLimit - depthOffset;
 
-  % truncate min/max values for display
+  % offset depth map limits by using manually entered values %%%%%%%%%%%%%%%%%%%
+  relShift = strcmp(shiftType,'Relative (above)');
+  if relShift
+    % convert percent low/high limit to actual mm values
+    fullRange = depthLimit - surfaceLimit;
+    % maximum possible offset (100%) is half the depth range
+    relDepthOffset = relDepthOffset * fullRange;
+    relSurfaceOffset = relSurfaceOffset * fullRange;
+    surfaceLimit = surfaceLimit + relSurfaceOffset; % move surface 'deeper'
+    depthLimit = depthLimit - relDepthOffset; % move bottom 'higher'
+    PPA.MapGUI.topcutEditField.Value = double(surfaceLimit);
+    PPA.MapGUI.depthcutEditField.Value = double(depthLimit);
+  else
+    surfaceLimit = absSurfaceCut;
+    depthLimit = absDepthCut;
+  end
+
+  % shift the final range we want up or down...
+  if shiftFinalDepthMap 
+    surfaceLimit = surfaceLimit + shiftFinalDepthMap; 
+    depthLimit = depthLimit + shiftFinalDepthMap; 
+  end
+
+  % truncate min/max values of depth map, can help with visualization ----------
   fullDepth = depth; % full depth before cropping, used for histograms later
-  fullDepthLims = minmax(fullDepth);
-  fullDepthRange = fullDepthLims(2) - fullDepthLims(1);
   depth(depth < surfaceLimit) = surfaceLimit;
   depth(depth > depthLimit) = depthLimit;
   PPA.Update_Status(sprintf('   Surface: %2.1f Depth: %2.1f', surfaceLimit, depthLimit));
-
-  % create labels
-  nDepthLabels = 6;
-  % indexRange = round(linspace(surfaceLimit,depthLimit,nDepthLabels));
-  currentTickLims = [0 1];
-  tickLocations = linspace(min(currentTickLims), max(currentTickLims), nDepthLabels);
-  tickValues = linspace(surfaceLimit, depthLimit, nDepthLabels);
-
-  for iLabel = 1:nDepthLabels
-    zLabels{iLabel} = sprintf('%2.1f mm', tickValues(iLabel)); %#ok<AGROW>
-  end
-
-  %zLabels{1} = 'closer';
-  %zLabels{end} = 'deeper';
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % create background RGB image ------------------------------------------------
@@ -141,11 +133,19 @@ function Update_Depth_Map(PPA, ~)
   % convert the background image to true color
   back = ind2rgb(back, maskBackCMap);
 
-  % create depth mask foreground RGB image ------------------------------------------------
-  % scale the depth image from 0 to num_colors
-  front = normalize(depth); % we loose depth info here, but it's stored in the cbar labels..
-  frontIm = imgaussfilt(front, depthMapSmooth * 0.1);
-  frontIm = normalize(frontIm);
+  % create depth mask foreground RGB image -------------------------------------
+
+  % scale the depth image from 0 to num_colors, but we don't just normalize,
+  % we take the limits into account instead, thus having the option to shift
+  % the depth range we are interested in to any values, which is very useful 
+  % for plotting different datasets with a matching colormap!!!
+  frontIm = depth; 
+  frontIm = frontIm - surfaceLimit;
+  frontIm = frontIm ./ (depthLimit - surfaceLimit);
+  % apply optional gaussian smoothing of depth map
+  if depthMapSmooth 
+    frontIm = imgaussfilt(frontIm, depthMapSmooth);
+  end
   frontIm = round(num_colors .* frontIm);
   % convert the depth mask to true color
   frontIm = ind2rgb(frontIm, maskFrontCMap);
@@ -154,21 +154,28 @@ function Update_Depth_Map(PPA, ~)
     figure();
     imshow(frontIm);
     title('Depth Map Front Mask');
-    figure();
-    pretty_hist(depth);
   end
 
   % create foreground transparency mask-----------------------------------------
   % also is faster this way...
   % this makes exporting etc A LOT easier...
-  % frontIm = medfilt2(frontIm,[3 3]);
   depthImage = back .* frontIm .* transparency;
-  imagesc(PPA.MapGUI.imDepthDisp, PPA.xPlot, PPA.yPlot, depthImage);
+  imagesc(PPA.MapGUI.imDepthDisp, PPA.yPlot, PPA.xPlot, depthImage);
   colormap(PPA.MapGUI.imDepthDisp, maskFrontCMap);
+
+  % get depth labels and update deph-colorbar ----------------------------------
+  nDepthLabels = 8;
+  tickLocations = linspace(0.025, 0.975, nDepthLabels); % juuuust next to max limits
+  tickValues = linspace(surfaceLimit, depthLimit, nDepthLabels);
+  for iLabel = nDepthLabels:-1:1
+    zLabels{iLabel} = sprintf('%2.2f', tickValues(iLabel));
+  end
   c = colorbar(PPA.MapGUI.imDepthDisp, 'Location', 'southoutside');
   c.TickLength = 0;
   c.Ticks = tickLocations;
   c.TickLabels = zLabels;
+  c.Label.String = 'closer     <-     depth     ->     deeper';
+
   % store depth map data as property in PPA class, so we can recreate figure for export
   % NOTE: we need to do it this way, as GUI axis can't be exported with export_fig
   % but we need export_fig to export the colormaps properly...
@@ -179,8 +186,9 @@ function Update_Depth_Map(PPA, ~)
 
   % plot/update depth histograms --------------------------------------------------------
   % settings for histogram, could be put somewhere else some day but here is fine for now
-  nbins = round(fullDepthRange ./ 0.06); % get a bin for every 100 um
-  nbins = max([nbins 40]); % have at least 40 bins though...
+  nbins = round(numel(unique(depth(:)))./5); % get a bin for every 100 um
+  nbins = max([nbins 10]); % have at least 10 bins
+  nbins = min([nbins 75]); % have no more than 75 bins
   normalizationType = 'countdensity';
   histoColor = Colors.sherpaBlue;
   H = histogram(PPA.MapGUI.histoAx, fullDepth, nbins, 'Normalization', normalizationType);
