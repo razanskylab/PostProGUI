@@ -62,14 +62,14 @@ function Export(PPA)
       % fTemp = figure('WindowState', 'maximized');
       % plot "normal" mip
       subplot(1, 2, 1)
-      imagesc(gca, PPA.xPlot, PPA.yPlot, PPA.procProj);
+      imagesc(gca, PPA.yPlot, PPA.xPlot, PPA.procProj);
       axis image;
       colormap(gca, mipColorMap);
       colorbar(gca);
 
       % plot depth map
       subplot(1, 2, 2)
-      imagesc(gca, PPA.xPlot, PPA.yPlot, PPA.depthImage);
+      imagesc(gca, PPA.yPlot, PPA.xPlot, PPA.depthImage);
       axis image;
       colormap(gca, PPA.maskFrontCMap);
       c = colorbar(gca);
@@ -212,6 +212,10 @@ function Export(PPA)
     end
 
     PPA.exportCounter = exportCnt;
+
+    if PPA.ExportGUI.OpenFolder.Value && ~isunix
+      winopen(exportFolder);
+    end
     PPA.Stop_Wait_Bar();
   catch me
     PPA.Stop_Wait_Bar();

@@ -53,10 +53,6 @@ function Handle_Master_Gui_State(PPA, stateString)
   % for all but master gui, also check if they are visible, as otherwise
   % they will be made visible, which we don't want
   figure(PPA.MasterGUI.UIFigure);
-
-
-
-
 end
 
 % enable/disable volume size indicators ----------------------------------------

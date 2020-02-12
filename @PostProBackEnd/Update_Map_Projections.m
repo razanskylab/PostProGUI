@@ -11,6 +11,7 @@ function Update_Map_Projections(PPA, newProj)
     PPA.MapGUI.imFiltDisp.CLim = minmax(newProj); % update colorbar limits
 
     PPA.Update_Depth_Map();
+    PPA.ProgBar = [];
   catch ME
     PPA.Stop_Wait_Bar();
     rethrow(ME);

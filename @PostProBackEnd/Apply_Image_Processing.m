@@ -2,7 +2,7 @@ function Apply_Image_Processing(PPA)
 
   try
 
-    if isempty(PPA.procVolProj) 
+    if isempty(PPA.procVolProj)
       % we don't have any volume data...this should not happen, but lets be safe
       return;
     end
@@ -102,8 +102,9 @@ function Apply_Image_Processing(PPA)
     if ~isempty(PPA.MapGUI)
       PPA.Update_Map_Projections(PPA.IMF.filt);
     end
+
     PPA.Handle_Master_Gui_State('map_processing_complete');
-    
+    drawnow();
     PPA.ProgBar = [];
 
   catch me

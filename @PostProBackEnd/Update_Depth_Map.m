@@ -206,9 +206,8 @@ function Update_Depth_Map(PPA, ~)
   H.EdgeColor = 'none';
   hold(PPA.MapGUI.histoAx, 'off');
   axis(PPA.MapGUI.histoAx, 'tight');
-  PPA.MapGUI.histoAx.YLim = origYLim; % restore orig ylim so that truncating does not distort axis so much...
+  % restore orig ylim so that truncating does not distort axis so much...
+  PPA.MapGUI.histoAx.YLim = origYLim; 
 
-  drawnow; % forces to update images before releasing progbar...
-  PPA.ProgBar = [];
-
+  
 end
