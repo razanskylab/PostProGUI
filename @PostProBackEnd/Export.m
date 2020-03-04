@@ -29,10 +29,15 @@ function Export(PPA)
     % export log file?
     exportLog = PPA.ExportGUI.ExpLogFile.Value;
 
+    % make sure we have a valid file name
+    if isempty(PPA.ExportGUI.expFileName.Value)
+      PPA.ExportGUI.expFileName.Value = inputdlg('Please enter file name for export!');
+    end
+    
     % overwrite existing files or creat new ones? ------------------------------
     if ~doOverwrite
       exportCnt = PPA.exportCounter + 1; % used to not overwrite (if checked)
-      cntAppend = sprintf('_ver%03.0f', exportCnt);
+      cntAppend = sprintf('_%i', exportCnt);
     else
       cntAppend = '';
       exportCnt = PPA.exportCounter;
@@ -58,24 +63,26 @@ function Export(PPA)
 
       % create invisible temp figure, plot mip and depth map with colorbars and use
       % export_fig for proper exporting
-      fTemp = figure('Visible', 'Off', 'Position', [100 100 2000 1000]);
+      fTemp = figure('Visible', 'Off', 'units', 'normalized', 'outerposition', [0 0 1 1]);
       % fTemp = figure('WindowState', 'maximized');
       % plot "normal" mip
       subplot(1, 2, 1)
       imagesc(gca, PPA.yPlot, PPA.xPlot, PPA.procProj);
       axis image;
       colormap(gca, mipColorMap);
-      colorbar(gca);
+      colorbar(gca,'Location', 'southoutside');
 
       % plot depth map
       subplot(1, 2, 2)
       imagesc(gca, PPA.yPlot, PPA.xPlot, PPA.depthImage);
       axis image;
       colormap(gca, PPA.maskFrontCMap);
-      c = colorbar(gca);
+      c = colorbar(gca,'Location', 'southoutside');
       c.TickLength = 0;
       c.Ticks = PPA.tickLocations;
       c.TickLabels = PPA.zLabels;
+      c.Label.String = 'closer     <-     depth     ->     deeper';
+
 
       % export figures, i.e. overview figures with axis and colorbars etc------
       if PPA.ExportGUI.ExpOverJpg.Value

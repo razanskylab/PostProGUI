@@ -103,11 +103,11 @@ classdef PostProBackEnd < BaseClass
   % plot and other handles
   properties
     % handles to GUI apps
-    MasterGUI;
-    LoadGUI; % handle to app for loading raw files
-    VolGUI;
-    MapGUI;
-    ExportGUI;
+    MasterGUI = [];
+    LoadGUI = []; % handle to app for loading raw files
+    VolGUI = [];
+    MapGUI = [];
+    ExportGUI = [];
 
     ProgBar; % storage for progress bar(s)
   end
@@ -201,8 +201,7 @@ classdef PostProBackEnd < BaseClass
     function fileName = get.fileName(PPA)
 
       if ~isempty(PPA.filePath)
-        [~, fileName, ext] = fileparts(PPA.filePath);
-        fileName = [fileName ext]; % we also want the extention
+        [~, fileName] = fileparts(PPA.filePath);
       else
         fileName = [];
       end

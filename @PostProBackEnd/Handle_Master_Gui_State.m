@@ -29,9 +29,14 @@ function Handle_Master_Gui_State(PPA, stateString)
         PPA.MasterGUI.Open_Map_Gui();
         PPA.MasterGUI.VolumeProcessingButton.Enable = false;
         PPA.MasterGUI.MapProcessingButton.Enable = true;
-        if PPA.Is_Visible(PPA.MapGUI)
+        if PPA.Is_Visible(PPA.MapGUI) 
           figure(PPA.MapGUI.UIFigure);
         end
+      end
+
+      % update export name if you choose to do so...
+      if ~isempty(PPA.ExportGUI) && (PPA.ExportGUI.UseFileName.Value)
+        PPA.ExportGUI.expFileName.Value = PPA.fileName;
       end
 
     case 'vol_processing_complete'

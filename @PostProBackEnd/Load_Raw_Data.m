@@ -32,7 +32,7 @@ function Load_Raw_Data(PPA)
 
     % fill in new data -------------------------------------------------------
     switch PPA.fileType
-      case 0% no file, so we try loading from workspace
+      case 0% no file, so we try loading from workspace ------------------------
         PPA.x = evalin('base', 'x');
         PPA.y = evalin('base', 'y');
 
@@ -58,7 +58,7 @@ function Load_Raw_Data(PPA)
           PPA.rawDepthInfo = single(evalin('base', 'depthMap'));
         end
 
-      case 1% normal mat file
+      case 1% normal mat file --------------------------------------------------
         PPA.x = PPA.MatFile.x;
         PPA.y = PPA.MatFile.y;
 
@@ -84,7 +84,7 @@ function Load_Raw_Data(PPA)
           PPA.rawDepthInfo = single(PPA.MatFile.depthMap); % only set when loading for 2d data
         end
 
-      case 2% mVolume file
+      case 2% mVolume file -----------------------------------------------------
         ProgBar.Message = 'Loading volDataset class...';
         PPA.Update_Status(ProgBar.Message);
 
