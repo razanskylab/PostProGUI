@@ -5,11 +5,17 @@ function Handle_Master_Gui_State(PPA, stateString)
       control_vol_size_elements(PPA, false); % local function, see below
       control_map_size_elements(PPA, false); % local function, see below
 
+      PPA.MasterGUI.VolumeProcessingButton.Enable = false;
+      PPA.MasterGUI.MapProcessingButton.Enable = false;
+      PPA.MasterGUI.ExportButton.Enable = false;
+      PPA.MasterGUI.VesselAnalysisButton.Enable = false;
     case 'load_complete'
       % update Volume Data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       if PPA.isVolData
         PPA.MasterGUI.VolumeProcessingButton.Enable = true;
         PPA.MasterGUI.MapProcessingButton.Enable = false;
+        PPA.MasterGUI.VesselAnalysisButton.Enable = false;
+        PPA.MasterGUI.ExportButton.Enable = true;
         % update volume info status ------------------------------------------------
         control_vol_size_elements(PPA, true); % local function, see below
         % update volume info data ------------------------ --------------------------
@@ -49,6 +55,7 @@ function Handle_Master_Gui_State(PPA, stateString)
 
     case 'map_processing_complete'
       PPA.MasterGUI.ExportButton.Enable = true;
+      PPA.MasterGUI.VesselAnalysisButton.Enable = true;
       update_map_size_display(PPA); % local function, see below
       figure(PPA.MapGUI.UIFigure);
     case 'default'
