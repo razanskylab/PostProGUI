@@ -76,6 +76,43 @@
      - <https://ch.mathworks.com/help/images/ref/imguidedfilter.html>
      - <http://kaiminghe.com/eccv10/>
 
+### Vessel Analysis
+
+#### Parameters
+
+- min obj size
+  - the minimum size an object needs to exceed in order to be kept
+  - defined as number of pixels
+- fill hole size
+  - minimum size of a 'hole' (i.e. an undetected region entirely surrounded by detected pixels)
+  - defined as number of pixels
+  - smaller holes will be filled in
+- min spur length
+  - length of spurs that should be removed from the thinned vessel centrelines
+  - spurs are offshoots from the centreline, thus they cause branches - which can lead to vessels being erroneously sub-divided
+  - On the other hand, some spurs can really be the result of actual vessel branches - and should probably be kept.
+  - parameter is a length (in pixels) that a spur must exceed for it % to be kept (Default = 10).
+- clear near branch
+  - TRUE if centre lines should be shortened approaching branch points, so that any pixel is removed from the centre line if it is closer to the branch than to the background (i.e. FALSE pixels in BW).
+  - If measurements do not need to be made very close to branches (where they may be less accurate), this can give a cleaner result
+- min spline length
+  - The minimum length of a vessel segment centre line for it to be kept. Must be >= 3 because of need for angles.
+  - The spur removal will only get rid of terminal segments, but very short segments might remain between branches, in which case this parameter becomes relevant.
+- remove fat vessels
+  - remove vessels with diameter greater than the number of pixels in their centreline.
+  - Such segments are usually not measureable vessels.
+  - Keeping them can have a disproportionate effect upon processing time, because longer image profiles need to be computed for every vessel just to make sure that enough pixels are included for these extreme segements
+- spline smoothness
+  - The approximate spacing that should occur between spline pieces (in pixels)
+  - A higher value implies fewer pieces, and therefore a smoother spline fit
+- smooth parallel & smooth perpend.
+  - scaling parameters that multiply the estimate width computed for the vessel under consideration to determine how much smoothing is applied
+  - SMOOTH_PARALLEL/PERPENDICULAR is multiplied by the width, and the square root of the result gives the sigma for the Gaussian filter
+  - Although not essential, SMOOTH_SCALE_PERPENDICULAR should be >= SMOOTH_SCALE_PARALLEL
+- force connectivity
+  - TRUE if all pixels along the vessel edge should be connected to one another, i.e. within a distance of approximately one pixel from one another, FALSE otherwise.
+  - Setting this to TRUE can improve the results by reducing the risk that the edges of neighbouring structures or the central light reflex are erroneously linked to the vessel, but in some images it might cause even vessels that appear clearly visible to be missed because their edge (as determined by the algorithm) is too variable or fragmented
+
 ## ToDos
 
 - optimize unsharp masking or get rid of it, find better sharping tools?
@@ -83,3 +120,6 @@
 ## Acknowledgement
 
 - icons used troughout GUI from <https://fontawesome.com/license/free>[FontAwesome (CC BY 4.0)]
+
+ENFORCE_CONNECTEDNESS - 
+

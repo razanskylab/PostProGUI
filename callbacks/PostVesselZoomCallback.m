@@ -10,6 +10,12 @@ function PostVesselZoomCallback(hObject, eventdata)
     PPA.VesselFigs.BinCleanPlot.XLim = ax.XLim;
     PPA.VesselFigs.BinCleanPlot.YLim = ax.YLim;
 
+    PPA.VesselFigs.Skeleton.XLim = ax.XLim;
+    PPA.VesselFigs.Skeleton.YLim = ax.YLim;
+
+    PPA.VesselFigs.Spline.XLim = ax.XLim;
+    PPA.VesselFigs.Spline.YLim = ax.YLim;
+
     % TODO add other handles here as needed
     % PPA.VesselFigs.InPlot.XLim = ax.XLim;
     % PPA.VesselFigs.InPlot.YLim = ax.YLim;

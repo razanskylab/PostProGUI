@@ -13,18 +13,12 @@ function Apply_Vessel_Processing(PPA)
       return;
     end
 
-    % figure was closed, but vessel GUI is still open, so 
-    % just open a new figure
-    if isempty(PPA.VesselFigs) || ~ishandle(PPA.VesselFigs.MainFig)
-      PPA.Setup_Vessel_Figures();
-    end
-    figure(PPA.VesselFigs.MainFig);
-
     % now that we have a figure and all the data we need, we do the actual 
     % processing 
-    PPA.Apply_Vessel_Pre_Processing();
-    PPA.Find_Vessels();
+    PPA.Apply_Vessel_Pre_Processing(); % fast stuff
+    PPA.Find_Vessels(); % takes a moment...
 
+    
 
   catch me
     PPA.ProgBar = [];
@@ -33,6 +27,5 @@ function Apply_Vessel_Processing(PPA)
 
 
 end
-
 
 

@@ -169,6 +169,10 @@ classdef PostProBackEnd < BaseClass
 
       PPA.MasterGUI.DebugText.Items = [PPA.MasterGUI.DebugText.Items statusText];
       PPA.MasterGUI.DebugText.scroll('bottom');
+
+      if ~isempty(PPA.ProgBar) && (nargin == 2)
+        PPA.ProgBar.Title = statusText;
+      end
     end
 
   end
