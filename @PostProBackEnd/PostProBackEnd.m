@@ -11,8 +11,6 @@ classdef PostProBackEnd < BaseClass
   %   - files to be supported in the future:
   %     - tiff stacks
   %     - have user select dataset
-  %
-  %
 
   properties
     doBatchProcessing(1, 1) {mustBeNumericOrLogical, mustBeFinite} = 0; % flag which causes automatic processing and blocking of
@@ -28,7 +26,7 @@ classdef PostProBackEnd < BaseClass
     FraFilt = Frangi_Filter();
     FreqFilt = FilterClass();
     IMF = Image_Filter.empty; % is filled/reset during Apply_Image_Processing
-
+    AVA = Vessel_Analysis.empty;
     % file handling
     filePath = 'C:\Data';
     exportPath = [];
