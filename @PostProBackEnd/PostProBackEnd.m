@@ -16,6 +16,8 @@ classdef PostProBackEnd < BaseClass
     doBatchProcessing(1, 1) {mustBeNumericOrLogical, mustBeFinite} = 0; % flag which causes automatic processing and blocking of
     % dialogs etc
     processingEnabled = false; % if true, enables "automatic" processing cascade
+    verboseOutput = true; 
+      % used when GUIs work without master to suppres workspace output 
 
     isVolData = 0; % true when 3D data was loaded, which has a big influence
     % on the  overall processing we are doing
@@ -161,17 +163,33 @@ classdef PostProBackEnd < BaseClass
       PPA.ProgBar = [];
     end
 
-    function Update_Status(PPA, statusText)
-
-      if nargin == 1
-        statusText = sprintf(repmat('-', 1, 66));
+    function Update_Status(PPA, statusText, append)
+      if nargin < 3
+        append = false;
       end
-
-      PPA.MasterGUI.DebugText.Items = [PPA.MasterGUI.DebugText.Items statusText];
-      PPA.MasterGUI.DebugText.scroll('bottom');
-
-      if ~isempty(PPA.ProgBar) && (nargin == 2)
-        PPA.ProgBar.Title = statusText;
+      if ~isempty(PPA.MasterGUI)
+        if nargin == 1
+          statusText = sprintf(repmat('-', 1, 66));
+        end
+        
+        if append
+          PPA.MasterGUI.DebugText.Items{end} = [PPA.MasterGUI.DebugText.Items{end} statusText];
+        else
+          PPA.MasterGUI.DebugText.Items = [PPA.MasterGUI.DebugText.Items statusText];
+        end
+        PPA.MasterGUI.DebugText.scroll('bottom');
+        
+        if ~isempty(PPA.ProgBar) && (nargin == 2)
+          PPA.ProgBar.Title = statusText;
+        end
+      else
+        % when working on their own, subguis just output status to workspace
+        % instead of the master gui...
+        if append
+          PPA.VPrintF(statusText);
+        else
+          PPA.VPrintF([statusText '\n']);
+        end
       end
     end
 

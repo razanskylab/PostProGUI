@@ -1,94 +1,111 @@
 function Setup_Vessel_Figures(PPA)
 
   % setup UI axis for images
-  VesselFigs.MainFig = figure('Name', 'Vessel Pre-Processing', ...
-                                  'NumberTitle', 'off');
+  fHandle = figure('Name', 'Vessel Pre-Processing', 'NumberTitle', 'off');
+  % make figure fill half the screen
+  set(fHandle, 'Units', 'Normalized', 'OuterPosition', [0 0 0.5 1]);
+  % move figure over a little to the right of the vessel GUI
+  fHandle.Units = 'pixels';
+  fHandle.OuterPosition(1) = PPA.VesselGUI.UIFigure.Position(1) + PPA.VesselGUI.UIFigure.Position(3);
+  VesselFigs.MainFig = fHandle; 
+  VesselFigs.TileLayout = tiledlayout(3, 4);
+  VesselFigs.TileLayout.Padding = 'compact'; % remove uneccesary white space...
 
   % user can't close the window manually, needs to close the GUI
-  VesselFigs.MainFig.CloseRequestFcn = []; 
+  VesselFigs.MainFig.CloseRequestFcn = [];
 
-  % add zoom callback, so that all panels zoom when one panel is zoomed
-  VesselFigs.ZoomH = zoom(VesselFigs.MainFig);
-  VesselFigs.ZoomH.ActionPostCallback = @PostVesselZoomCallback;
-  VesselFigs.MainFig.UserData = PPA;
+  emptyImage = nan(size(PPA.procProj));
+  VesselFigs.InPlot = nexttile;
+  VesselFigs.InIm = imagesc(emptyImage);
+  axis image;
+  axis tight;
+  axis off; % no need for axis labels in these plots
+  colormap('gray');
+  title('Input Image');
 
-  VesselFigs.InPlot = subplot(2, 3, 1);
-    VesselFigs.InIm = imagesc(nan(1));
-    axis image;
-    axis tight; 
-    axis off; % no need for axis labels in these plots
-    colormap('gray');
-    title('Input Image');
+  VesselFigs.BinPlot = nexttile;
+  VesselFigs.BinIm = imagesc(emptyImage);
+  axis image;
+  axis tight;
+  axis off; % no need for axis labels in these plots
+  colormap('gray');
+  title('Binarized Image');
 
-  VesselFigs.BinPlot = subplot(2, 3, 2);
-    VesselFigs.BinIm = imagesc(nan(1));
-    axis image;
-    axis tight; 
-    axis off; % no need for axis labels in these plots
-    colormap('gray');
-    title('Binarized Image');
-
-  VesselFigs.BinCleanPlot = subplot(2, 3, 3);
-    VesselFigs.BinCleanIm = imagesc(nan(1));
-    axis image;
-    axis tight; 
-    axis off; % no need for axis labels in these plots
-    colormap('gray');
-    title('Cleaned Binarized Image');
+  VesselFigs.BinCleanPlot = nexttile;
+  VesselFigs.BinCleanIm = imagesc(emptyImage);
+  axis image;
+  axis tight;
+  axis off; % no need for axis labels in these plots
+  colormap('gray');
+  title('Cleaned Binarized Image');
 
   % skeleton image with branches
-  VesselFigs.Skeleton = subplot(2, 3, 4);
-    VesselFigs.SkeletonImBack = imagesc(nan(1));
-    axis image;
-    axis tight;
-    axis off; % no need for axis labels in these plots
-    colormap('gray');
-    hold on;
-    VesselFigs.SkeletonImFront = imshow(nan(1));
-    VesselFigs.SkeletonScat = scatter([NaN],[NaN]);
-    VesselFigs.SkeletonScat.LineWidth = 1.0;
-    VesselFigs.SkeletonScat.MarkerEdgeAlpha = 0; % no marger edge
-    VesselFigs.SkeletonScat.MarkerFaceColor = Colors.DarkOrange; % no marger edge
-    VesselFigs.SkeletonScat.SizeData = 20; % no marger edge
-    hold off;
-    title('Skeletonized Image');
+  VesselFigs.Skeleton = nexttile;
+  VesselFigs.SkeletonImBack = imagesc(emptyImage);
+  axis image;
+  axis tight;
+  axis off; % no need for axis labels in these plots
+  colormap('gray');
+  hold on;
+  VesselFigs.SkeletonImFront = imshow(nan(1));
+  VesselFigs.SkeletonScat = scatter([NaN], [NaN]);
+  VesselFigs.SkeletonScat.LineWidth = 1.0;
+  VesselFigs.SkeletonScat.MarkerEdgeAlpha = 0; % no marger edge
+  VesselFigs.SkeletonScat.MarkerFaceColor = Colors.DarkOrange; % no marger edge
+  VesselFigs.SkeletonScat.SizeData = 20; % no marger edge
+  hold off;
+  title('Skeletonized Image');
 
-  % spline fitted with branches
-  VesselFigs.Spline = subplot(2, 3, 5);
-    VesselFigs.SplineImBack = imagesc(nan(1));
-    axis image;
-    axis tight;
-    axis off; % no need for axis labels in these plots
-    colormap('gray');
-    hold on;
-    VesselFigs.SplineScat = scatter([NaN], [NaN]);
-    VesselFigs.SplineScat.LineWidth = 1.0;
-    VesselFigs.SplineScat.MarkerEdgeAlpha = 0; % no marger edge
-    VesselFigs.SplineScat.MarkerFaceColor = Colors.DarkOrange; % no marger edge
-    VesselFigs.SplineScat.SizeData = 20; % no marger edge
+  % spline fitted with branches ------------------------------------------------
+  VesselFigs.Spline = nexttile([2 2]);
+  VesselFigs.SplineImBack = imagesc(emptyImage);
+  axis image;
+  axis tight;
+  axis off; % no need for axis labels in these plots
+  colormap('gray');
+  hold on;
+  VesselFigs.SplineScat = scatter([NaN], [NaN]);
+  VesselFigs.SplineScat.LineWidth = 1.0;
+  VesselFigs.SplineScat.MarkerEdgeAlpha = 0; % no marger edge
+  VesselFigs.SplineScat.MarkerFaceColor = Colors.DarkOrange; % no marger edge
+  VesselFigs.SplineScat.SizeData = 20; % no marger edge
 
-    VesselFigs.SplineLine = line(NaN,NaN);
-    VesselFigs.SplineLine.LineStyle = '-';
-    VesselFigs.SplineLine.Color = Colors.PureRed;
-    VesselFigs.SplineLine.LineWidth = 2;
+  VesselFigs.SplineLine = line(NaN, NaN);
+  VesselFigs.SplineLine.LineStyle = '-';
+  VesselFigs.SplineLine.Color = Colors.PureRed;
+  VesselFigs.SplineLine.LineWidth = 2;
 
-    VesselFigs.LEdgeLines = line(NaN,NaN);
-    VesselFigs.LEdgeLines.LineStyle = '--';
-    VesselFigs.LEdgeLines.Color = Colors.PureRed;
-    VesselFigs.LEdgeLines.LineWidth = 1.5;
-    VesselFigs.REdgeLines = line(NaN,NaN);
-    VesselFigs.REdgeLines.LineStyle = '--';
-    VesselFigs.REdgeLines.Color = Colors.PureRed;
-    VesselFigs.REdgeLines.LineWidth = 1.5;
+  VesselFigs.LEdgeLines = line(NaN, NaN);
+  VesselFigs.LEdgeLines.LineStyle = '--';
+  VesselFigs.LEdgeLines.Color = Colors.PureRed;
+  VesselFigs.LEdgeLines.LineWidth = 1.5;
+  VesselFigs.REdgeLines = line(NaN, NaN);
+  VesselFigs.REdgeLines.LineStyle = '--';
+  VesselFigs.REdgeLines.Color = Colors.PureRed;
+  VesselFigs.REdgeLines.LineWidth = 1.5;
+  hold off;
+  title('Spline Fitted Image');
+  legend({'Branch Points', 'Centerlines', 'Edges'});
+
+  % angles overlay? ------------------------------------------------------------
+  VesselFigs.Angles = nexttile([2 2]);
+  VesselFigs.AnglesImBack = imagesc(emptyImage);
+  axis image;
+  axis tight;
+  axis off; % no need for axis labels in these plots
+  colormap('gray');
+  hold on;
+  VesselFigs.AnglesScat = scatter([NaN], [NaN]);
+  hold off;
+  title('Angles TODO');
 
 
-    hold off;
-    title('Spline Fitted Image');
-    legend({'Branch Points', 'Centerlines', 'Edges'});
-
-    PPA.VesselFigs = [];
-    PPA.VesselFigs = VesselFigs;
+  linkaxes([VesselFigs.Spline, ...
+            VesselFigs.InPlot, ...
+            VesselFigs.BinPlot, ...
+            VesselFigs.BinCleanPlot ...
+            VesselFigs.Skeleton ...
+            VesselFigs.Angles ...
+            ], 'xy');
+  PPA.VesselFigs = VesselFigs;
 end
-
-
-

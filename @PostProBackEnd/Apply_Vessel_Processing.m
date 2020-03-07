@@ -18,7 +18,7 @@ function Apply_Vessel_Processing(PPA)
     PPA.Apply_Vessel_Pre_Processing(); % fast stuff
     PPA.Find_Vessels(); % takes a moment...
 
-    
+    figure(PPA.VesselGUI.UIFigure);
 
   catch me
     PPA.ProgBar = [];
