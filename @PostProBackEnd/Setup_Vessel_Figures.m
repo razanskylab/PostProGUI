@@ -20,7 +20,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap('gray');
+  colormap(PPA.MasterGUI.cBars.Value);
   title('Input Image');
 
   VesselFigs.BinPlot = nexttile;
@@ -28,7 +28,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap('gray');
+  colormap(PPA.MasterGUI.cBars.Value);
   title('Binarized Image');
 
   VesselFigs.BinCleanPlot = nexttile;
@@ -36,7 +36,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap('gray');
+  colormap(PPA.MasterGUI.cBars.Value);
   title('Cleaned Binarized Image');
 
   % skeleton image with branches
@@ -45,7 +45,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap('gray');
+  colormap(PPA.MasterGUI.cBars.Value);
   hold on;
   VesselFigs.SkeletonImFront = imshow(nan(1));
   VesselFigs.SkeletonScat = scatter([NaN], [NaN]);
@@ -62,7 +62,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap('gray');
+  colormap(PPA.MasterGUI.cBars.Value);
   hold on;
   VesselFigs.SplineScat = scatter([NaN], [NaN]);
   VesselFigs.SplineScat.LineWidth = 1.0;
@@ -93,7 +93,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap('gray');
+  colormap(PPA.MasterGUI.cBars.Value);
   hold on;
   VesselFigs.AnglesScat = scatter([NaN], [NaN]);
   hold off;

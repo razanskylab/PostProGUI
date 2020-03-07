@@ -160,8 +160,12 @@ function Update_Depth_Map(PPA, ~)
   % also is faster this way...
   % this makes exporting etc A LOT easier...
   depthImage = back .* frontIm .* transparency;
-  imagesc(PPA.MapGUI.imDepthDisp, PPA.yPlot, PPA.xPlot, depthImage);
-  colormap(PPA.MapGUI.imDepthDisp, maskFrontCMap);
+
+  set(PPA.MapFig.DepthIm, 'cdata', depthImage);
+  set(PPA.MapFig.DepthIm, 'ydata', PPA.xPlot);
+  set(PPA.MapFig.DepthIm, 'xdata', PPA.yPlot);
+  % imagesc(PPA.MapGUI.imDepthDisp, PPA.yPlot, PPA.xPlot, depthImage);
+  colormap(PPA.MapFig.DepthAx, maskFrontCMap);
 
   % get depth labels and update deph-colorbar ----------------------------------
   nDepthLabels = 8;
@@ -170,7 +174,8 @@ function Update_Depth_Map(PPA, ~)
   for iLabel = nDepthLabels:-1:1
     zLabels{iLabel} = sprintf('%2.2f', tickValues(iLabel));
   end
-  c = colorbar(PPA.MapGUI.imDepthDisp, 'Location', 'southoutside');
+  % c = colorbar(PPA.MapFig.DepthAx, 'Location', 'southoutside');
+  c = colorbar(PPA.MapFig.DepthAx);
   c.TickLength = 0;
   c.Ticks = tickLocations;
   c.TickLabels = zLabels;

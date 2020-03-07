@@ -7,6 +7,10 @@ function Apply_Image_Processing(PPA)
       return;
     end
 
+    if isempty(PPA.MapFig) ||~ishandle(PPA.MapFig.MainFig)
+      PPA.Setup_Map_Figure();
+    end
+
     PPA.Handle_Map_Controls();
     PPA.Start_Wait_Bar(PPA.MapGUI, 'Processing 2D image data...');
 
@@ -88,8 +92,8 @@ function Apply_Image_Processing(PPA)
     if PPA.MapGUI.UseFrangiCheckBox.Value
       PPA.Start_Wait_Bar(PPA.MapGUI, 'Vesselness filtering...');
       % update frangi variables
-      PPA.FraFilt.x = PPA.xPlotIm;
       PPA.FraFilt.raw = PPA.IMF.filt;
+      PPA.FraFilt.x = PPA.xPlotIm;
       PPA.FraFilt.y = PPA.yPlotIm;
       PPA.FraFilt.Apply_Frangi(); % update frangi plot...
       PPA.IMF.filt = PPA.FraFilt.fusedFrangi;

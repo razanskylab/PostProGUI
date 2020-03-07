@@ -107,6 +107,7 @@ classdef PostProBackEnd < BaseClass
     LoadGUI = []; % handle to app for loading raw files
     VolGUI = [];
     MapGUI = [];
+    MapFig = []; % handles to map/depthmap figure
     VesselGUI = [];
     VesselFigs = []; % handles to figure for vessel analysis plotting
     ExportGUI = [];

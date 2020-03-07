@@ -8,11 +8,6 @@ function Apply_Vessel_Processing(PPA)
       return;
     end
     
-    % vessel GUI is switched "off"
-    if strcmp(PPA.VesselGUI.UIFigure.Visible,'off')
-      return;
-    end
-
     % now that we have a figure and all the data we need, we do the actual 
     % processing 
     PPA.Apply_Vessel_Pre_Processing(); % fast stuff
