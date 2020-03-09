@@ -6,8 +6,8 @@ function Init_Frangi(PPA)
 
     % check if we have a Frangi GUI already...
   PPA.FraFilt = Frangi_Filter();
-  PPA.FraFilt.x = PPA.xPlotIm;
   PPA.FraFilt.raw = PPA.procProj;
+  PPA.FraFilt.x = PPA.xPlotIm;
   PPA.FraFilt.y = PPA.yPlotIm;
 
     if isempty(PPA.FraFilt.GUI)

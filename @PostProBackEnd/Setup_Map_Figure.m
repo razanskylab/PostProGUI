@@ -10,8 +10,8 @@ function Setup_Map_Figure(PPA)
   FigHandles.TileLayout = tiledlayout(1, 2);
   FigHandles.TileLayout.Padding = 'compact'; % remove uneccesary white space...
 
-  % user can't close the window manually, needs to close the GUI
-  FigHandles.MainFig.CloseRequestFcn = [];
+  FigHandles.MainFig.UserData = PPA.MapGUI; % need that in Gui_Close_Request callback
+  FigHandles.MainFig.CloseRequestFcn = @Gui_Close_Request;
 
   emptyImage = nan(size(PPA.procVolProj));
 

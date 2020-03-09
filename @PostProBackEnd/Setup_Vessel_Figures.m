@@ -12,7 +12,8 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.TileLayout.Padding = 'compact'; % remove uneccesary white space...
 
   % user can't close the window manually, needs to close the GUI
-  VesselFigs.MainFig.CloseRequestFcn = [];
+  VesselFigs.MainFig.UserData = PPA.VesselGUI; % need that in Gui_Close_Request callback
+  VesselFigs.MainFig.CloseRequestFcn = @Gui_Close_Request;
 
   emptyImage = nan(size(PPA.procProj));
   VesselFigs.InPlot = nexttile;
@@ -48,7 +49,7 @@ function Setup_Vessel_Figures(PPA)
   colormap(PPA.MasterGUI.cBars.Value);
   hold on;
   VesselFigs.SkeletonImFront = imshow(nan(1));
-  VesselFigs.SkeletonScat = scatter([NaN], [NaN]);
+  VesselFigs.SkeletonScat = scatter(NaN, NaN);
   VesselFigs.SkeletonScat.LineWidth = 1.0;
   VesselFigs.SkeletonScat.MarkerEdgeAlpha = 0; % no marger edge
   VesselFigs.SkeletonScat.MarkerFaceColor = Colors.DarkOrange; % no marger edge
@@ -64,7 +65,7 @@ function Setup_Vessel_Figures(PPA)
   axis off; % no need for axis labels in these plots
   colormap(PPA.MasterGUI.cBars.Value);
   hold on;
-  VesselFigs.SplineScat = scatter([NaN], [NaN]);
+  VesselFigs.SplineScat = scatter(NaN, NaN);
   VesselFigs.SplineScat.LineWidth = 1.0;
   VesselFigs.SplineScat.MarkerEdgeAlpha = 0; % no marger edge
   VesselFigs.SplineScat.MarkerFaceColor = Colors.DarkOrange; % no marger edge
@@ -95,7 +96,7 @@ function Setup_Vessel_Figures(PPA)
   axis off; % no need for axis labels in these plots
   colormap(PPA.MasterGUI.cBars.Value);
   hold on;
-  VesselFigs.AnglesScat = scatter([NaN], [NaN]);
+  VesselFigs.AnglesScat = scatter(NaN, NaN);
   hold off;
   title('Angles TODO');
 
