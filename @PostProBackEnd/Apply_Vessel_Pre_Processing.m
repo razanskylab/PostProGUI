@@ -1,4 +1,4 @@
-function Apply_Vessel_Pre_Processing(PPA)
+function Apply_Vessel_Pre_Processing(PPA,startIm)
   % follows closely what is happening in AVA.Get_Data();
   % but this way we can plot in between...
   % this function only takes care of initializing the AVA data properly
@@ -16,24 +16,13 @@ function Apply_Vessel_Pre_Processing(PPA)
 
     % binarization and cleanup before we find vessels in datasets --------------
     PPA.Start_Wait_Bar(PPA.VesselGUI, 'Pre-processing vessel data...');
-    startIm = normalize(PPA.procProj);
+    startIm = normalize(startIm);
     PPA.IMF = Image_Filter(startIm);
-    set(PPA.VesselFigs.InIm, 'cData', startIm); % update input image
-    % update background of overlay images
-    set(PPA.VesselFigs.SkeletonImBack, 'cData', startIm);
-    set(PPA.VesselFigs.SplineImBack, 'cData', startIm);
 
-    % initialize AVA & Vessel Data object for AVA usage
-    PPA.AVA = Vessel_Analysis();
-    VData = Vessel_Data(PPA.AVA.VesselSettings);
-    VData.delete_vessels;
-    VData.im = single(startIm);
-    VData.im_orig = single(startIm);
-    % we always assume white vessels on dark background
-    VData.dark_vessels = false;
+    VData = PPA.AVA.Data;
 
     % binarized based on what was selected in GUI
-    switch PPA.VesselGUI.BinMethodDropDown.Value
+    switch PPA.VesselGUI.BinarizationMethodDropDown.Value
       case 'Adaptive'
         PPA.IMF.binMethod = 'adapt';
         PPA.IMF.threshSens = PPA.VesselGUI.BinSensEdit.Value;

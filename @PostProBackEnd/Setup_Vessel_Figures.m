@@ -15,13 +15,19 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.MainFig.UserData = PPA.VesselGUI; % need that in Gui_Close_Request callback
   VesselFigs.MainFig.CloseRequestFcn = @Gui_Close_Request;
 
+  if isempty(PPA.MasterGUI)
+    cbar = gray(256);
+  else
+    cbar = PPA.MasterGUI.cBars.Value;
+  end
+
   emptyImage = nan(size(PPA.procProj));
   VesselFigs.InPlot = nexttile;
   VesselFigs.InIm = imagesc(emptyImage);
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap(PPA.MasterGUI.cBars.Value);
+  colormap(cbar);
   title('Input Image');
 
   VesselFigs.BinPlot = nexttile;
@@ -29,7 +35,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap(PPA.MasterGUI.cBars.Value);
+  colormap(cbar);
   title('Binarized Image');
 
   VesselFigs.BinCleanPlot = nexttile;
@@ -37,7 +43,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap(PPA.MasterGUI.cBars.Value);
+  colormap(cbar);
   title('Cleaned Binarized Image');
 
   % skeleton image with branches
@@ -46,7 +52,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap(PPA.MasterGUI.cBars.Value);
+  colormap(cbar);
   hold on;
   VesselFigs.SkeletonImFront = imshow(nan(1));
   VesselFigs.SkeletonScat = scatter(NaN, NaN);
@@ -63,7 +69,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap(PPA.MasterGUI.cBars.Value);
+  colormap(cbar);
   hold on;
   VesselFigs.SplineScat = scatter(NaN, NaN);
   VesselFigs.SplineScat.LineWidth = 1.0;
@@ -94,7 +100,7 @@ function Setup_Vessel_Figures(PPA)
   axis image;
   axis tight;
   axis off; % no need for axis labels in these plots
-  colormap(PPA.MasterGUI.cBars.Value);
+  colormap(cbar);
   hold on;
   VesselFigs.AnglesScat = scatter(NaN, NaN);
   hold off;
