@@ -40,6 +40,7 @@ function Apply_Vessel_Processing(PPA)
     PPA.AVA.Data.delete_vessels;
     PPA.AVA.Data.im = fitInput;
     PPA.AVA.Data.im_orig = fitInput;
+    PPA.AVA.xy = PPA.procProj;
     % we always assume white vessels on dark background
     PPA.AVA.Data.dark_vessels = false;
 

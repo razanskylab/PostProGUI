@@ -126,7 +126,7 @@ function Update_Depth_Map(PPA, ~)
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % create background RGB image ------------------------------------------------
-  back = normalize(mip); % already normalized at this point
+  back = mip; % already normalized at this point
   % scale the background image from 0 to num_colors
   % back = imadjust(back);
   back = round(num_colors .* back);
