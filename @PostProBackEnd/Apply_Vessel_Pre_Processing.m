@@ -15,7 +15,10 @@ function Apply_Vessel_Pre_Processing(PPA,startIm)
     figure(PPA.VesselFigs.MainFig);
 
     % binarization and cleanup before we find vessels in datasets --------------
-    PPA.Start_Wait_Bar(PPA.VesselGUI, 'Pre-processing vessel data...');
+    PPA.Update_Status('Pre-processing vessel data...');
+    PPA.ProgBar.Value = 0.1;
+    progressbar('Pre-processing vessel data...');
+    progressbar(0.1);
     startIm = normalize(startIm);
     PPA.IMF = Image_Filter(startIm);
 
@@ -38,7 +41,8 @@ function Apply_Vessel_Pre_Processing(PPA,startIm)
 
     binIm = PPA.IMF.Binarize();
     set(PPA.VesselFigs.BinIm, 'cData', binIm); % update binarized image
-
+    PPA.VesselFigs.BinPlot.Colormap = PPA.VesselFigs.cbar; % return to default colormap
+    progressbar(0.2);
     % content from seg_iuwt, but without the segmentation part...
     minObjSize = PPA.VesselGUI.MinObjSizeEdit.Value;
     minHoleSize = PPA.VesselGUI.MinHoleSizeEdit.Value;
@@ -46,12 +50,15 @@ function Apply_Vessel_Pre_Processing(PPA,startIm)
 
     % update cleaned binarized image
     set(PPA.VesselFigs.BinCleanIm, 'cData', binImClean);
+    PPA.VesselFigs.BinCleanPlot.Colormap = PPA.VesselFigs.cbar; % return to default colormap
     % store cleaned up BW data in vessel data object
     VData.bw = binImClean;
 
     % reduce binnary image down to a skeleton
     % Get thinned centreline segments %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     PPA.Update_Status('Skeletonizing vessel data...');
+    PPA.ProgBar.Value = 0.2;
+    progressbar(0.5);
     minSpurLength = PPA.VesselGUI.MinSpurLength.Value;
     clearNearBranch = PPA.VesselGUI.ClearNearBranchCheckBox.Value;
 
@@ -73,9 +80,11 @@ function Apply_Vessel_Pre_Processing(PPA,startIm)
       PPA.VesselFigs.SkeletonScat.XData = VData.branchCenters(:, 1);
       PPA.VesselFigs.SkeletonScat.YData = VData.branchCenters(:, 2);
     end
+    PPA.VesselFigs.Skeleton.Colormap = PPA.VesselFigs.cbar; % return to default colormap
 
     PPA.AVA.Data = VData; % store vessel data in AVA object
-
+    PPA.ProgBar.Value = 0.3;
+    progressbar(1);
   catch me
     PPA.ProgBar = [];
     rethrow(me);

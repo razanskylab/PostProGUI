@@ -192,6 +192,9 @@ classdef PostProBackEnd < BaseClass
           PPA.VPrintF([statusText '\n']);
         end
       end
+      if ~isempty(PPA.ProgBar)
+        PPA.ProgBar.Message = statusText;
+      end
     end
 
   end

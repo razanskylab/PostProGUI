@@ -24,7 +24,7 @@ function Find_Vessels(PPA)
     % vessel in is just a
     PPA.Update_Status('Spline fitting vessel skeletons...');
     Vessels = spline_centreline(vessels, splineSmooth, true);
-
+    PPA.ProgBar.Value = 0.4;
     %----------------------------
     % Compute image profiles, using the distance transform of the segmented
     % image to ensure the profile length will be long enough to contain the
@@ -38,7 +38,7 @@ function Find_Vessels(PPA)
     % Make the image profiles
     PPA.Update_Status('Creating image profiles around vessels...');
     Vessels = make_image_profiles(Vessels, VData.im, width, '*linear');
-
+    PPA.ProgBar.Value = 0.5;
     % add the vessels
     VData.add_vessels(Vessels);
 
@@ -55,6 +55,8 @@ function Find_Vessels(PPA)
     PPA.AVA.Data = VData; % store vessel data in AVA object
 
     % plot final image with fitted splines, widths and branch points
+    PPA.ProgBar.Value = 0.9;
+    PPA.Update_Status('Plotting results...');
     fun = @(x) cat(1, x, [nan, nan]);
     temp = cellfun(fun, {Vessels.centre}, 'UniformOutput', false);
     cent = cell2mat(temp');
