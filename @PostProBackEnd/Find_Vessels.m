@@ -7,6 +7,7 @@ function Find_Vessels(PPA)
   try
     % binarization and cleanup before we find vessels in datasets --------------
     PPA.Update_Status('Sorting vessel skeletons...');
+    progressbar('Fitting vessel locations...', {Colors.GuiLightOrange});
 
     VData = PPA.AVA.Data;
 
@@ -18,13 +19,14 @@ function Find_Vessels(PPA)
     % order the pixels for eache vessels centerline (not sure why we are doing this)
     [vessels, maxDist] = create_and_order_vessel_centerlines(VData.segments, ...
       minSplineLength, removeFat, VData.distTrans);
+    progressbar(0.2);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Refine the centreline and compute angles by spline-fitting
     % vessel in is just a
     PPA.Update_Status('Spline fitting vessel skeletons...');
     Vessels = spline_centreline(vessels, splineSmooth, true);
-    PPA.ProgBar.Value = 0.4;
+    progressbar(0.5);
     %----------------------------
     % Compute image profiles, using the distance transform of the segmented
     % image to ensure the profile length will be long enough to contain the
@@ -38,16 +40,18 @@ function Find_Vessels(PPA)
     % Make the image profiles
     PPA.Update_Status('Creating image profiles around vessels...');
     Vessels = make_image_profiles(Vessels, VData.im, width, '*linear');
-    PPA.ProgBar.Value = 0.5;
+    progressbar(0.75);
     % add the vessels
     VData.add_vessels(Vessels);
+    progressbar(1);
 
     % calculate widht based on gradient fun
     PPA.Update_Status('Calculating vessel widths...');
+    progressbar('Calculating vessel widths...', {Colors.GuiLightOrange});
     PPA.AVA.AviaSettings.smooth_parallel = PPA.VesselGUI.SmoothPar.Value;
     PPA.AVA.AviaSettings.smooth_perpendicular = PPA.VesselGUI.SmoothPer.Value;
     PPA.AVA.AviaSettings.enforce_connectivity = PPA.VesselGUI.ForceConnect.Value;
-    edges_max_gradient(VData, PPA.AVA.AviaSettings);
+    edges_max_gradient(VData, PPA.AVA.AviaSettings, true);
 
     % Make sure NaNs are 'excluded' from summary measurements
     VData.vessel_list.exclude_nans();
@@ -55,13 +59,16 @@ function Find_Vessels(PPA)
     PPA.AVA.Data = VData; % store vessel data in AVA object
 
     % plot final image with fitted splines, widths and branch points
-    PPA.ProgBar.Value = 0.9;
+    progressbar(1);
+    progressbar('Plotting found vessels...', {Colors.GuiLightOrange});
     PPA.Update_Status('Plotting results...');
+
     fun = @(x) cat(1, x, [nan, nan]);
     temp = cellfun(fun, {Vessels.centre}, 'UniformOutput', false);
     cent = cell2mat(temp');
     PPA.VesselFigs.SplineLine.XData = cent(:, 2);
     PPA.VesselFigs.SplineLine.YData = cent(:, 1);
+    progressbar(0.33);
 
     fun = @(x) cat(1, x, [nan, nan]);
     side1 = cellfun(fun, {Vessels.side1}, 'UniformOutput', false);
@@ -72,11 +79,13 @@ function Find_Vessels(PPA)
     PPA.VesselFigs.LEdgeLines.YData = side1(:, 1);
     PPA.VesselFigs.REdgeLines.XData = side2(:, 2);
     PPA.VesselFigs.REdgeLines.YData = side2(:, 1);
+    progressbar(0.66);
 
     if ~isempty(VData.branchCenters)
       PPA.VesselFigs.SplineScat.XData = VData.branchCenters(:, 1);
       PPA.VesselFigs.SplineScat.YData = VData.branchCenters(:, 2);
     end
+    progressbar(1);
 
     PPA.ProgBar = [];
 

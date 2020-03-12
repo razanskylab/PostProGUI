@@ -1,5 +1,7 @@
 function Setup_Vessel_Figures(PPA)
-  progressbar('Setting up vessel figures');
+  PPA.Start_Wait_Bar(PPA.VesselGUI, 'Setting up figures...');
+  PPA.Update_Status('Setting up vessel figures');
+  ProgHandle = progressbar('Setting up vessel figures', {Colors.GuiLightOrange});
   overlayAlpha = 0.5;
 
   % get to colorbar to use
@@ -14,6 +16,8 @@ function Setup_Vessel_Figures(PPA)
   fHandle.NumberTitle = 'off';
   fHandle.ToolBar = 'figure';
   fHandle.Colormap = VesselFigs.cbar;
+  progressbar(0.1);
+  figure(ProgHandle);
 
   % make figure fill ~ half the screen and be next to GUI ---------------------
   set(fHandle, 'Units', 'Normalized', 'OuterPosition', [0 0 0.4 0.7]);
@@ -28,13 +32,13 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.MainFig = fHandle; 
 
   % create flow-layout for processing steps to use available space as best as possible
-  VesselFigs.TileLayout = tiledlayout('flow');
+  VesselFigs.TileLayout = tiledlayout(fHandle,'flow');
   VesselFigs.TileLayout.Padding = 'compact'; % remove uneccesary white space...
 
   % closing the processing figure also closes the GUI and vice-versa
   VesselFigs.MainFig.UserData = PPA.VesselGUI; % need that in Gui_Close_Request callback
   VesselFigs.MainFig.CloseRequestFcn = @Gui_Close_Request;
-  progressbar(0.1);
+  progressbar(0.2);
 
   % setup subplots of processing figure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Input Image ----------------------------------------------------------------
@@ -45,7 +49,7 @@ function Setup_Vessel_Figures(PPA)
   axis tight;
   axis off; % no need for axis labels in these plots
   title('Input Image');
-  progressbar(0.2);
+  progressbar(0.3);
 
   % Binarized Image ------------------------------------------------------------
   VesselFigs.BinPlot = nexttile(VesselFigs.TileLayout);
@@ -54,7 +58,7 @@ function Setup_Vessel_Figures(PPA)
   axis tight;
   axis off; % no need for axis labels in these plots
   title('Binarized Image');
-  progressbar(0.3);
+  progressbar(0.4);
 
   % Cleaned Binarized Image ----------------------------------------------------
   VesselFigs.BinCleanPlot = nexttile(VesselFigs.TileLayout);
@@ -63,7 +67,7 @@ function Setup_Vessel_Figures(PPA)
   axis tight;
   axis off; % no need for axis labels in these plots
   title('Cleaned Binarized Image');
-  progressbar(0.4);
+  progressbar(0.5);
 
   % skeleton image with branches -----------------------------------------------
   VesselFigs.Skeleton = nexttile(VesselFigs.TileLayout);
@@ -81,13 +85,15 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.SkeletonScat.SizeData = 15; 
   hold off;
   title('Skeletonized Image');
-  progressbar(0.5);
+  progressbar(0.6);
 
   % setup results figure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   fHandle = figure('Name', 'Vessel Analysis Results');
   fHandle.NumberTitle = 'off';
   fHandle.ToolBar = 'figure';
   fHandle.Colormap = VesselFigs.cbar;
+  progressbar(0.7);
+  figure(ProgHandle); % bring progbar back to front
 
   % make figure fill ~ half the screen and be next to GUI ---------------------
   set(fHandle, 'Units', 'Normalized', 'OuterPosition', [0 0 0.4 0.7]);
@@ -101,13 +107,13 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.ResultsFig = fHandle;
 
   % create flow-layout for processing steps to use available space as best as possible
-  VesselFigs.ResultsTileLayout = tiledlayout(1,2);
+  VesselFigs.ResultsTileLayout = tiledlayout(fHandle, 1, 2);
   VesselFigs.ResultsTileLayout.Padding = 'compact'; % remove uneccesary white space...
 
   % closing the processing figure also closes the GUI and vice-versa
   VesselFigs.ResultsFig.UserData = PPA.VesselGUI; % need that in Gui_Close_Request callback
   VesselFigs.ResultsFig.CloseRequestFcn = @Gui_Close_Request;
-  progressbar(0.6);
+  progressbar(0.8);
 
   % spline fitted with branches ------------------------------------------------
   VesselFigs.Spline = nexttile(VesselFigs.ResultsTileLayout);
@@ -143,8 +149,8 @@ function Setup_Vessel_Figures(PPA)
   hold off;
   title(VesselFigs.Spline,'Spline Fitted Image');
   legend(VesselFigs.Spline,{'Branch Points', 'Centerlines', 'Edges'});
-  progressbar(0.7);
 
+  progressbar(0.9);
   VesselFigs.DataDisp = nexttile(VesselFigs.ResultsTileLayout);
 
   % link all the axis of both the processing and the results figures, so
@@ -155,8 +161,7 @@ function Setup_Vessel_Figures(PPA)
             VesselFigs.BinCleanPlot ...
             VesselFigs.Skeleton ...
             ], 'xy');
-  progressbar(0.8);
-        
+
   PPA.VesselFigs = VesselFigs;
-  progressbar(1);
+  progressbar(1); % close progbar
 end

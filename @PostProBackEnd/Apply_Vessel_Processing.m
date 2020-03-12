@@ -26,10 +26,11 @@ function Apply_Vessel_Processing(PPA)
     set(PPA.VesselFigs.SplineImBack, 'cData', fitInput);
     set(PPA.VesselFigs.SkeletonImBack, 'cData', fitInput);
 
+    % this is where we do the actual work... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     PPA.Apply_Vessel_Pre_Processing(binInput);
     PPA.Find_Vessels(); % takes a moment...
 
-    % restore the original colormaps
+    % restore the original colormaps -------------------------------------------
     PPA.VesselFigs.MainFig.Colormap = PPA.VesselFigs.cbar;
     PPA.VesselFigs.ResultsFig.Colormap = PPA.VesselFigs.cbar;
 
@@ -49,19 +50,18 @@ function set_figure_to_processing(VesselFigs)
   % set vessel colorbar to low contrast grey to indicate work is happening...
   VesselFigs.MainFig.Colormap = Colors.lowContrast;
   VesselFigs.ResultsFig.Colormap = Colors.lowContrast;
-  % delete all old scatter plots
-  % VesselFigs.SkeletonImFront.cData = NaN;
-  set(VesselFigs.SkeletonImFront, 'cData', NaN);
-  VesselFigs.SkeletonScat.XData = NaN;
-  VesselFigs.SkeletonScat.YData = NaN;
-  VesselFigs.SplineScat.XData = NaN;
-  VesselFigs.SplineScat.YData = NaN;
-  VesselFigs.SplineLine.XData = NaN;
-  VesselFigs.SplineLine.YData = NaN;
-  VesselFigs.LEdgeLines.XData = NaN;
-  VesselFigs.LEdgeLines.YData = NaN;
-  VesselFigs.REdgeLines.XData = NaN;
-  VesselFigs.REdgeLines.YData = NaN;
+  VesselFigs.SkeletonImFront.AlphaData = 1;
+  VesselFigs.SkeletonImFront.CData = NaN;
+  VesselFigs.SkeletonScat.XData = 0;
+  VesselFigs.SkeletonScat.YData = 0;
+  VesselFigs.SplineScat.XData = 0;
+  VesselFigs.SplineScat.YData = 0;
+  VesselFigs.SplineLine.XData = 0;
+  VesselFigs.SplineLine.YData = 0;
+  VesselFigs.LEdgeLines.XData = 0;
+  VesselFigs.LEdgeLines.YData = 0;
+  VesselFigs.REdgeLines.XData = 0;
+  VesselFigs.REdgeLines.YData = 0;
 end
 
 

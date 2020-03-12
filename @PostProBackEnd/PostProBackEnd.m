@@ -180,9 +180,6 @@ classdef PostProBackEnd < BaseClass
         end
         PPA.MasterGUI.DebugText.scroll('bottom');
         
-        if ~isempty(PPA.ProgBar) && (nargin == 2)
-          PPA.ProgBar.Title = statusText;
-        end
       else
         % when working on their own, subguis just output status to workspace
         % instead of the master gui...
@@ -191,9 +188,6 @@ classdef PostProBackEnd < BaseClass
         else
           PPA.VPrintF([statusText '\n']);
         end
-      end
-      if ~isempty(PPA.ProgBar)
-        PPA.ProgBar.Message = statusText;
       end
     end
 
