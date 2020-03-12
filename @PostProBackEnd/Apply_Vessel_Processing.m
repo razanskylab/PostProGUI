@@ -21,18 +21,26 @@ function Apply_Vessel_Processing(PPA)
     [fitInput, binInput] = init_vessel_processing(PPA); % local fct below
  
     % update background of input and final spline fit
+    plotBackground = normalize(fitInput);
+    plotBackground = gray2ind(plotBackground, 256);
+    plotBackground = ind2rgb(plotBackground, PPA.VesselFigs.cbar);
+
     set(PPA.VesselFigs.InIm, 'cData', fitInput); % update input image
     PPA.VesselFigs.InPlot.Colormap = PPA.VesselFigs.cbar; % return to default colormap
-    set(PPA.VesselFigs.SplineImBack, 'cData', fitInput);
     set(PPA.VesselFigs.SkeletonImBack, 'cData', fitInput);
+    set(PPA.VesselFigs.SplineImBack, 'cData', plotBackground);
+    set(PPA.VesselFigs.DataImBack, 'cData', plotBackground);
+    PPA.VesselFigs.plotBackground = plotBackground; % used in Update_Vessel_Results_Plot
 
     % this is where we do the actual work... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     PPA.Apply_Vessel_Pre_Processing(binInput);
     PPA.Find_Vessels(); % takes a moment...
-
     % restore the original colormaps -------------------------------------------
     PPA.VesselFigs.MainFig.Colormap = PPA.VesselFigs.cbar;
     PPA.VesselFigs.ResultsFig.Colormap = PPA.VesselFigs.cbar;
+    
+    % plot final image with fitted splines, widths and branch points
+    PPA.Update_Vessel_Results_Plot();
 
     % bring the figures we use to the front
     figure(PPA.VesselFigs.MainFig);
@@ -62,6 +70,11 @@ function set_figure_to_processing(VesselFigs)
   VesselFigs.LEdgeLines.YData = 0;
   VesselFigs.REdgeLines.XData = 0;
   VesselFigs.REdgeLines.YData = 0;
+
+  % remove all old scatter / line plots in result figure
+  while (numel(VesselFigs.DataDisp.Children) > 1)
+    delete(VesselFigs.DataDisp.Children(1));
+  end
 end
 
 

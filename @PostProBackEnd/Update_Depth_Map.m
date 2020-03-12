@@ -194,19 +194,16 @@ function Update_Depth_Map(PPA, ~)
   nbins = round(numel(unique(depth(:)))./5); % get a bin for every 100 um
   nbins = max([nbins 10]); % have at least 10 bins
   nbins = min([nbins 75]); % have no more than 75 bins
-  normalizationType = 'countdensity';
-  histoColor = Colors.sherpaBlue;
-  H = histogram(PPA.MapGUI.histoAx, fullDepth, nbins, 'Normalization', normalizationType);
-  H.FaceColor = histoColor;
+  H = histogram(PPA.MapGUI.histoAx, fullDepth, nbins, 'Normalization', 'countdensity');
+  H.FaceColor = Colors.sherpaBlue; 
   H.FaceAlpha = 0.50;
   H.EdgeColor = 'none';
   hold(PPA.MapGUI.histoAx, 'on');
   axis(PPA.MapGUI.histoAx, 'tight');
   origYLim = PPA.MapGUI.histoAx.YLim;
 
-  histoColor = Colors.capeHoney;
-  H = histogram(PPA.MapGUI.histoAx, depth, nbins, 'Normalization', normalizationType);
-  H.FaceColor = histoColor;
+  H = histogram(PPA.MapGUI.histoAx, depth, nbins, 'Normalization', 'countdensity');
+  H.FaceColor = Colors.capeHoney;
   H.FaceAlpha = 0.75;
   H.EdgeColor = 'none';
   hold(PPA.MapGUI.histoAx, 'off');
@@ -214,6 +211,5 @@ function Update_Depth_Map(PPA, ~)
   % restore orig ylim so that truncating does not distort axis so much...
   PPA.MapGUI.histoAx.YLim = origYLim; 
   PPA.ProgBar = [];
-
   
 end

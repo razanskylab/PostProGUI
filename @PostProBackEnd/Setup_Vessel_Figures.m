@@ -12,7 +12,7 @@ function Setup_Vessel_Figures(PPA)
   end
 
   % setup processing figure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  fHandle = figure('Name', 'Vessel Processing');
+  fHandle = figure('Name', 'Figure: Vessel Processing');
   fHandle.NumberTitle = 'off';
   fHandle.ToolBar = 'figure';
   fHandle.Colormap = VesselFigs.cbar;
@@ -45,36 +45,28 @@ function Setup_Vessel_Figures(PPA)
   emptyImage = nan(size(PPA.procProj));
   VesselFigs.InPlot = nexttile(VesselFigs.TileLayout);
   VesselFigs.InIm = imagesc(VesselFigs.InPlot,emptyImage);
-  axis image;
-  axis tight;
-  axis off; % no need for axis labels in these plots
+  axis image; axis tight; axis off; % no need for axis labels in these plots
   title('Input Image');
   progressbar(0.3);
 
   % Binarized Image ------------------------------------------------------------
   VesselFigs.BinPlot = nexttile(VesselFigs.TileLayout);
   VesselFigs.BinIm = imagesc(VesselFigs.BinPlot,emptyImage);
-  axis image;
-  axis tight;
-  axis off; % no need for axis labels in these plots
+  axis image; axis tight; axis off; % no need for axis labels in these plots
   title('Binarized Image');
   progressbar(0.4);
 
   % Cleaned Binarized Image ----------------------------------------------------
   VesselFigs.BinCleanPlot = nexttile(VesselFigs.TileLayout);
   VesselFigs.BinCleanIm = imagesc(VesselFigs.BinCleanPlot, emptyImage);
-  axis image;
-  axis tight;
-  axis off; % no need for axis labels in these plots
+  axis image; axis tight; axis off; % no need for axis labels in these plots
   title('Cleaned Binarized Image');
   progressbar(0.5);
 
   % skeleton image with branches -----------------------------------------------
   VesselFigs.Skeleton = nexttile(VesselFigs.TileLayout);
   VesselFigs.SkeletonImBack = imagesc(VesselFigs.Skeleton,emptyImage);
-  axis image;
-  axis tight;
-  axis off; % no need for axis labels in these plots
+  axis image; axis tight; axis off; % no need for axis labels in these plots
   hold on;
   VesselFigs.SkeletonImFront = imagesc(VesselFigs.Skeleton, emptyImage);
   VesselFigs.SkeletonScat = scatter(VesselFigs.Skeleton,NaN, NaN);
@@ -88,7 +80,7 @@ function Setup_Vessel_Figures(PPA)
   progressbar(0.6);
 
   % setup results figure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  fHandle = figure('Name', 'Vessel Analysis Results');
+  fHandle = figure('Name', 'Figure: Vessel Analysis Results');
   fHandle.NumberTitle = 'off';
   fHandle.ToolBar = 'figure';
   fHandle.Colormap = VesselFigs.cbar;
@@ -118,10 +110,7 @@ function Setup_Vessel_Figures(PPA)
   % spline fitted with branches ------------------------------------------------
   VesselFigs.Spline = nexttile(VesselFigs.ResultsTileLayout);
   VesselFigs.SplineImBack = imagesc(VesselFigs.Spline,emptyImage);
-  axis image;
-  axis tight;
-  axis off; % no need for axis labels in these plots
-  % colormap(VesselFigs.cbar);
+  axis image;  axis tight; axis off; % no need for axis labels in these plots
   hold on;
   VesselFigs.SplineScat = scatter(VesselFigs.Spline,NaN, NaN);
   VesselFigs.SplineScat.LineWidth = 1.0;
@@ -147,11 +136,28 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.REdgeLines.Color(4) = overlayAlpha;
   VesselFigs.REdgeLines.LineWidth = 1.5;
   hold off;
-  title(VesselFigs.Spline,'Spline Fitted Image');
-  legend(VesselFigs.Spline,{'Branch Points', 'Centerlines', 'Edges'});
-
+  title(VesselFigs.Spline,'Found Vessels');
+  VesselFigs.SplineLeg = legend(VesselFigs.Spline, {'Branch Points', 'Centerlines', 'Edges'});
   progressbar(0.9);
+
+  % data overlay (angle, diameter, turtuosity)
   VesselFigs.DataDisp = nexttile(VesselFigs.ResultsTileLayout);
+  VesselFigs.DataImBack = imagesc(VesselFigs.DataDisp, emptyImage);
+  axis image; axis tight; axis off; % no need for axis labels in these plots
+  title(VesselFigs.DataDisp, 'Data Overlay');
+  VesselFigs.Colorbar = colorbar(VesselFigs.DataDisp);
+
+  % GUI histogram showing data we are overlaying
+  VesselFigs.HistoAx = PPA.VesselGUI.histoAx;
+  VesselFigs.Histo = histogram(PPA.VesselGUI.histoAx, NaN, 100);
+  VesselFigs.Histo.Normalization = 'countdensity';
+  VesselFigs.Histo.FaceColor = Colors.GuiLightOrange;
+  VesselFigs.Histo.FaceAlpha = 0.8;
+  VesselFigs.Histo.EdgeColor = 'none';
+
+  VesselFigs.HistoAx.YAxis.TickValues = [];
+  VesselFigs.HistoAx.YLabel.String = 'Count Density';
+
 
   % link all the axis of both the processing and the results figures, so
   % that zooming/panning in one affects all the figures
@@ -160,6 +166,7 @@ function Setup_Vessel_Figures(PPA)
             VesselFigs.BinPlot, ...
             VesselFigs.BinCleanPlot ...
             VesselFigs.Skeleton ...
+            VesselFigs.DataDisp ...
             ], 'xy');
 
   PPA.VesselFigs = VesselFigs;

@@ -55,36 +55,7 @@ function Find_Vessels(PPA)
 
     % Make sure NaNs are 'excluded' from summary measurements
     VData.vessel_list.exclude_nans();
-
     PPA.AVA.Data = VData; % store vessel data in AVA object
-
-    % plot final image with fitted splines, widths and branch points
-    progressbar(1);
-    progressbar('Plotting found vessels...', {Colors.GuiLightOrange});
-    PPA.Update_Status('Plotting results...');
-
-    fun = @(x) cat(1, x, [nan, nan]);
-    temp = cellfun(fun, {Vessels.centre}, 'UniformOutput', false);
-    cent = cell2mat(temp');
-    PPA.VesselFigs.SplineLine.XData = cent(:, 2);
-    PPA.VesselFigs.SplineLine.YData = cent(:, 1);
-    progressbar(0.33);
-
-    fun = @(x) cat(1, x, [nan, nan]);
-    side1 = cellfun(fun, {Vessels.side1}, 'UniformOutput', false);
-    side2 = cellfun(fun, {Vessels.side2}, 'UniformOutput', false);
-    side1 = cell2mat(side1');
-    side2 = cell2mat(side2');
-    PPA.VesselFigs.LEdgeLines.XData = side1(:, 2);
-    PPA.VesselFigs.LEdgeLines.YData = side1(:, 1);
-    PPA.VesselFigs.REdgeLines.XData = side2(:, 2);
-    PPA.VesselFigs.REdgeLines.YData = side2(:, 1);
-    progressbar(0.66);
-
-    if ~isempty(VData.branchCenters)
-      PPA.VesselFigs.SplineScat.XData = VData.branchCenters(:, 1);
-      PPA.VesselFigs.SplineScat.YData = VData.branchCenters(:, 2);
-    end
     progressbar(1);
 
     PPA.ProgBar = [];
