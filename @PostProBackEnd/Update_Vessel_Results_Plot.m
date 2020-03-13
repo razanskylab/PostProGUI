@@ -62,18 +62,20 @@ function Update_Vessel_Results_Plot(PPA)
     nColors = PPA.VesselGUI.nColors.Value;
     scaleSize = PPA.VesselGUI.scaleSize.Value;
     plotSize = PPA.VesselGUI.plotSize.Value;
+    removeOutliers = PPA.VesselGUI.removeOutliers.Value;
+    stdMulti = PPA.VesselGUI.maxStd.Value;
 
     switch PPA.VesselGUI.DataColorMap.Value
       case {'jet', 'hot', 'gray', 'parula', 'hsv'}
         eval(['dataColorMap = ' dataColorMap '(nColors);']); % turn string to actual colormap matrix
       case {'GreenRed'} 
-        dataColorMap = make_linear_colormap(Colors.BrightGreen, Colors.PureRed, nColors);
+        dataColorMap = make_linear_colormap(Colors.PureRed, Colors.BrightGreen, nColors); 
       case {'RedGreen'} 
-        dataColorMap = make_linear_colormap(Colors.PureRed, Colors.BrightGreen, nColors);
+        dataColorMap = make_linear_colormap(Colors.BrightGreen, Colors.PureRed, nColors);
       case {'GreenBlue'}
-        dataColorMap = make_linear_colormap(Colors.BrightGreen, Colors.PureBlue, nColors);
-      case {'BlueGreen'}
         dataColorMap = make_linear_colormap(Colors.PureBlue, Colors.BrightGreen, nColors);
+      case {'BlueGreen'}
+        dataColorMap = make_linear_colormap(Colors.BrightGreen, Colors.PureBlue, nColors);
     end
 
     switch PPA.VesselGUI.WhatDataOverlay.Value
@@ -110,27 +112,33 @@ function Update_Vessel_Results_Plot(PPA)
         straightLength = cell2mat(straightLength');
 
         turtuosity = cumLength ./ straightLength;
-        % cast outliers to minmax values
-        upLim = std(turtuosity) * 1 + median(turtuosity);
-        lowLim = std(turtuosity) * 1 - median(turtuosity);
-        turtuosity(turtuosity >= upLim) = upLim;
-        turtuosity(turtuosity <= lowLim) = lowLim;
         % split up diameters and corresponding center positions based on their plot color
         data = turtuosity;
     end
-    progressbar(0.6);
+
+    if removeOutliers
+      % cast outliers to minmax values
+      upLim = median(data,'omitnan') + std(data,'omitnan') .* stdMulti;
+      lowLim = median(data,'omitnan') - std(data,'omitnan') .* stdMulti;
+      data(data >= upLim) = upLim;
+      data(data <= lowLim) = lowLim;
+    end
 
     % plot the overlay data
     groups = discretize(data, nColors);
     
     % redraw entire figure as everything else gets complicated and safe almost no time...
-    cla(VesselFigs.DataDisp);
+    oldXLim = VesselFigs.DataDisp.XLim;
+    oldYLim = VesselFigs.DataDisp.YLim;
     VesselFigs.DataImBack = imagesc(VesselFigs.DataDisp, VesselFigs.plotBackground);
     axis(VesselFigs.DataDisp, 'image'); 
-    axis(VesselFigs.DataDisp, 'tight'); 
+    VesselFigs.DataDisp.XLim = oldXLim;
+    VesselFigs.DataDisp.YLim = oldYLim;
     axis(VesselFigs.DataDisp, 'off'); % no need for axis labels in these plots
     title(VesselFigs.DataDisp, titleStr);
-    
+    progressbar(0.7);
+
+
     % loop trough all colors and plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     hold(VesselFigs.DataDisp,'on');
     if scaleSize
@@ -164,21 +172,22 @@ function Update_Vessel_Results_Plot(PPA)
     end 
     hold(VesselFigs.DataDisp, 'off');
     VesselFigs.DataDisp.Colormap = dataColorMap; % update colors of colorbar
+    progressbar(0.8);
 
     % update colorbar labels
     % get depth labels and update deph-colorbar ----------------------------------
-    nDepthLabels = 10;
+    nDepthLabels = 9;
     tickLocations = linspace(0, 1, nDepthLabels); % juuuust next to max limits
     tickValues = linspace(min(data), max(data), nDepthLabels);
     for iLabel = nDepthLabels:-1:1
       zLabels{iLabel} = sprintf('%2.2f', tickValues(iLabel));
     end
-    VesselFigs.Colorbar = colorbar(VesselFigs.DataDisp);
     VesselFigs.Colorbar.TickLength = 0;
     VesselFigs.Colorbar.Ticks = tickLocations;
     VesselFigs.Colorbar.TickLabels = zLabels;
     VesselFigs.Colorbar.Label.String = titleStr;
-    VesselFigs.Colorbar.Location = 'south';
+    colormap(VesselFigs.Colorbar, dataColorMap);
+    % VesselFigs.Colorbar.Location = 'westoutside';
 
     % update histogram in GUI
     PPA.Update_Status('Updating histogram data...');

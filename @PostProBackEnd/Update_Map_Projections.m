@@ -3,6 +3,10 @@ function Update_Map_Projections(PPA, newProj)
   %
   % see also Apply_Image_Processing()
   try
+    if isempty(PPA.MapFig)
+      PPA.Setup_Map_Figure();
+    end
+    figure(PPA.MapFig.MainFig);
 
     set(PPA.MapFig.MapIm, 'cdata', newProj);
     set(PPA.MapFig.MapIm, 'ydata', PPA.xPlot);

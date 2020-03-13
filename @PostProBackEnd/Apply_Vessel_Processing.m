@@ -30,7 +30,8 @@ function Apply_Vessel_Processing(PPA)
     set(PPA.VesselFigs.SkeletonImBack, 'cData', fitInput);
     set(PPA.VesselFigs.SplineImBack, 'cData', plotBackground);
     set(PPA.VesselFigs.DataImBack, 'cData', plotBackground);
-    PPA.VesselFigs.plotBackground = plotBackground; % used in Update_Vessel_Results_Plot
+    PPA.VesselFigs.plotBackground = plotBackground; 
+      % used in Update_Vessel_Results_Plot
 
     % this is where we do the actual work... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     PPA.Apply_Vessel_Pre_Processing(binInput);

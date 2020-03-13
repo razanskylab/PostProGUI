@@ -9,6 +9,7 @@ function Setup_Vessel_Figures(PPA)
     VesselFigs.cbar = gray(256);
   else
     VesselFigs.cbar = PPA.MasterGUI.cBars.Value;
+    eval(['VesselFigs.cbar = ' VesselFigs.cbar '(256);']); % turn string to actual colormap matrix
   end
 
   % setup processing figure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,7 +100,7 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.ResultsFig = fHandle;
 
   % create flow-layout for processing steps to use available space as best as possible
-  VesselFigs.ResultsTileLayout = tiledlayout(fHandle, 1, 2);
+  VesselFigs.ResultsTileLayout = tiledlayout(fHandle, 3, 9);
   VesselFigs.ResultsTileLayout.Padding = 'compact'; % remove uneccesary white space...
 
   % closing the processing figure also closes the GUI and vice-versa
@@ -108,7 +109,7 @@ function Setup_Vessel_Figures(PPA)
   progressbar(0.8);
 
   % spline fitted with branches ------------------------------------------------
-  VesselFigs.Spline = nexttile(VesselFigs.ResultsTileLayout);
+  VesselFigs.Spline = nexttile(VesselFigs.ResultsTileLayout,[3 4]);
   VesselFigs.SplineImBack = imagesc(VesselFigs.Spline,emptyImage);
   axis image;  axis tight; axis off; % no need for axis labels in these plots
   hold on;
@@ -137,15 +138,22 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.REdgeLines.LineWidth = 1.5;
   hold off;
   title(VesselFigs.Spline,'Found Vessels');
-  VesselFigs.SplineLeg = legend(VesselFigs.Spline, {'Branch Points', 'Centerlines', 'Edges'});
+  VesselFigs.SplineLeg = legend(VesselFigs.Spline, ...
+    {'Branch Points', 'Centerlines', 'Edges'});
+  VesselFigs.SplineLeg.Orientation = 'horizontal';
+  VesselFigs.SplineLeg.Location = 'south';
   progressbar(0.9);
 
+  % create empty inbetween tile
+  nexttile(VesselFigs.ResultsTileLayout, [1 1]); 
+  axis off;
+
   % data overlay (angle, diameter, turtuosity)
-  VesselFigs.DataDisp = nexttile(VesselFigs.ResultsTileLayout);
+  VesselFigs.DataDisp = nexttile(VesselFigs.ResultsTileLayout, [3 4]);
   VesselFigs.DataImBack = imagesc(VesselFigs.DataDisp, emptyImage);
   axis image; axis tight; axis off; % no need for axis labels in these plots
   title(VesselFigs.DataDisp, 'Data Overlay');
-  VesselFigs.Colorbar = colorbar(VesselFigs.DataDisp);
+  
 
   % GUI histogram showing data we are overlaying
   VesselFigs.HistoAx = PPA.VesselGUI.histoAx;
@@ -158,6 +166,10 @@ function Setup_Vessel_Figures(PPA)
   VesselFigs.HistoAx.YAxis.TickValues = [];
   VesselFigs.HistoAx.YLabel.String = 'Count Density';
 
+  VesselFigs.CBarTile = nexttile(VesselFigs.ResultsTileLayout, [1 1]);
+  VesselFigs.Colorbar = colorbar(VesselFigs.CBarTile);
+  VesselFigs.Colorbar.Location = 'eastoutside';
+  axis off;
 
   % link all the axis of both the processing and the results figures, so
   % that zooming/panning in one affects all the figures
