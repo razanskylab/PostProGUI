@@ -25,7 +25,6 @@ classdef PostProBackEnd < BaseClass
     % 0 = invalid file, 1 = mat file, 2 = mVolume file, 3 = tiff stack, 4 = image file
 
     % sub-classes for processing
-    FraFilt = Frangi_Filter();
     FreqFilt = FilterClass();
     IMF = Image_Filter.empty; % is filled/reset during Apply_Image_Processing
     AVA = Vessel_Analysis.empty;
@@ -100,16 +99,21 @@ classdef PostProBackEnd < BaseClass
     procProj(:, :) single {mustBeNumeric, mustBeFinite};
   end
 
-  % plot and other handles
+  % handles to GUI apps
   properties
-    % handles to GUI apps
     MasterGUI = [];
+
     LoadGUI = []; % handle to app for loading raw files
     VolGUI = [];
+
     MapGUI = [];
     MapFig = []; % handles to map/depthmap figure
+    MapFrangi = Frangi_Filter().empty; % handle to sub-class, not GUI itself
+    
     VesselGUI = [];
     VesselFigs = []; % handles to figure for vessel analysis plotting
+    VesselFrangi = Frangi_Filter().empty; % handle to sub-class, not GUI itself
+    
     ExportGUI = [];
 
     ProgBar; % storage for progress bar(s)

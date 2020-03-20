@@ -88,8 +88,9 @@ function [fitInput, binInput] = init_vessel_processing(PPA)
   fitToFrangi = PPA.VesselGUI.FitToFrangi.Value;
   % apply frangi filtering already, we need it...
   if doPreFrangi
-    PPA.FraFilt.Open_GUI();
-    PPA.FraFilt.Apply_Frangi();
+    PPA.Init_Frangi('vessel');
+    PPA.VesselFrangi.Open_GUI();
+    PPA.VesselFrangi.Apply_Frangi();
   end
 
   % apply frangi filter for binarization and/or fitting?
@@ -99,11 +100,11 @@ function [fitInput, binInput] = init_vessel_processing(PPA)
   else
     % ok, we do pre frangi, now decide what to use it for
     if ~fitToFrangi
-      binInput = single(PPA.FraFilt.fusedFrangi);
+      binInput = single(PPA.VesselFrangi.fusedFrangi);
       fitInput = single(PPA.procProj);
     else
-      binInput = single(PPA.FraFilt.fusedFrangi);
-      fitInput = single(PPA.FraFilt.fusedFrangi);
+      binInput = single(PPA.VesselFrangi.fusedFrangi);
+      fitInput = single(PPA.VesselFrangi.fusedFrangi);
     end
 
   end

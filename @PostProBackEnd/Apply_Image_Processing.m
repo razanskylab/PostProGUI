@@ -42,7 +42,7 @@ function Apply_Image_Processing(PPA)
       clear('IM_Depth');
     end
 
-    % interpolate - also affects image and depth map
+    % fspecial filter
     if PPA.MapGUI.SpecialFilterCheckBox.Value
       PPA.Update_Status('Filtering image data...');
       PPA.IMF.fsStrength = PPA.MapGUI.FiltStrength.Value;
@@ -64,6 +64,17 @@ function Apply_Image_Processing(PPA)
       % apply clahe to procVolProj
       PPA.IMF.Apply_CLAHE();
     end
+    
+    if PPA.MapGUI.AdjustContrastCheckBox.Value% affects mip image only
+      PPA.Update_Status('Adjusting contrast...');
+      % auto calculate stretch limits?
+      PPA.IMF.imadLimOut = [0 1];
+      PPA.IMF.imadAuto = PPA.MapGUI.AutoContrCheckBox.Value;
+      PPA.IMF.imadLimIn = [PPA.MapGUI.ContrastLowLimEdit.Value PPA.MapGUI.ContrastUpLimEdit.Value];
+      PPA.IMF.imadGamme = PPA.MapGUI.ContrastGammaEdit.Value;
+      PPA.Update_Status(sprintf('   auto: %i gamma: %3.2f', PPA.IMF.imadAuto, PPA.IMF.imadGamme));
+      PPA.IMF.Adjust_Contrast();
+    end
 
     % wiener filter - affects mip image only
     if PPA.MapGUI.WienerCheckBox.Value
@@ -83,28 +94,17 @@ function Apply_Image_Processing(PPA)
       PPA.IMF.Guided_Filtering();
     end
 
-    if PPA.MapGUI.AdjustContrastCheckBox.Value% affects mip image only
-      PPA.Update_Status('Adjusting contrast...');
-      % auto calculate stretch limits?
-      PPA.IMF.imadLimOut = [0 1];
-      PPA.IMF.imadAuto = PPA.MapGUI.AutoContrCheckBox.Value;
-      PPA.IMF.imadLimIn = [PPA.MapGUI.ContrastLowLimEdit.Value PPA.MapGUI.ContrastUpLimEdit.Value];
-      PPA.IMF.imadGamme = PPA.MapGUI.ContrastGammaEdit.Value;
-      PPA.Update_Status(sprintf('   auto: %i gamma: %3.2f', PPA.IMF.imadAuto, PPA.IMF.imadGamme));
-      PPA.IMF.Adjust_Contrast();
-    end
-
     % PPA.preFrangi = PPA.IMF.filt; % update pre-frangi
     % NOTE we need this, so we don't keep re-applying frangi filtering on
     % already frangi-filtered images
     if PPA.MapGUI.UseFrangiCheckBox.Value
       PPA.Update_Status('Vesselness filtering...');
       % update frangi variables
-      PPA.FraFilt.raw = PPA.IMF.filt;
-      PPA.FraFilt.x = PPA.xPlotIm;
-      PPA.FraFilt.y = PPA.yPlotIm;
-      PPA.FraFilt.Apply_Frangi(); % update frangi plot...
-      PPA.IMF.filt = PPA.FraFilt.fusedFrangi;
+      PPA.MapFrangi.raw = PPA.IMF.filt;
+      PPA.MapFrangi.x = PPA.xPlotIm;
+      PPA.MapFrangi.y = PPA.yPlotIm;
+      PPA.MapFrangi.Apply_Frangi(); % update frangi plot...
+      PPA.IMF.filt = PPA.MapFrangi.fusedFrangi;
     end
 
     PPA.depthInfo = depthIm; % needs to updated before procProj

@@ -17,11 +17,17 @@ function Load_Raw_Data(PPA)
     PPA.processingEnabled = false; % this will start the raw-processing cascade
 
     % clean out old data -------------------------------------------------------
-    if ~isempty(PPA.FraFilt)
-      PPA.FraFilt.raw = [];
-      PPA.FraFilt.filt = [];
-      PPA.FraFilt.filtScales = [];
-      PPA.FraFilt.fusedFrangi = [];
+    if ~isempty(PPA.MapFrangi)
+      PPA.MapFrangi.raw = [];
+      PPA.MapFrangi.filt = [];
+      PPA.MapFrangi.filtScales = [];
+      PPA.MapFrangi.fusedFrangi = [];
+    end
+    if ~isempty(PPA.VesselFrangi)
+      PPA.VesselFrangi.raw = [];
+      PPA.VesselFrangi.filt = [];
+      PPA.VesselFrangi.filtScales = [];
+      PPA.VesselFrangi.fusedFrangi = [];
     end
 
     PPA.rawVol = [];
