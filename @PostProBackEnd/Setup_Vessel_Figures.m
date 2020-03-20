@@ -183,4 +183,5 @@ function Setup_Vessel_Figures(PPA)
 
   PPA.VesselFigs = VesselFigs;
   progressbar(1); % close progbar
+  PPA.ProgBar = [];
 end

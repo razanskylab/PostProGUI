@@ -13,10 +13,11 @@ function Export(PPA)
     PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting maps...');
 
     % figure out what we actually should export...
-    exportOverview = PPA.ExportGUI.ExpOverview.Value;
-    exportNative = PPA.ExportGUI.ExpNative.Value;
+    exportMapOverview = PPA.ExportGUI.ExpOverview.Value;
+    exportMapNative = PPA.ExportGUI.ExpNative.Value;
     exportDepth = PPA.ExportGUI.ExpDepthMap.Value;
     doOverwrite = PPA.ExportGUI.ExpOverWrite.Value;
+
     % export .mat files?
     expImMat = PPA.ExportGUI.ExpImMat.Value;
     expVolMat = PPA.ExportGUI.ExpVolMat.Value;
@@ -29,8 +30,23 @@ function Export(PPA)
     % export log file?
     exportLog = PPA.ExportGUI.ExpLogFile.Value;
 
+    % export vessel data?
+    hasVessel = ~isempty(PPA.AVA);
+    hasVesselFig = ~isempty(PPA.VesselFigs) && ishandle(PPA.VesselFigs.MainFig) ...
+      && hasVessel;
+    exportVesselOverview = PPA.ExportGUI.ExpVesselOverview.Value;
+    vesselWithMap = PPA.ExportGUI.VesselInMap.Value && hasVessel;
+    vesselOverviewFig = PPA.ExportGUI.ExpVesselFig.Value && hasVesselFig && ...
+      exportVesselOverview;
+    vesselOverviewJpg = PPA.ExportGUI.ExpVesselJpg.Value && hasVesselFig && ...
+      exportVesselOverview;
+    vesselMat = PPA.ExportGUI.ExpVesselMat.Value && hasVessel;
+    
+
     % make sure we have a valid file name
-    if isempty(PPA.ExportGUI.expFileName.Value)
+    if PPA.ExportGUI.UseFileName.Value
+      PPA.ExportGUI.expFileName.Value = PPA.fileName;
+    elseif isempty(PPA.ExportGUI.expFileName.Value)
       PPA.ExportGUI.expFileName.Value = inputdlg('Please enter file name for export!');
     end
     
@@ -45,20 +61,26 @@ function Export(PPA)
 
     % handle folder and file names, create export folder if neccesary ----------
     exportFolder = PPA.ExportGUI.expFolderPath.Value;
-    nameBase = [PPA.ExportGUI.expFileName.Value cntAppend];
+    fileName = PPA.ExportGUI.expFileName.Value;
+    % if we have mapData or volData in file name (which we often do...), get rid of it!
+    fileName = strrep(fileName,'_mapData',''); 
+    fileName = strrep(fileName,'_volData',''); 
+
+    preFix = PPA.ExportGUI.ExpPreFix.Value; 
+    nameBase = [preFix fileName cntAppend];
 
     if ~exist(exportFolder, 'dir')
       mkdir(exportFolder);
     end
 
     % generate depth maps and colormaps if we want to export images ------------
-    if exportOverview || exportNative
+    if exportMapOverview || exportMapNative
       exportMip = normalize(PPA.procProj); %normalize to be able to properly export
       exportMip = round(256 .* exportMip); % use 256 colors per default, more usually does not make sense
       eval(['mipColorMap = ' PPA.MasterGUI.cBars.Value '(256);']); % turn string to actual colormap matrix
     end
 
-    if exportOverview
+    if exportMapOverview
       PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting overview projections...');
 
       % create invisible temp figure, plot mip and depth map with colorbars and use
@@ -114,7 +136,7 @@ function Export(PPA)
     end
 
     % export native resolution images, w or w/o compression, for best image quality
-    if exportNative
+    if exportMapNative
       PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting native projections...');
 
       if PPA.ExportGUI.ExpNativePng.Value
@@ -159,6 +181,10 @@ function Export(PPA)
       if exportDepth
         SaveStruct.depthMapRGB = PPA.depthImage;
         SaveStruct.depthMap = PPA.depthInfo;
+      end
+
+      if vesselWithMap
+        SaveStruct.AVA = PPA.AVA;
       end
 
       SaveStruct.mapRaw = PPA.procProj;
@@ -217,6 +243,29 @@ function Export(PPA)
       fprintf(fid, '%s\n', PPA.MasterGUI.DebugText.Items{:});
       fclose(fid);
     end
+
+    % export vessel figures and data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % overview figures 
+    if (exportVesselOverview && (vesselOverviewJpg || vesselOverviewFig))
+      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting vessel analysis figure...');
+
+      if vesselOverviewJpg
+        exportName = fullfile(exportFolder, [nameBase '_vessels.jpg']);
+        export_fig(PPA.VesselFigs.ResultsFig, exportName);
+      end
+      if vesselOverviewFig
+        exportName = fullfile(exportFolder, [nameBase '_vessels.fig']);
+        savefig(PPA.VesselFigs.ResultsFig, exportName,'compact');
+      end
+    end
+
+    % mat file with vessel data only
+    if vesselMat
+      VesselSaveStruct.AVA = PPA.AVA;
+      exportName = fullfile(exportFolder, [nameBase '_vessels.mat']);
+      save(exportName, '-struct', 'VesselSaveStruct', '-v7.3', '-nocompression');
+    end
+
 
     PPA.exportCounter = exportCnt;
 

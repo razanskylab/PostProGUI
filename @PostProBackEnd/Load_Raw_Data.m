@@ -29,6 +29,8 @@ function Load_Raw_Data(PPA)
       PPA.VesselFrangi.filtScales = [];
       PPA.VesselFrangi.fusedFrangi = [];
     end
+    PPA.IMF = Image_Filter.empty;
+    PPA.AVA = Vessel_Analysis.empty;
 
     PPA.rawVol = [];
     PPA.procVolProj = [];

@@ -1,3 +1,7 @@
 function Gui_Close_Request(obj, ~, ~)
-  obj.UserData.Close_Request();
+  try
+    obj.UserData.Close_Request();
+  catch 
+    delete(obj);
+  end
 end
