@@ -17,7 +17,8 @@
 
 ### Requirements
 
-- created and tested on Matlab 9.7.0.1261785 (R2019b) Update 3, but should run on most recent Matlab version (NOT TESTED)
+- created and tested on Matlab 9.7.0.1261785 (R2019b) Update 3
+- requires at least Matlab R2018b (not tested)
 - required toolboxes:
   - [Control System Toolbox](https://mathworks.com/de/products/control.html)
   - [Signal Processing Toolbox](https://mathworks.com/de/products/signal.html)
@@ -55,8 +56,9 @@
   - LoadGui -> loading of raw data from drive or workspace and simple preview
   - VolGui -> processing of volumetric data, such as frequency filtering, cropping...
   - MapGui ->
-  - VesselGui ->  
-  - ExportGui -> 
+  - VesselGui ->
+  - ExportGui ->
+
 ## PostProApp sub classes
 
 - FRFilt - Frangi Filter
@@ -85,15 +87,23 @@
      - custom made function, see remove_spot_noise.m
   2. interpolation
      - using interp2, works for both up (factor > 1) and downsampling (factor < 1)
-  3. clahe filtering
+  3. smoothing
+     - apply smoothing operation using the predefined fspecial filter
+     - options
+       - 'average' Averaging filter
+       - 'disk' Circular averaging filter (pillbox)
+       - 'gaussian' Gaussian lowpass filter
+       - 'laplacian' Approximates the two-dimensional Laplacian operator
+       - 'log' Laplacian of Gaussian filter
+       - 'prewitt' Prewitt horizontal edge-emphasizing filter
+       - 'sobel' Sobel horizontal edge-emphasizing filter
+  4. clahe filtering
      - Contrast-limited adaptive histogram equalization (CLAHE)
      - <https://ch.mathworks.com/help/images/ref/adapthisteq.html?s_tid=doc_ta> 
      - Zuiderveld, Karel. “Contrast Limited Adaptive Histograph Equalization.” Graphic Gems IV. San Diego: Academic Press Professional, 1994. 474–485.
-  4. [wiener filtering](<https://ch.mathworks.com/help/images/ref/wiener2.html?searchHighlight=wiener2&s_tid=doc_srchtitle>)
+  5. [wiener filtering](<https://ch.mathworks.com/help/images/ref/wiener2.html?searchHighlight=wiener2&s_tid=doc_srchtitle>)
      - 2-D adaptive noise-removal filtering
      - Lim, Jae S., Two-Dimensional Signal and Image Processing, Englewood Cliffs, NJ, Prentice Hall, 1990, p. 548, equations 9.26, 9.27, and 9.29.
-  5. unsharp masking
-     - work in progress, don't use yet...
   6. image guided filtering
      - the guided filter computes the filtering output by considering the content of a guidance image, which can be the input image itself or another different image
      - the guided filter can be used as an edge-preserving smoothing operator

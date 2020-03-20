@@ -23,28 +23,36 @@ function Apply_Image_Processing(PPA)
     % settings will be stored there until overwritten by next Apply_Image_Processing
 
     % spot removal - affects image and depth map
-    if PPA.doImSpotRemoval
-      PPA.Start_Wait_Bar(PPA.MapGUI, 'Removing image spots...');
-      PPA.Update_Status(sprintf('   levels: %2.0f', PPA.imSpotLevel));
-      PPA.IMF.spotLevels = PPA.imSpotLevel;
+    if PPA.MapGUI.SpotRemovalCheckBox.Value
+      PPA.Update_Status('Removing image spots...');
+      PPA.Update_Status(sprintf('   levels: %2.0f', PPA.MapGUI.imSpotRem.Value));
+      PPA.IMF.spotLevels = PPA.MapGUI.imSpotRem.Value;
       [~, depthIm] = PPA.IMF.Remove_Spots(depthIm); % also updates PPA.IMF.filt internaly
     end
 
     % interpolate - also affects image and depth map
-    if PPA.doImInterpolate
-      PPA.Start_Wait_Bar(PPA.MapGUI, 'Interpolating image data...');
-      PPA.Update_Status(sprintf('   factor: %2.0f', PPA.imInterpFct));
-      PPA.IMF.Interpolate(PPA.imInterpFct);
+    if PPA.MapGUI.InterpolateCheckBox.Value
+      PPA.Update_Status('Interpolating image data...');
+      PPA.Update_Status(sprintf('   factor: %2.0f', PPA.MapGUI.imInterpFactor.Value));
+      PPA.IMF.Interpolate(PPA.MapGUI.imInterpFactor.Value);
       % also interpolate depth data, so they match for later overlay...
       IM_Depth = Image_Filter(depthIm);
-      IM_Depth.Interpolate(PPA.imInterpFct);
+      IM_Depth.Interpolate(PPA.MapGUI.imInterpFactor.Value);
       depthIm = IM_Depth.filt;
       clear('IM_Depth');
     end
 
+    % interpolate - also affects image and depth map
+    if PPA.MapGUI.SpecialFilterCheckBox.Value
+      PPA.Update_Status('Filtering image data...');
+      PPA.IMF.fsStrength = PPA.MapGUI.FiltStrength.Value;
+      PPA.IMF.fsSize = PPA.MapGUI.FiltSize.Value;
+      PPA.IMF.Apply_Image_Filter(PPA.MapGUI.FilterDropDown.Value);
+    end
+
     % clahe - affects mip image only
     if PPA.MapGUI.ContrastCheck.Value
-      PPA.Start_Wait_Bar(PPA.MapGUI, 'CLAHE filtering image data...');
+      PPA.Update_Status('CLAHE filtering image data...');
       PPA.Update_Status(sprintf('   distribution: %s | bins: %s | limit: %2.3f | tiles: %s', ...
         PPA.MapGUI.ClaheDistr.Value, PPA.MapGUI.ClaheBins.Value, PPA.MapGUI.ClaheClipLim.Value, PPA.MapGUI.ClaheTiles.Value));
       % setup clahe filter with latest values
@@ -59,7 +67,7 @@ function Apply_Image_Processing(PPA)
 
     % wiener filter - affects mip image only
     if PPA.MapGUI.WienerCheckBox.Value
-      PPA.Start_Wait_Bar(PPA.MapGUI, 'Wiener filtering image data...');
+      PPA.Update_Status('Wiener filtering image data...');
       PPA.Update_Status(sprintf('   neighborhood size: %2.0f', PPA.MapGUI.WienerSize.Value));
       PPA.IMF.nWienerPixel = PPA.MapGUI.WienerSize.Value;
       PPA.IMF.Apply_Wiener();
@@ -67,7 +75,7 @@ function Apply_Image_Processing(PPA)
 
     % image guided filtering
     if PPA.MapGUI.ImageGuidedCheckBox.Value% affects mip image only
-      PPA.Start_Wait_Bar(PPA.MapGUI, 'Image guided filtering...');
+      PPA.Update_Status('Image guided filtering...');
       PPA.IMF.imGuideNhoodSize = PPA.MapGUI.ImGuideSizeEditField.Value;
       PPA.IMF.imGuideSmoothValue = PPA.MapGUI.ImGuideSmoothSlider.Value.^2;
       PPA.Update_Status(sprintf('   neighborhood size: %2.0f | smoothness: %2.5f', ...
@@ -76,7 +84,7 @@ function Apply_Image_Processing(PPA)
     end
 
     if PPA.MapGUI.AdjustContrastCheckBox.Value% affects mip image only
-      PPA.Start_Wait_Bar(PPA.MapGUI, 'Adjusting contrast...');
+      PPA.Update_Status('Adjusting contrast...');
       % auto calculate stretch limits?
       PPA.IMF.imadLimOut = [0 1];
       PPA.IMF.imadAuto = PPA.MapGUI.AutoContrCheckBox.Value;
@@ -90,7 +98,7 @@ function Apply_Image_Processing(PPA)
     % NOTE we need this, so we don't keep re-applying frangi filtering on
     % already frangi-filtered images
     if PPA.MapGUI.UseFrangiCheckBox.Value
-      PPA.Start_Wait_Bar(PPA.MapGUI, 'Vesselness filtering...');
+      PPA.Update_Status('Vesselness filtering...');
       % update frangi variables
       PPA.FraFilt.raw = PPA.IMF.filt;
       PPA.FraFilt.x = PPA.xPlotIm;
@@ -101,7 +109,7 @@ function Apply_Image_Processing(PPA)
 
     PPA.depthInfo = depthIm; % needs to updated before procProj
     PPA.procProj = PPA.IMF.filt;
-    PPA.Start_Wait_Bar(PPA.MapGUI, 'Updating map projections...')
+    PPA.Update_Status('Updating map projections...')
 
     if ~isempty(PPA.MapGUI)
       PPA.Update_Map_Projections(PPA.IMF.filt);

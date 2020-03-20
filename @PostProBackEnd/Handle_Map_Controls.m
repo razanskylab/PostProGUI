@@ -7,7 +7,7 @@ function Handle_Map_Controls(PPA)
     PPA.MapGUI.ClaheTiles.Enable = PPA.MapGUI.ContrastCheck.Value;
     PPA.MapGUI.ClaheClipLim.Enable = PPA.MapGUI.ContrastCheck.Value;
 
-    PPA.MapGUI.imInterpFct.Enable = PPA.MapGUI.InterpolateCheckBox.Value;
+    PPA.MapGUI.imInterpFactor.Enable = PPA.MapGUI.InterpolateCheckBox.Value;
 
     PPA.MapGUI.WienerSize.Enable = PPA.MapGUI.WienerCheckBox.Value;
 

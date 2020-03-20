@@ -150,7 +150,7 @@ function Update_Depth_Map(PPA, ~)
   % convert the depth mask to true color
   frontIm = ind2rgb(frontIm, maskFrontCMap);
 
-  if PPA.MasterGUI.DebugMode.Value
+  if PPA.isDebugMode
     figure();
     imshow(frontIm);
     title('Depth Map Front Mask');

@@ -1,7 +1,9 @@
 %%==============================================================================
 addpath(genpath(pwd));
 
-rmpath('.git')
+if isfolder('.git')
+  rmpath('.git');
+end
 
 set(0,'DefaultAxesFontSize',12);
 set(0,'DefaultTextFontSize',12);

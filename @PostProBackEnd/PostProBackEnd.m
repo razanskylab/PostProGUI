@@ -148,6 +148,9 @@ classdef PostProBackEnd < BaseClass
     imInterpFct(1, 1) {mustBeNumeric, mustBeFinite};
     doImInterpolate(1, 1) {mustBeNumeric, mustBeFinite};
     imSpotLevel(1, 1) {mustBeNumeric, mustBeFinite};
+
+    % misc
+    isDebugMode(1,1); 
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -636,26 +639,6 @@ classdef PostProBackEnd < BaseClass
     end
 
     % Image processing settings from GUI ---------------------------------------
-    function doImSpotRemoval = get.doImSpotRemoval(PPA)
-
-      if ~isempty(PPA.MapGUI)
-        doImSpotRemoval = PPA.MapGUI.SpotRemovalCheckBox.Value;
-      else
-        doImSpotRemoval = 0;
-      end
-
-    end
-
-    function imSpotLevel = get.imSpotLevel(PPA)
-
-      if ~isempty(PPA.MapGUI)
-        imSpotLevel = PPA.MapGUI.imSpotRem.Value;
-      else
-        imSpotLevel = [];
-      end
-
-    end
-
     function doImInterpolate = get.doImInterpolate(PPA)
 
       if ~isempty(PPA.MapGUI) || (PPA.imInterpFct == 1)
@@ -669,9 +652,19 @@ classdef PostProBackEnd < BaseClass
     function imInterpFct = get.imInterpFct(PPA)
 
       if ~isempty(PPA.MapGUI)
-        imInterpFct = PPA.MapGUI.imInterpFct.Value;
+        imInterpFct = PPA.MapGUI.imInterpFactor.Value;
       else
         imInterpFct = 1;
+      end
+
+    end
+
+    function isDebugMode = get.isDebugMode(PPA)
+
+      if ~isempty(PPA.MasterGUI)
+        isDebugMode = PPA.MasterGUI.DebugMode.Value;
+      else
+        isDebugMode = 0;
       end
 
     end

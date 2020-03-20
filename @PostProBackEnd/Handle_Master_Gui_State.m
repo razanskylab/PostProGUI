@@ -1,4 +1,9 @@
 function Handle_Master_Gui_State(PPA, stateString)
+  % check if this was called without the Master Gui even existing...
+  if isempty(PPA.MasterGUI)
+    return;
+  end
+  
   % take care of buttons/info in master GUI
   switch stateString
     case 'load_start'
