@@ -10,7 +10,7 @@ function Export(PPA)
     figure(PPA.ExportGUI.UIFigure); % bring export GUI to front
 
     PPA.Update_Status(); % prints hor. bar
-    PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting maps...');
+    PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting...');
 
     % figure out what we actually should export...
     exportMapOverview = PPA.ExportGUI.ExpOverview.Value;
@@ -81,7 +81,7 @@ function Export(PPA)
     end
 
     if exportMapOverview
-      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting overview projections...');
+      PPA.Update_Status('Exporting overview projections...');
 
       % create invisible temp figure, plot mip and depth map with colorbars and use
       % export_fig for proper exporting
@@ -137,7 +137,7 @@ function Export(PPA)
 
     % export native resolution images, w or w/o compression, for best image quality
     if exportMapNative
-      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting native projections...');
+      PPA.Update_Status('Exporting native projections...');
 
       if PPA.ExportGUI.ExpNativePng.Value
         exportName = fullfile(exportFolder, [nameBase '_map.png']);
@@ -176,7 +176,7 @@ function Export(PPA)
 
     % export map .mat file -----------------------------------------------------
     if expImMat
-      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting mat files...');
+      PPA.Update_Status('Exporting mat files...');
 
       if exportDepth
         SaveStruct.depthMapRGB = PPA.depthImage;
@@ -197,7 +197,7 @@ function Export(PPA)
 
     % export vol .mat file -----------------------------------------------------
     if expVolMat
-      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting mat files...');
+      PPA.Update_Status('Exporting mat files...');
       SaveStruct.volData = PPA.procVol;
       SaveStruct.x = PPA.xPlot;
       SaveStruct.y = PPA.yPlot;
@@ -214,7 +214,7 @@ function Export(PPA)
 
     % export map to workspace --------------------------------------------------
     if expWrkIm
-      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting to workspace...');
+      PPA.Update_Status('Exporting maps to workspace...');
       % NOTE permute and ' below to match first dim == x vector
       if exportDepth
         assignin('base', 'depthMapRGB', permute(PPA.depthImage, [2 1 3]));
@@ -229,7 +229,7 @@ function Export(PPA)
 
     % export volume to workspace --------------------------------------------------
     if expWrkVol
-      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting to workspace...');
+      PPA.Update_Status('Exporting volume to workspace...');
       assignin('base', 'procVol', PPA.procVol);
       assignin('base', 'x', PPA.xPlot);
       assignin('base', 'y', PPA.yPlot);
@@ -238,6 +238,7 @@ function Export(PPA)
 
     % export log file --------------------------------------------------
     if exportLog
+      PPA.Update_Status('Exporting log file...');
       exportName = fullfile(exportFolder, [nameBase '.txt']);
       fid = fopen(exportName, 'w+');
       fprintf(fid, '%s\n', PPA.MasterGUI.DebugText.Items{:});
@@ -247,8 +248,7 @@ function Export(PPA)
     % export vessel figures and data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % overview figures 
     if (exportVesselOverview && (vesselOverviewJpg || vesselOverviewFig))
-      PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting vessel analysis figure...');
-
+      PPA.Update_Status('Exporting vessel analysis figure...');
       if vesselOverviewJpg
         exportName = fullfile(exportFolder, [nameBase '_vessels.jpg']);
         export_fig(PPA.VesselFigs.ResultsFig, exportName);
@@ -261,11 +261,19 @@ function Export(PPA)
 
     % mat file with vessel data only
     if vesselMat
+      PPA.Update_Status('Exporting vessel data...');
       VesselSaveStruct.AVA = PPA.AVA;
       exportName = fullfile(exportFolder, [nameBase '_vessels.mat']);
       save(exportName, '-struct', 'VesselSaveStruct', '-v7.3', '-nocompression');
     end
 
+    % save settings file?
+    if PPA.ExportGUI.ExpProcessingSettings.Value
+      PPA.Update_Status('Exporting current settings...');
+      SettingsSaveStruct.PostProSettings = PPA.Get_Current_Settings();
+      exportName = fullfile(exportFolder, [nameBase '_settings.mat']);
+      save(exportName, '-struct', 'SettingsSaveStruct', '-v7.3', '-nocompression');
+    end 
 
     PPA.exportCounter = exportCnt;
 
