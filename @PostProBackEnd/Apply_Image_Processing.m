@@ -18,7 +18,7 @@ function Apply_Image_Processing(PPA)
     PPA.IMF = Image_Filter(PPA.procVolProj);
     % PPA.procVolProj is the processed, volumetric projection
     depthIm = PPA.rawDepthInfo; % this is the untouched, i.e. not interp. version
-
+    hasDepthInfo = ~isempty(depthIm);
     % processing based on image Filter class, so initialize that here
     % settings will be stored there until overwritten by next Apply_Image_Processing
 
@@ -27,7 +27,9 @@ function Apply_Image_Processing(PPA)
       PPA.Update_Status('Removing image spots...');
       PPA.Update_Status(sprintf('   levels: %2.0f', PPA.MapGUI.imSpotRem.Value));
       PPA.IMF.spotLevels = PPA.MapGUI.imSpotRem.Value;
-      [~, depthIm] = PPA.IMF.Remove_Spots(depthIm); % also updates PPA.IMF.filt internaly
+      if hasDepthInfo
+        [~, depthIm] = PPA.IMF.Remove_Spots(depthIm); % also updates PPA.IMF.filt internaly
+      end
     end
 
     % interpolate - also affects image and depth map
@@ -35,11 +37,13 @@ function Apply_Image_Processing(PPA)
       PPA.Update_Status('Interpolating image data...');
       PPA.Update_Status(sprintf('   factor: %2.0f', PPA.MapGUI.imInterpFactor.Value));
       PPA.IMF.Interpolate(PPA.MapGUI.imInterpFactor.Value);
-      % also interpolate depth data, so they match for later overlay...
-      IM_Depth = Image_Filter(depthIm);
-      IM_Depth.Interpolate(PPA.MapGUI.imInterpFactor.Value);
-      depthIm = IM_Depth.filt;
-      clear('IM_Depth');
+      if hasDepthInfo
+        % also interpolate depth data, so they match for later overlay...
+        IM_Depth = Image_Filter(depthIm);
+        IM_Depth.Interpolate(PPA.MapGUI.imInterpFactor.Value);
+        depthIm = IM_Depth.filt;
+        clear('IM_Depth');
+      end
     end
 
     % fspecial filter

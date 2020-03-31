@@ -12,8 +12,10 @@ function Update_Map_Projections(PPA, newProj)
     set(PPA.MapFig.MapIm, 'ydata', PPA.xPlot);
     set(PPA.MapFig.MapIm, 'xdata', PPA.yPlot);
     PPA.MapFig.MapAx.CLim = minmax(newProj); % update colorbar limits
-
-    PPA.Update_Depth_Map();
+    
+    if ~isempty(PPA.depthInfo)
+      PPA.Update_Depth_Map();
+    end
     PPA.ProgBar = [];
   catch ME
     PPA.Stop_Wait_Bar();

@@ -7,6 +7,10 @@ function Setup_Map_Figure(PPA)
     eval(['FH.cbar = ' FH.cbar '(256);']); % turn string to actual colormap matrix
   end
 
+  % check if we have been provided with raw depth info, so we have something
+  % to plot later, if not, don't show 2nd plot tile
+  hasDeptMap = ~isempty(PPA.rawDepthInfo);
+
   % setup UI axis for images
   fHandle = figure('Name', 'Figure: Map Processing', 'NumberTitle', 'off');
   % make figure fill half the screen
@@ -15,7 +19,11 @@ function Setup_Map_Figure(PPA)
   fHandle.Units = 'pixels';
   fHandle.OuterPosition(1) = PPA.MapGUI.UIFigure.Position(1) + PPA.MapGUI.UIFigure.Position(3);
   FH.MainFig = fHandle;
-  FH.TileLayout = tiledlayout(fHandle,1, 2);
+  if hasDeptMap
+    FH.TileLayout = tiledlayout(fHandle,1, 2);
+  else
+    FH.TileLayout = tiledlayout(fHandle,1, 1);
+  end 
   FH.TileLayout.Padding = 'compact'; % remove uneccesary white space...
 
   FH.MainFig.UserData = PPA.MapGUI; % need that in Gui_Close_Request callback
@@ -30,15 +38,19 @@ function Setup_Map_Figure(PPA)
   colormap(FH.MapAx, FH.cbar);
   title(FH.MapAx, 'Processed Map');
 
-  FH.DepthAx = nexttile;
-  FH.DepthIm = imagesc(FH.DepthAx, PPA.yPlot, PPA.xPlot, emptyImage);
-  axis(FH.DepthAx, 'image');
-  axis(FH.DepthAx, 'tight');
-  colormap(FH.DepthAx, FH.cbar);
-  title(FH.DepthAx, 'Processed Depth-Map');
 
-  linkaxes([FH.MapAx, ...
-            FH.DepthAx, ...
-            ], 'xy');
+  if hasDeptMap
+    FH.DepthAx = nexttile;
+    FH.DepthIm = imagesc(FH.DepthAx, PPA.yPlot, PPA.xPlot, emptyImage);
+    axis(FH.DepthAx, 'image');
+    axis(FH.DepthAx, 'tight');
+    colormap(FH.DepthAx, FH.cbar);
+    title(FH.DepthAx, 'Processed Depth-Map');
+
+    linkaxes([FH.MapAx, ...
+              FH.DepthAx, ...
+              ], 'xy');
+  end
+
   PPA.MapFig = FH;
 end

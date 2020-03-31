@@ -13,9 +13,12 @@ function Export(PPA)
     PPA.Start_Wait_Bar(PPA.ExportGUI, 'Exporting...');
 
     % figure out what we actually should export...
-    exportMapOverview = PPA.ExportGUI.ExpOverview.Value;
-    exportMapNative = PPA.ExportGUI.ExpNative.Value;
-    exportDepth = PPA.ExportGUI.ExpDepthMap.Value;
+    hasDeptMap = ~isempty(PPA.depthImage);
+    hasMap = ~isempty(PPA.procProj);
+
+    exportMapOverview = PPA.ExportGUI.ExpOverview.Value && hasMap;
+    exportMapNative = PPA.ExportGUI.ExpNative.Value && hasMap;
+    exportDepth = PPA.ExportGUI.ExpDepthMap.Value && hasDeptMap;
     doOverwrite = PPA.ExportGUI.ExpOverWrite.Value;
 
     % export .mat files?
@@ -88,22 +91,26 @@ function Export(PPA)
       fTemp = figure('Visible', 'Off', 'units', 'normalized', 'outerposition', [0 0 1 1]);
       % fTemp = figure('WindowState', 'maximized');
       % plot "normal" mip
-      subplot(1, 2, 1)
+      if exportDepth % no need for subplot if we don't have depth info...
+        subplot(1, 2, 1)
+      end
       imagesc(gca, PPA.yPlot, PPA.xPlot, PPA.procProj);
       axis image;
       colormap(gca, mipColorMap);
       colorbar(gca,'Location', 'southoutside');
 
       % plot depth map
-      subplot(1, 2, 2)
-      imagesc(gca, PPA.yPlot, PPA.xPlot, PPA.depthImage);
-      axis image;
-      colormap(gca, PPA.maskFrontCMap);
-      c = colorbar(gca,'Location', 'southoutside');
-      c.TickLength = 0;
-      c.Ticks = PPA.tickLocations;
-      c.TickLabels = PPA.zLabels;
-      c.Label.String = 'closer     <-     depth     ->     deeper';
+      if exportDepth
+        subplot(1, 2, 2)
+        imagesc(gca, PPA.yPlot, PPA.xPlot, PPA.depthImage);
+        axis image;
+        colormap(gca, PPA.maskFrontCMap);
+        c = colorbar(gca,'Location', 'southoutside');
+        c.TickLength = 0;
+        c.Ticks = PPA.tickLocations;
+        c.TickLabels = PPA.zLabels;
+        c.Label.String = 'closer     <-     depth     ->     deeper';
+      end
 
 
       % export figures, i.e. overview figures with axis and colorbars etc------

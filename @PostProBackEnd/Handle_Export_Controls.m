@@ -7,7 +7,6 @@ function Handle_Export_Controls(PPA)
     hasVessel = ~isempty(PPA.AVA);
     hasVesselFig = ~isempty(PPA.VesselFigs) && ishandle(PPA.VesselFigs.MainFig);
     useFileName = PPA.ExportGUI.UseFileName.Value; % can't manually change filename
-    
 
     PPA.ExportGUI.ExpVolMat.Enable = hasVol;
     % TODO VTK export function needs to be implemented

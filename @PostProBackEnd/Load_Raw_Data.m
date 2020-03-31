@@ -1,9 +1,10 @@
 function Load_Raw_Data(PPA)
   % Load_Raw_Data()
+  % TODO implement case 3
   try
-
-    % check we actually have a valid file to load
-    if ~PPA.fileExists
+    % check we actually have a valid file to load (if fileType == 0 we
+    % try and load from workspace
+    if ~PPA.fileExists && (PPA.fileType > 0 && PPA.fileType < 5)
       % if we get this error, something really went wrong....
       error('File does not exist!');
     end
@@ -50,18 +51,15 @@ function Load_Raw_Data(PPA)
           PPA.rawVol = evalin('base', 'volData');
           PPA.rawVol = permute(single(PPA.rawVol), [3 1 2]);
         else % map data
-
-          if ismember('mapRaw', PPA.MatFileVars)% new map data
+          if evalin('base', 'exist(''mapRaw'')')
             PPA.procVolProj = single(evalin('base', 'mapRaw'));
-          elseif ismember('map', PPA.MatFileVars)% old map data
+          elseif evalin('base', 'exist(''map'')')
             PPA.procVolProj = single(evalin('base', 'map'));
           end
-
         end
 
         % check if we have a depth map as well?
         if ~PPA.isVolData && evalin('base', 'exist("depthMap")')
-          % for map data, we require a
           PPA.depthInfo = single(evalin('base', 'depthMap'));
           PPA.rawDepthInfo = single(evalin('base', 'depthMap'));
         end
@@ -119,13 +117,33 @@ function Load_Raw_Data(PPA)
         PPA.z = (0:(nZ-1)).*dz;
         PPA.dt = dt;
       case 4% image file
+      case 5 % workspace varialbe
+        row = PPA.LoadGUI.lastSelectedRow;
+        varInfos = evalin('base','whos');
+        varName = varInfos(row).name;
+        varContent = evalin('base',varName); 
+          % varContent now contains the workspace variable data
+        if ~isnumeric(varContent)
+          error('Variable must be numeric matrix or volume!'); % TODO make dialog box
+        end
+        nDimVar = ndims(varContent);
+        switch nDimVar
+          case 2 
+            PPA.procVolProj = single(varContent);
+            PPA.x = size(PPA.procVolProj,1);
+            PPA.y = size(PPA.procVolProj,2);
+          case 3 
+            error('Not implemented yet!'); % TODO implement case 3
+          otherwise 
+            error('Can''t load, need 2 or 3 dimensions...');% TODO make dialog box
+        end
     end
 
-    close(ProgBar);
+    PPA.ProgBar = [];
     PPA.Handle_Master_Gui_State('load_complete');
 
   catch ME
-    close(ProgBar);
+    PPA.ProgBar = [];
     rethrow(ME);
   end
 

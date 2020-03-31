@@ -1,4 +1,4 @@
-function Preview_File_Content(PPA)
+function [isValidFile] = Preview_File_Content(PPA)
 
   try
     figure(PPA.LoadGUI.UIFigure);

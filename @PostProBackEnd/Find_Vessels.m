@@ -58,6 +58,8 @@ function Find_Vessels(PPA)
     PPA.AVA.Data = VData; % store vessel data in AVA object
     progressbar(1);
 
+    PPA.Handle_Export_Controls();
+
     PPA.ProgBar = [];
 
   catch me
