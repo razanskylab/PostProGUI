@@ -5,6 +5,10 @@ function Update_Vessel_Results_Plot(PPA)
   % and then binarized the latest processed projection
   
   try
+    % check if we have done the vessel analysis yet..
+    if isempty(PPA.AVA)
+      PPA.Apply_Vessel_Processing();
+    end
     
     % get more convenient variables
     VData = PPA.AVA.Data; 

@@ -36,9 +36,13 @@ function Batch_Process_Folder(PPA)
           PPA.MasterGUI.Open_Vol_Gui(); % handles processing etc...
         end
 
-        if ~isempty(PPA.procProj)%
+        if ~isempty(PPA.procProj) && ~isempty(PPA.MapFig)
+          % PPA.MasterGUI.Open_Map_Gui(); % handles processing etc...
           PPA.Apply_Image_Processing();
-          PPA.MasterGUI.Open_Map_Gui(); % handles processing etc...
+        end
+      
+        if ~isempty(PPA.VesselFigs)
+          PPA.Apply_Vessel_Processing();
         end
 
         PPA.ExportGUI.expFileName.Value = PPA.fileName;
@@ -46,7 +50,7 @@ function Batch_Process_Folder(PPA)
         PPA.ExportGUI.expFolderPath.Value = PPA.exportPath;
         PPA.Export();
       catch me
-        warnMessage = sprintf('Processing file %s failed', currentFilePath);
+        warnMessage = sprintf('Processing file %s failed', filePaths{iFile});
         short_warn(warnMessage);
         short_warn(getReport(me, 'basic', 'hyperlinks', 'on'));
       end
