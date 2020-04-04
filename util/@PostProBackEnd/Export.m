@@ -266,7 +266,7 @@ function Export(PPA)
       end
     end
 
-    % mat file with vessel data only
+    % mat file with vessel data 
     if vesselMat
       PPA.Update_Status('Exporting vessel data...');
       VesselSaveStruct.AVA = PPA.AVA;
