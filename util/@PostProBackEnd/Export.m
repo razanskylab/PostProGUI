@@ -269,7 +269,9 @@ function Export(PPA)
     % mat file with vessel data 
     if vesselMat
       PPA.Update_Status('Exporting vessel data...');
-      VesselSaveStruct.AVA = PPA.AVA;
+      VesselSaveStruct.AVA = PPA.AVA; % save AOVA object
+      VesselData = PPA.AVA.Get_Full_Data(); % also get vessel data struct
+      VesselSaveStruct.VesselData = VesselData;
       exportName = fullfile(exportFolder, [nameBase '_vessels.mat']);
       save(exportName, '-struct', 'VesselSaveStruct', '-v7.3', '-nocompression');
     end

@@ -107,6 +107,7 @@ function Load_Raw_Data(PPA)
         if nCh > 1
           % if channels are interleaved, we start at channel ch and take every 
           % nth channel
+          % TODO-> convert to grayscale? 
           tempVol = tempVol(:,:,ch:nCh:end);
         end
         PPA.rawVol = permute(single(tempVol), [3 1 2]);
@@ -117,6 +118,10 @@ function Load_Raw_Data(PPA)
         PPA.z = (0:(nZ-1)).*dz;
         PPA.dt = dt;
       case 4% image file
+          rawImage = imread(PPA.filePath);
+            PPA.procVolProj = single(mat2gray(rawImage));
+            PPA.x = size(PPA.procVolProj,1);
+            PPA.y = size(PPA.procVolProj,2);
       case 5 % workspace varialbe
         row = PPA.LoadGUI.lastSelectedRow;
         varInfos = evalin('base','whos');

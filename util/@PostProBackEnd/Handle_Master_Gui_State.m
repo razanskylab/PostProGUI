@@ -37,9 +37,14 @@ function Handle_Master_Gui_State(PPA, stateString)
         control_vol_size_elements(PPA, false); % local function, see below
 
         % auto load next step in processing...
+        if ~isempty(PPA.MapFig) && ishandle(PPA.MapFig.MainFig)
+          close(PPA.MapFig.MainFig);
+          PPA.MapFig = [];
+        end
         PPA.MasterGUI.Open_Map_Gui();
         PPA.MasterGUI.VolumeProcessingButton.Enable = false;
         PPA.MasterGUI.MapProcessingButton.Enable = true;
+
         if PPA.Is_Visible(PPA.MapGUI) 
           figure(PPA.MapGUI.UIFigure);
         end

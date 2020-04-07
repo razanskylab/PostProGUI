@@ -63,7 +63,7 @@ function [isValidFile] = Preview_File_Content(PPA)
       % for preview, we just want a quick MIP!
       prevMap = max(double(tiff_to_mat(PPA.filePath)),[],3);
     elseif (PPA.fileType == 4) % normal image
-      prevMap = double(imread(PPA.filePath));
+      prevMap = single(imread(PPA.filePath));
     end
 
     if hasMap || isImage

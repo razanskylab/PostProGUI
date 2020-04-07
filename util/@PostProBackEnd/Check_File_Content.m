@@ -4,6 +4,7 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
   PPA.MatFile = [];
   PPA.FileContent = [];
   PPA.fileType = 0; 
+  PPA.MatFileVars = [];
   % 0 = invalid file, 1 = mat file, 2 = mVolume file, 3 = tiff stack, 4 = image file
   needsInfo = false;
   %TODO
@@ -61,16 +62,17 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
         isVolData = true;
       else
         PPA.fileType = 4;
+        isVolData = false;
       end
       needsInfo = true; % ask for resolution? 
       
     case '.jpg'
-      error('Unknow file!');
-      % PPA.fileType = 3;
+      PPA.fileType = 4;
+      isValidFile = 1;
       
     case '.png' 
-      error('Unknow file!');
-      % PPA.fileType = 3;
+      PPA.fileType = 4;
+      isValidFile = 1;
 
     otherwise
       PPA.fileType = 0;
