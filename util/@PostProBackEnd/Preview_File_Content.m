@@ -65,10 +65,15 @@ function [isValidFile] = Preview_File_Content(PPA)
     elseif (PPA.fileType == 4) % normal image
       prevMap = single(imread(PPA.filePath));
     end
-
+    prevMap = normalize(prevMap);
+    
+    if ismatrix(prevMap)
+       prevMap = uint8(prevMap .* 255);
+       prevMap = ind2rgb(prevMap, gray(256));
+    end
+    
     if hasMap || isImage
-      prevMap = uint8(normalize(prevMap) .* 255);
-      PPA.LoadGUI.PrevImage.ImageSource = ind2rgb(prevMap, gray(256));
+      PPA.LoadGUI.PrevImage.ImageSource = prevMap;
     else
       % display default image with new overlay...
       defaultImage = imread('load_gui_default_im.jpg');

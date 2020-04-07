@@ -119,9 +119,12 @@ function Load_Raw_Data(PPA)
         PPA.dt = dt;
       case 4% image file
           rawImage = imread(PPA.filePath);
-            PPA.procVolProj = single(mat2gray(rawImage));
-            PPA.x = size(PPA.procVolProj,1);
-            PPA.y = size(PPA.procVolProj,2);
+          if ndims(rawImage) == 3
+            rawImage = rgb2gray(rawImage);
+          end
+          PPA.procVolProj = single(mat2gray(rawImage));
+          PPA.x = size(PPA.procVolProj,1);
+          PPA.y = size(PPA.procVolProj,2);
       case 5 % workspace varialbe
         row = PPA.LoadGUI.lastSelectedRow;
         varInfos = evalin('base','whos');

@@ -7,6 +7,8 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
   PPA.MatFileVars = [];
   % 0 = invalid file, 1 = mat file, 2 = mVolume file, 3 = tiff stack, 4 = image file
   needsInfo = false;
+  isVolData = false; % most data is not volume data...
+
   %TODO
   % add check and functionality of these file types
   % tiff file with single tiff or tiff stack
@@ -69,7 +71,7 @@ function [isValidFile, needsInfo] = Check_File_Content(PPA)
     case '.jpg'
       PPA.fileType = 4;
       isValidFile = 1;
-      
+
     case '.png' 
       PPA.fileType = 4;
       isValidFile = 1;
