@@ -9,9 +9,12 @@ function Apply_Vessel_Processing(PPA)
 
     PPA.Start_Wait_Bar(PPA.VesselGUI, 'Vessel Analysis');
 
-    if isempty(PPA.VesselFigs) ||~ishandle(PPA.VesselFigs.MainFig)
+    if isempty(PPA.VesselFigs) || ~ishandle(PPA.VesselFigs.MainFig)
       PPA.Setup_Vessel_Figures();
     end
+
+    wasEmptyImage = isempty(PPA.VesselFigs.InIm.CData);
+    
     % bring the figures we use to the front
     figure(PPA.VesselFigs.MainFig);
     figure(PPA.VesselFigs.ResultsFig);
@@ -43,10 +46,22 @@ function Apply_Vessel_Processing(PPA)
     % plot final image with fitted splines, widths and branch points
     PPA.Update_Vessel_Results_Plot();
 
-    % bring the figures we use to the front
-    figure(PPA.VesselFigs.MainFig);
-    figure(PPA.VesselFigs.ResultsFig);
-    figure(PPA.VesselGUI.UIFigure);
+    
+    
+    % bring the figures we use to the front, if image was empty, also 
+    % scale axis to show full image
+    if wasEmptyImage
+      figure(PPA.VesselFigs.MainFig);
+      axis tight;
+      figure(PPA.VesselFigs.ResultsFig);
+      axis tight;
+      figure(PPA.VesselGUI.UIFigure);
+      axis tight;
+    else
+      figure(PPA.VesselFigs.MainFig);
+      figure(PPA.VesselFigs.ResultsFig);
+      figure(PPA.VesselGUI.UIFigure);
+    end
 
   catch me
     PPA.ProgBar = [];

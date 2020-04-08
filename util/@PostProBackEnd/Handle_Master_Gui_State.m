@@ -35,15 +35,16 @@ function Handle_Master_Gui_State(PPA, stateString)
       else
         % update volume info status ------------------------------------------------
         control_vol_size_elements(PPA, false); % local function, see below
-
-        % auto load next step in processing...
+        PPA.MasterGUI.MapProcessingButton.Enable = true;
+        PPA.MasterGUI.VolumeProcessingButton.Enable = false;
+        
+        % close map if it's empty, not sure why we need this
         if ~isempty(PPA.MapFig) && ishandle(PPA.MapFig.MainFig)
           close(PPA.MapFig.MainFig);
           PPA.MapFig = [];
         end
+        % auto load next step in processing...
         PPA.MasterGUI.Open_Map_Gui();
-        PPA.MasterGUI.VolumeProcessingButton.Enable = false;
-        PPA.MasterGUI.MapProcessingButton.Enable = true;
 
         if PPA.Is_Visible(PPA.MapGUI) 
           figure(PPA.MapGUI.UIFigure);
@@ -54,6 +55,9 @@ function Handle_Master_Gui_State(PPA, stateString)
       if ~isempty(PPA.ExportGUI) && (PPA.ExportGUI.UseFileName.Value)
         PPA.ExportGUI.expFileName.Value = PPA.fileName;
       end
+
+      % make sure all images are displayed fully -> axis tight on all axis
+      make_axis_tight(PPA); % see below
 
     case 'vol_processing_complete'
       % after volume processing, we can do map processing
@@ -141,4 +145,35 @@ function update_map_size_display(PPA)
   mapBytes = PPA.Get_Byte_Size_Maps();
   PPA.MasterGUI.MapMemory.Value = ...
     [num2sip(mapBytes, 3, false, true) 'B'];
+end
+
+% update map info data --------------------------------------------------
+function make_axis_tight(PPA)
+  % make map images tight
+  if ~isempty(PPA.MapFig) && ishandle(PPA.MapFig.MainFig)
+    figure(PPA.MapFig.MainFig);
+    axis tight;
+  end
+  % make frangi images tight for map processing
+  if ~isempty(PPA.MapFrangi) && ishandle(PPA.MapFrangi.FigHandles.MainFig)
+    figure(PPA.MapFrangi.FigHandles.MainFig);
+    axis tight;
+  end
+
+  % make vessel analysis images tight
+  if ~isempty(PPA.VesselFigs) && ishandle(PPA.VesselFigs.MainFig)
+    figure(PPA.VesselFigs.MainFig);
+    axis tight;
+  end
+  if ~isempty(PPA.VesselFigs) && ishandle(PPA.VesselFigs.ResultsFig)
+    figure(PPA.VesselFigs.ResultsFig);
+    axis tight;
+  end
+
+  % make frangi images tight for vessel analysis
+  if ~isempty(PPA.VesselFrangi) && ishandle(PPA.VesselFrangi.FigHandles.MainFig)
+    figure(PPA.VesselFrangi.FigHandles.MainFig);
+    axis tight;
+  end
+
 end

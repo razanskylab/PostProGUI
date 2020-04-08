@@ -436,11 +436,14 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function xPlotIm = get.xPlotIm(PPA)
-
-      if PPA.imInterpFct
-        xPlotIm = linspace(PPA.xPlot(1), PPA.xPlot(end), PPA.nXIm);
-      else
-        xPlotIm = PPA.xPlot;
+      if ~isempty(PPA.xPlot)
+        if PPA.imInterpFct
+          xPlotIm = linspace(PPA.xPlot(1), PPA.xPlot(end), PPA.nXIm);
+        else
+          xPlotIm = PPA.xPlot;
+        end
+      else 
+        xPlotIm = [];
       end
 
     end
@@ -487,13 +490,15 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function yPlotIm = get.yPlotIm(PPA)
-
-      if PPA.imInterpFct
-        yPlotIm = linspace(PPA.yPlot(1), PPA.yPlot(end), PPA.nYIm);
+      if ~isempty(PPA.xPlot)
+        if PPA.imInterpFct
+          yPlotIm = linspace(PPA.yPlot(1), PPA.yPlot(end), PPA.nYIm);
+        else
+          yPlotIm = PPA.yPlot;
+        end
       else
-        yPlotIm = PPA.yPlot;
+        yPlotIm = [];
       end
-
     end
 
     %---------------------------------------------------------------

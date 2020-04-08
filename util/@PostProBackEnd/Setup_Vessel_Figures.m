@@ -1,4 +1,20 @@
 function Setup_Vessel_Figures(PPA)
+  % creates two main vessels analysis figures
+  % VesselFigs.MainFig
+  % VesselFigs.ResultsFig
+  % 
+  % with subplots:
+  % VesselFigs.TileLayout
+  % VesselFigs.InPlot
+  % VesselFigs.BinPlot 
+  % ....
+  % 
+  % containing images:
+  % VesselFigs.InIm
+  % VesselFigs.BinIm
+  % ...
+  % TODO complete list?
+
   PPA.Start_Wait_Bar(PPA.VesselGUI, 'Setting up figures...');
   PPA.Update_Status('Setting up vessel figures');
   ProgHandle = progressbar('Setting up vessel figures', {Colors.GuiLightOrange});
