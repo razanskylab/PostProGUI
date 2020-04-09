@@ -162,8 +162,8 @@ function Update_Depth_Map(PPA, ~)
   depthImage = back .* frontIm .* transparency;
 
   set(PPA.MapFig.DepthIm, 'cdata', depthImage);
-  set(PPA.MapFig.DepthIm, 'ydata', PPA.xPlot);
-  set(PPA.MapFig.DepthIm, 'xdata', PPA.yPlot);
+  set(PPA.MapFig.DepthIm, 'ydata', PPA.yPlot);
+  set(PPA.MapFig.DepthIm, 'xdata', PPA.xPlot);
   % imagesc(PPA.MapGUI.imDepthDisp, PPA.yPlot, PPA.xPlot, depthImage);
   colormap(PPA.MapFig.DepthAx, maskFrontCMap);
 

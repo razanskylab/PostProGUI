@@ -7,18 +7,25 @@ function Apply_Image_Processing(PPA)
       return;
     end
 
-    if isempty(PPA.MapFig) ||~ishandle(PPA.MapFig.MainFig)
+    if isempty(PPA.MapFig) || ~ishandle(PPA.MapFig.MainFig)
       PPA.Setup_Map_Figure();
     end
-
-    PPA.Handle_Map_Controls();
-    PPA.Start_Wait_Bar(PPA.MapGUI, 'Processing 2D image data...');
 
     % get variables etc from from GUI
     PPA.IMF = Image_Filter(PPA.procVolProj);
     % PPA.procVolProj is the processed, volumetric projection
     depthIm = PPA.rawDepthInfo; % this is the untouched, i.e. not interp. version
     hasDepthInfo = ~isempty(depthIm);
+
+    % check if before we were processing a 2d file without depth, which means 
+    % we have to re-recreate our map figure quickly...
+    if hasDepthInfo && ~isfield(PPA.MapFig,'DepthAx')
+      PPA.Setup_Map_Figure();
+    end
+
+    PPA.Handle_Map_Controls();
+    PPA.Start_Wait_Bar(PPA.MapGUI, 'Processing 2D image data...');
+
     % processing based on image Filter class, so initialize that here
     % settings will be stored there until overwritten by next Apply_Image_Processing
 

@@ -310,12 +310,6 @@ classdef PostProBackEnd < BaseClass
     % NOTE this is the final volume we get the depth information from as well
     function set.procVol(PPA, newProcVol)
       PPA.procVol = newProcVol;
-      % FIXME convert depth info to actual mm
-      [~, depthMap] = max(newProcVol, [], 3);
-      depthMap = imrotate(depthMap, -90);
-      depthMap = PPA.z(depthMap); % replace idx value with actual depth in mm
-      PPA.depthInfo = single(depthMap);
-      PPA.rawDepthInfo = single(depthMap);
       PPA.Update_Vol_Projections(); % set procProj and others
       PPA.Handle_Master_Gui_State('vol_processing_complete');
       PPA.Handle_Export_Controls();
@@ -420,7 +414,7 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function nXIm = get.nXIm(PPA)% size of interpolated/downsampled image
-      nXIm = size(PPA.procProj, 2);
+      nXIm = size(PPA.procProj, 1);
     end
 
     %---------------------------------------------------------------
@@ -474,7 +468,7 @@ classdef PostProBackEnd < BaseClass
 
     %---------------------------------------------------------------
     function nYIm = get.nYIm(PPA)
-      nYIm = size(PPA.procProj, 1);
+      nYIm = size(PPA.procProj, 2);
     end
 
     %---------------------------------------------------------------

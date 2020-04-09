@@ -6,6 +6,11 @@ function Setup_Map_Figure(PPA)
     FH.cbar = PPA.MasterGUI.cBars.Value;
     eval(['FH.cbar = ' FH.cbar '(256);']); % turn string to actual colormap matrix
   end
+  % if other map figure exist, we close that first...
+  if ~isempty(PPA.MapFig)
+    delete(PPA.MapFig.MainFig); 
+    PPA.MapFig = [];
+  end
 
   % check if we have been provided with raw depth info, so we have something
   % to plot later, if not, don't show 2nd plot tile
@@ -38,16 +43,15 @@ function Setup_Map_Figure(PPA)
   emptyImage = nan(size(PPA.procVolProj));
 
   FH.MapAx = nexttile;
-  FH.MapIm = imagesc(FH.MapAx, PPA.yPlot, PPA.xPlot, emptyImage);
+  FH.MapIm = imagesc(FH.MapAx, PPA.xPlot, PPA.yPlot, emptyImage);
   axis(FH.MapAx, 'image');
   axis(FH.MapAx, 'tight');
   colormap(FH.MapAx, FH.cbar);
   title(FH.MapAx, 'Processed Map');
 
-
   if hasDeptMap
     FH.DepthAx = nexttile;
-    FH.DepthIm = imagesc(FH.DepthAx, PPA.yPlot, PPA.xPlot, emptyImage);
+    FH.DepthIm = imagesc(FH.DepthAx, PPA.xPlot, PPA.yPlot, emptyImage);
     axis(FH.DepthAx, 'image');
     axis(FH.DepthAx, 'tight');
     colormap(FH.DepthAx, FH.cbar);

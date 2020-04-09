@@ -64,6 +64,7 @@ function Load_Raw_Data(PPA)
           PPA.rawDepthInfo = single(evalin('base', 'depthMap'));
         end
 
+      %-------------------------------------------------------------------------
       case 1% normal mat file --------------------------------------------------
         PPA.x = PPA.MatFile.x;
         PPA.y = PPA.MatFile.y;
@@ -76,21 +77,21 @@ function Load_Raw_Data(PPA)
         else
 
           if ismember('mapRaw', PPA.MatFileVars)% new map data
-            PPA.procVolProj = single(PPA.MatFile.mapRaw);
+            PPA.procVolProj = single(imrotate(PPA.MatFile.mapRaw,-90));
           elseif ismember('map', PPA.MatFileVars)% old map data
-            PPA.procVolProj = single(PPA.MatFile.map'); % transpose needed!
+            PPA.procVolProj = single(imrotate(PPA.MatFile.map',90)); % transpose needed!
           end
-
         end
 
         % check if we have a depth map as well?
         if ~PPA.isVolData && ismember('depthMap', PPA.MatFileVars)
-          % for map data, we require a
-          PPA.depthInfo = single(PPA.MatFile.depthMap); % needs to be set before procVolProj!
-          PPA.rawDepthInfo = single(PPA.MatFile.depthMap); % only set when loading for 2d data
+          depthInfo = single(imrotate(PPA.MatFile.depthMap,-90));
+          PPA.depthInfo = depthInfo; % needs to be set before procVolProj!
+          PPA.rawDepthInfo = depthInfo; % only set when loading for 2d data
         end
 
-      case 2% mVolume file -----------------------------------------------------
+      %-------------------------------------------------------------------------
+      case 2% mVolume file 
         ProgBar.Message = 'Loading volDataset class...';
         PPA.Update_Status(ProgBar.Message);
 
@@ -100,6 +101,7 @@ function Load_Raw_Data(PPA)
         PPA.z = volDataClass.vecZ * 1e3; % vol class always has z-vector (I hope)
         PPA.dt = volDataClass.dZ * 1e-3;
         PPA.rawVol = volDataClass.vol;
+      %-------------------------------------------------------------------------
       case 3%  tiff stack
         ProgBar.Message = 'Loading tiff stack...';
         [dx,dy,dz,dt,nCh,ch] = get_vol_info_from_user();
@@ -112,19 +114,20 @@ function Load_Raw_Data(PPA)
         end
         PPA.rawVol = permute(single(tempVol), [3 1 2]);
           % NOTE rawVol stored in order [z x y] for performance!
-        [nX, nY, nZ] = size(tempVol);
+        [nY,nX, nZ] = size(tempVol);
         PPA.x = (0:(nX-1)).*dx;
         PPA.y = (0:(nY-1)).*dy;
         PPA.z = (0:(nZ-1)).*dz;
         PPA.dt = dt;
+      %-------------------------------------------------------------------------
       case 4% image file
           rawImage = imread(PPA.filePath);
           if ndims(rawImage) == 3
             rawImage = rgb2gray(rawImage);
           end
           PPA.procVolProj = single(mat2gray(rawImage));
-          PPA.x = size(PPA.procVolProj,1);
-          PPA.y = size(PPA.procVolProj,2);
+          PPA.x = 1:size(PPA.procVolProj,2);
+          PPA.y = 1:size(PPA.procVolProj,1);
       case 5 % workspace varialbe
         row = PPA.LoadGUI.lastSelectedRow;
         varInfos = evalin('base','whos');
@@ -137,11 +140,18 @@ function Load_Raw_Data(PPA)
         nDimVar = ndims(varContent);
         switch nDimVar
           case 2 
+            PPA.isVolData = false;
             PPA.procVolProj = single(varContent);
-            PPA.x = size(PPA.procVolProj,1);
-            PPA.y = size(PPA.procVolProj,2);
+            PPA.x = 1:size(PPA.procVolProj,2);
+            PPA.y = 1:size(PPA.procVolProj,1);
           case 3 
-            error('Not implemented yet!'); % TODO implement case 3
+            PPA.isVolData = true;
+            % NOTE rawVol stored in order [z x y] for performance!
+            PPA.rawVol = permute(single(varContent), [3 1 2]);
+            PPA.x = 1:size(PPA.rawVol,2);
+            PPA.y = 1:size(PPA.rawVol,3);
+            PPA.z = 1:size(PPA.rawVol,1);
+            PPA.dt = 10e-9;
           otherwise 
             error('Can''t load, need 2 or 3 dimensions...');% TODO make dialog box
         end
