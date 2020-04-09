@@ -112,6 +112,8 @@
 
 ### Vessel Analysis
 
+- [Naming explained](https://github.com/razanskylab/PostProGUI/files/4450970/naming.pdf)
+
 #### Parameters
 
 - **min obj size**
@@ -146,6 +148,29 @@
 - **force connectivity**
   - TRUE if all pixels along the vessel edge should be connected to one another, i.e. within a distance of approximately one pixel from one another, FALSE otherwise.
   - Setting this to TRUE can improve the results by reducing the risk that the edges of neighbouring structures or the central light reflex are erroneously linked to the vessel, but in some images it might cause even vessels that appear clearly visible to be missed because their edge (as determined by the algorithm) is too variable or fragmented
+
+#### Variable description
+
+- area: full area of the wound /non wound region 
+- growthArea: area of wound region where vessels are growing, for non-wounded regions area = growthArea, for wounded regions, growthArea is smaller than area
+- nBranches: number of overall branch points
+- nVessel: number of vessels
+- nSegments: number of vessel segments
+- branchDensity: branch points per area
+- vesselDensity: vessels per area
+- totalLength: sum of the length of all vessels
+- lengthFraction: ratio of totalLength to area, smaller values mean less vessel coverage
+- vesselGrowthDensity: vessels per growthArea (bigger or equal to vesselDensity)
+- branchGrowthDensity: branch points per growthArea
+- lengthGrowthFraction:  ratio of totalLength to growthArea, smaller values mean less vessel coverage
+- meanDiameter: average diameter of all vessels segments
+- meanLength: average length of all vessels
+- meanTurtosity: average turtosity of all vessels
+- meanCtrAngle: average deviation of vessel segment angle with respect to angle pointing at the wound center
+- medianDiameter: median diameter of all vessels segments
+- medianLength: median length of all vessels
+- medianTurtosity: median turtosity of all vessels
+- medianCtrAngle: median deviation of vessel segment angle with respect to angle pointing at the wound center
 
 ## ToDos
 

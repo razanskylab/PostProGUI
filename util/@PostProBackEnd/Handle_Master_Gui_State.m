@@ -16,6 +16,9 @@ function Handle_Master_Gui_State(PPA, stateString)
       PPA.MasterGUI.VesselAnalysisButton.Enable = false;
     case 'load_complete'
       % update Volume Data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      PPA.MasterGUI.FileEditField.Enable = true; 
+      PPA.MasterGUI.FileEditField.Value = [PPA.fileName PPA.fileExt]; 
+
       if PPA.isVolData
         PPA.MasterGUI.VolumeProcessingButton.Enable = true;
         PPA.MasterGUI.MapProcessingButton.Enable = false;
@@ -90,6 +93,7 @@ function control_vol_size_elements(PPA, enabled)
   PPA.MasterGUI.dYVol.Enable = enabled;
   PPA.MasterGUI.dZVol.Enable = enabled;
   PPA.MasterGUI.VolMemory.Enable = enabled;
+  PPA.MasterGUI.VolResoLabel_2.Enable = enabled;
 
   if ~enabled
     % update volume info data --------------------------------------------------
@@ -124,6 +128,7 @@ function control_map_size_elements(PPA, enabled)
   PPA.MasterGUI.dXIm.Enable = enabled;
   PPA.MasterGUI.dYIm.Enable = enabled;
   PPA.MasterGUI.MapMemory.Enable = enabled;
+  PPA.MasterGUI.MapResoLabelUnit.Enable = enabled;
 
   if ~enabled
     % update volume info data --------------------------------------------------

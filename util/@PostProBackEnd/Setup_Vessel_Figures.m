@@ -20,19 +20,11 @@ function Setup_Vessel_Figures(PPA)
   ProgHandle = progressbar('Setting up vessel figures', {Colors.GuiLightOrange});
   overlayAlpha = 0.5;
 
-  % get to colorbar to use
-  if isempty(PPA.MasterGUI)
-    VesselFigs.cbar = gray(256);
-  else
-    VesselFigs.cbar = PPA.MasterGUI.cBars.Value;
-    eval(['VesselFigs.cbar = ' VesselFigs.cbar '(256);']); % turn string to actual colormap matrix
-  end
-
   % setup processing figure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   fHandle = figure('Name', 'Figure: Vessel Processing');
   fHandle.NumberTitle = 'off';
   fHandle.ToolBar = 'figure';
-  fHandle.Colormap = VesselFigs.cbar;
+  fHandle.Colormap = gray(256);
   progressbar(0.1);
   figure(ProgHandle);
 

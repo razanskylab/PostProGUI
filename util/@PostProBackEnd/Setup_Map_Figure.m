@@ -12,13 +12,19 @@ function Setup_Map_Figure(PPA)
   hasDeptMap = ~isempty(PPA.rawDepthInfo);
 
   % setup UI axis for images
-  fHandle = figure('Name', 'Figure: Map Processing', 'NumberTitle', 'off');
+  fHandle = figure('Name', 'Fig Map', 'NumberTitle', 'off');
   % make figure fill half the screen
-  set(fHandle, 'Units', 'Normalized', 'OuterPosition', [0 0 0.5 1]);
+  set(fHandle, 'Units', 'Normalized', 'OuterPosition', [0 0 0.25 0.35]);
   % move figure over a little to the right of the vessel GUI
   fHandle.Units = 'pixels';
-  fHandle.OuterPosition(1) = PPA.MapGUI.UIFigure.Position(1) + PPA.MapGUI.UIFigure.Position(3);
+  MapGuiPos = PPA.MapGUI.UIFigure.OuterPosition;
+  % x-pos = right of map gui
+  fHandle.OuterPosition(1) = MapGuiPos(1) + MapGuiPos(3);
+  % y-pos = same height as mapgui
+  fHandle.OuterPosition(2) = MapGuiPos(2) + MapGuiPos(4) - ...
+  fHandle.OuterPosition(4) + 45;
   FH.MainFig = fHandle;
+
   if hasDeptMap
     FH.TileLayout = tiledlayout(fHandle,1, 2);
   else
