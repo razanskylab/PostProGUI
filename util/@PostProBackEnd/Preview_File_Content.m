@@ -64,6 +64,8 @@ function [isValidFile] = Preview_File_Content(PPA)
       prevMap = max(double(tiff_to_mat(PPA.filePath)),[],3);
     elseif (PPA.fileType == 4) % normal image
       prevMap = single(imread(PPA.filePath));
+    else
+      error('Make sure you have a map in the volumetric data mat file!');
     end
     prevMap = normalize(prevMap);
     
