@@ -53,7 +53,7 @@ function [isValidFile] = Preview_File_Content(PPA)
     % if we have a large volume file (e.g. urs datasets) with no map either
     % we don't preview it either, as we would have to load variable first and we
     % don't want to do that yet as it can take quite some time
-    isImage = (PPA.fileType == 3) || (PPA.fileType == 4); % tiff stack || image
+
     % if we have a variable called map, display it...
     hasMap = ~isempty(PPA.MatFileVars) && ismember('map', PPA.MatFileVars); % old map data
 
@@ -65,16 +65,16 @@ function [isValidFile] = Preview_File_Content(PPA)
     elseif (PPA.fileType == 4) % normal image
       prevMap = single(imread(PPA.filePath));
     end
-    prevMap = normalize(prevMap);
     
-    if ismatrix(prevMap)
-       prevMap = uint8(prevMap .* 255);
-       prevMap = ind2rgb(prevMap, gray(256));
-    end
-    
-    if hasMap || isImage
+    if ~isempty(prevMap)
+      prevMap = normalize(prevMap);
+      
+      if ismatrix(prevMap)
+        prevMap = uint8(prevMap .* 255);
+        prevMap = ind2rgb(prevMap, gray(256));
+      end
       PPA.LoadGUI.PrevImage.ImageSource = prevMap;
-    else
+    else % no preview, also not a problem
       % display default image with new overlay...
       defaultImage = imread('load_gui_default_im.jpg');
       defaultImage = imresize(defaultImage, 4) .* 0.2; % 0.2 makes image dark
