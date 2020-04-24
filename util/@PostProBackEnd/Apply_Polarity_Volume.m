@@ -10,12 +10,10 @@ function Apply_Polarity_Volume(PPA)
       statusText = sprintf('Applying signal polarity (%s) to volumetric data.', ...
         PPA.VolGUI.PolarityDropDown.Value);
       PPA.Update_Status(statusText);
-      tempVol = PPA.filtVol;
-      [nX, nY, nZ] = size(tempVol);
-      tempVol = reshape(tempVol, nX * nY, nZ)';
-      tempVol = apply_signal_polarity(tempVol, PPA.volPolarity);
-      tempVol = reshape(tempVol', nX, nY, nZ);
-      PPA.procVol = tempVol;
+      [nX, nY, nZ] = size(PPA.filtVol);
+      PPA.procVol = reshape(PPA.filtVol, nX * nY, nZ)';
+      PPA.procVol = apply_signal_polarity(PPA.procVol, PPA.volPolarity);
+      PPA.procVol = reshape(PPA.procVol', nX, nY, nZ);
       PPA.Stop_Wait_Bar();
     else
       PPA.procVol = PPA.filtVol; % use full polarity if nothing selected

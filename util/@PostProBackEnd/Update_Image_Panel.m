@@ -27,8 +27,9 @@ function Update_Image_Panel(PPA, UIAxis, newImage, dim)
           set(obj, 'xdata', PPA.xPlot);
           set(obj, 'ydata', PPA.yPlot);
       end
-
-      UIAxis.CLim = minmax(newImage); % update colorbar limits
+      if max(newImage(:)) > 0
+         UIAxis.CLim = minmax(newImage); % update colorbar limits
+      end
     end
 
   end

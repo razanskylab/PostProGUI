@@ -24,6 +24,7 @@ function Handle_Master_Gui_State(PPA, stateString)
         PPA.MasterGUI.MapProcessingButton.Enable = false;
         PPA.MasterGUI.VesselAnalysisButton.Enable = false;
         PPA.MasterGUI.ExportButton.Enable = true;
+
         % update volume info status ------------------------------------------------
         control_vol_size_elements(PPA, true); % local function, see below
         % update volume info data ------------------------ --------------------------

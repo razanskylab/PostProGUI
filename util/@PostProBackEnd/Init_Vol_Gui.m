@@ -15,8 +15,13 @@ function Init_Vol_Gui(PPA)
 
     PPA.Start_Wait_Bar(PPA.VolGUI, 'Initializing Volume Gui...')
     maxZ = size(PPA.rawVol, 1);
+    % make sure current crop values are within allowed limits
+    PPA.VolGUI.zCropLowEdit.Value = min([PPA.VolGUI.zCropHighEdit.Value,maxZ]);
+    PPA.VolGUI.zCropHighEdit.Value = min([PPA.VolGUI.zCropHighEdit.Value,maxZ]);
+    % update allowed limits
     PPA.VolGUI.zCropLowEdit.Limits = [1 maxZ];
-    PPA.VolGUI.zCropHighEdit.Limits = [1 maxZ];
+    PPA.VolGUI.zCropHighEdit.Limits = [1 maxZ-1];
+        
     % ensure we get no images smaller than 50x50
     PPA.VolGUI.DwnSplFactorEdit.Limits = [1 round(min([PPA.nX PPA.nY]) ./ 50)];
 
