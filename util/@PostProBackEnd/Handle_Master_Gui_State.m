@@ -161,7 +161,8 @@ function make_axis_tight(PPA)
     axis tight;
   end
   % make frangi images tight for map processing
-  if ~isempty(PPA.MapFrangi) && ishandle(PPA.MapFrangi.FigHandles.MainFig)
+  if ~isempty(PPA.MapFrangi) && ~isempty(PPA.MapFrangi.FigHandles) && ...
+          ishandle(PPA.MapFrangi.FigHandles.MainFig)
     figure(PPA.MapFrangi.FigHandles.MainFig);
     axis tight;
   end

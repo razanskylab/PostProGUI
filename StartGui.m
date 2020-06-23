@@ -1,5 +1,7 @@
 % make sure we have all folders and subfolders added to matlab path
-addpath(genpath(pwd));
+scriptPath = mfilename('fullpath');
+folderPath = fileparts(scriptPath);
+addpath(genpath(folderPath));
 
 % remove git folder if one exists...
 if isfolder('.git')

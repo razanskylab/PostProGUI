@@ -13,9 +13,9 @@ function [hasValidVariables, needsInfo] = Check_Workspace_Content(PPA)
   hasYVec = evalin('base', 'exist("y") && isvector(y)');
   hasZector = evalin('base', 'exist("z") && isvector(z)');
   hasXYvectors = hasXVec && hasYVec;
-  hasVolData = evalin('base', 'exist("volData") && ndims(volData) == 3');
-  hasMapRaw = evalin('base', 'exist("mapRaw") && ismatrix(mapRaw)');
-  hasMap = evalin('base', 'exist("map") && ismatrix(map)');
+  hasVolData = evalin('base', 'exist("volData",''var'') && ndims(volData) == 3');
+  hasMapRaw = evalin('base', 'exist("mapRaw",''var'') && ismatrix(mapRaw)');
+  hasMap = evalin('base', 'exist("map",''var'') && ismatrix(map)');
   hasMapOnly = hasMap &&~hasMapRaw; % old map data
   isVolData = hasVolData; % TODO check for MVolume class as well...
 

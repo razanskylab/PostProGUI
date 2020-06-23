@@ -15,10 +15,13 @@ function Setup_Vessel_Figures(PPA)
   % ...
   % TODO complete list?
 
+
+
   PPA.Start_Wait_Bar(PPA.VesselGUI, 'Setting up figures...');
   PPA.Update_Status('Setting up vessel figures');
   ProgHandle = progressbar('Setting up vessel figures', {Colors.GuiLightOrange});
   overlayAlpha = 0.5;
+  VesselFigs.cbar = gray(256);
 
   % setup processing figure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   fHandle = figure('Name', 'Figure: Vessel Processing');
