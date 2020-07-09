@@ -5,25 +5,23 @@
 <!-- Put updated GUI pictures here!
 <img src="https://user-images.githubusercontent.com/558053/71764036-261b5200-2ee3-11ea-9140-258850ba51ee.png" width="200"> -->
 
-## Installation & Requirements
+## Installation
 
-### If you know how to use GIT
+- If you know how to use GIT
+  - clone to local folder, make sure to also initialize and pull all submodules
+- If you don't how to use GIT
+  - download and unzip the latest [release](https://github.com/razanskylab/PostProGUI/releases)
 
-- clone to local folder, make sure to also initialize and pull all submodules
+## Requirements
 
-### If you don't how to use GIT
-
-- download and unzip the latest [release](https://github.com/razanskylab/PostProGUI/releases) (TODO)
-
-### Requirements
-
-- created and tested on Matlab 9.7.0.1261785 (R2019b) Update 3
-- requires at least Matlab R2018b (not tested)
+- requires at least Matlab R2019b (not tested)
+  - could be changed to 2018b if tiledlayouts are removed
 - required toolboxes:
   - [Control System Toolbox](https://mathworks.com/de/products/control.html)
   - [Signal Processing Toolbox](https://mathworks.com/de/products/signal.html)
   - [Image Processing Toolbox](https://mathworks.com/de/products/image.html)
   - [Computer Vision Toolbox](https://mathworks.com/de/products/computer-vision.html)
+- created and tested on Matlab 9.8.0.1380330 (R2020a) Update 2
 
 ## Usage
 
