@@ -120,8 +120,8 @@ PLoS ONE 7(3): e32435. doi:10.1371/journal.pone.0032435](http://journals.plos.or
 Noteworthy changes were made in the pre-processing where we don't use Wavelet filtering but rather rely on our onw pre-processing or a Frangi-Filtering processing prior to the binarization step. The binarization is also much more powerfull now and we export many more parameters which are calculate based on what the ARIA algorithm found.
 
 #### Nomenclature
-![Suppl_Figure_x_4_1](https://user-images.githubusercontent.com/558053/87024361-4b15b800-c1d9-11ea-8eeb-fba63c0b9a4f.jpg)
 This figure should help to explain what we call a vessel, a branch point and a vessel segment. In short, vessels are defined between two branch points and we use a spline fit with an arbitrary number of segments for this fit. 
+![VesselsExplain](https://user-images.githubusercontent.com/558053/87025674-fd01b400-c1da-11ea-9bbb-c8842f983119.jpg)
 
 For each vessel we have: 
 - length (length of spline) 
