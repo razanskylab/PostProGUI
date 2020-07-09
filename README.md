@@ -112,7 +112,28 @@
 
 ### Vessel Analysis
 
+Performs vessel detection, and extracts location, diameter, direction of the vessels and many more useful parameters (see Parameters list below). 
+
+Vessel analysis is based in large parts on the excelent [ARIA (Automated Retinal Image Analyzer)](https://github.com/petebankhead/ARIA
+) algorithm developed by [Pete Bankhead](https://petebankhead.github.io/). It is explained in detail at:
+
+[Bankhead P, Scholfield CN, McGeown JG, Curtis TM (2012)
+*Fast Retinal Vessel Detection and Measurement Using Wavelets and Edge Location Refinement.*
+PLoS ONE 7(3): e32435. doi:10.1371/journal.pone.0032435](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0032435)
+
+Noteworthy changes were made in the pre-processing where we don't use Wavelet filtering but rather rely on our onw pre-processing or a Frangi-Filtering processing prior to the binarization step. The binarization is also much more powerfull now and we export many more parameters which are calculate based on what the ARIA algorithm found.
+
+#### Processing Steps
+- Binarization
+- Cleaning and Thinnging
+- Skeletonization
+- Spline-Fitting
+- Width 
+
 - [Naming explained](https://github.com/razanskylab/PostProGUI/files/4450970/naming.pdf)
+ 
+Supplementary Figure 13. Explanation of vessel segmentation algorithm (short). - composed of segments, see below - for each vessel we have: - location (average of segment locations) - diameter (average of segment diameters) - length (length of spline) - distance between end-points - turtosity branch points - location where vessels split up / join - for each branch point we have: - location segment (points) - vessels are composed of an arbitrary  number of segments, this relates to how we fit a spline to the pixel-centerline - for each segment we have - location - diameter - angle - distance to wound
+
 
 #### Parameters
 
