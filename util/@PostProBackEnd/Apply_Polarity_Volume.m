@@ -11,9 +11,9 @@ function Apply_Polarity_Volume(PPA)
         PPA.VolGUI.PolarityDropDown.Value);
       PPA.Update_Status(statusText);
       [nX, nY, nZ] = size(PPA.filtVol);
-      PPA.procVol = reshape(PPA.filtVol, nX * nY, nZ)';
-      PPA.procVol = apply_signal_polarity(PPA.procVol, PPA.volPolarity);
-      PPA.procVol = reshape(PPA.procVol', nX, nY, nZ);
+      procVol = reshape(PPA.filtVol, nX * nY, nZ)';
+      procVol = apply_signal_polarity(procVol, PPA.volPolarity);
+      PPA.procVol = reshape(procVol', nX, nY, nZ);
       PPA.Stop_Wait_Bar();
     else
       PPA.procVol = PPA.filtVol; % use full polarity if nothing selected
