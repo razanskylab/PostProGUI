@@ -5,25 +5,23 @@
 <!-- Put updated GUI pictures here!
 <img src="https://user-images.githubusercontent.com/558053/71764036-261b5200-2ee3-11ea-9140-258850ba51ee.png" width="200"> -->
 
-## Installation & Requirements
+## Installation
 
-### If you know how to use GIT
+- If you know how to use GIT
+  - clone to local folder, make sure to also initialize and pull all submodules
+- If you don't how to use GIT
+  - download and unzip the latest [release](https://github.com/razanskylab/PostProGUI/releases)
 
-- clone to local folder, make sure to also initialize and pull all submodules
+## Requirements
 
-### If you don't how to use GIT
-
-- download and unzip the latest [release](https://github.com/razanskylab/PostProGUI/releases) (TODO)
-
-### Requirements
-
-- created and tested on Matlab 9.7.0.1261785 (R2019b) Update 3
-- requires at least Matlab R2018b (not tested)
+- requires at least Matlab R2019b (not tested)
+  - could be changed to 2018b if tiledlayouts are removed
 - required toolboxes:
   - [Control System Toolbox](https://mathworks.com/de/products/control.html)
   - [Signal Processing Toolbox](https://mathworks.com/de/products/signal.html)
   - [Image Processing Toolbox](https://mathworks.com/de/products/image.html)
   - [Computer Vision Toolbox](https://mathworks.com/de/products/computer-vision.html)
+- created and tested on Matlab 9.8.0.1380330 (R2020a) Update 2
 
 ## Usage
 
@@ -112,7 +110,41 @@
 
 ### Vessel Analysis
 
-- [Naming explained](https://github.com/razanskylab/PostProGUI/files/4450970/naming.pdf)
+Performs vessel detection, and extracts location, diameter, direction of the vessels and many more useful parameters (see Parameters list below). Vessel analysis is based in large parts on the excelent [ARIA (Automated Retinal Image Analyzer)](https://github.com/petebankhead/ARIA
+) algorithm developed by [Pete Bankhead](https://petebankhead.github.io/). It is explained in detail at:
+
+[Bankhead P, Scholfield CN, McGeown JG, Curtis TM (2012)
+*Fast Retinal Vessel Detection and Measurement Using Wavelets and Edge Location Refinement.*
+PLoS ONE 7(3): e32435. doi:10.1371/journal.pone.0032435](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0032435)
+
+Noteworthy changes were made in the pre-processing where we don't use Wavelet filtering but rather rely on our onw pre-processing or a Frangi-Filtering processing prior to the binarization step. The binarization is also much more powerfull now and we export many more parameters which are calculate based on what the ARIA algorithm found.
+
+#### Nomenclature
+This figure should help to explain what we call a vessel, a branch point and a vessel segment. In short, vessels are defined between two branch points and we use a spline fit with an arbitrary number of segments for this fit. 
+![VesselsExplain](https://user-images.githubusercontent.com/558053/87025674-fd01b400-c1da-11ea-9bbb-c8842f983119.jpg)
+
+For each vessel we have: 
+- length (length of spline) 
+- distance between end-points 
+- turtosity 
+
+For each branch point we have: 
+- location segment (points) 
+
+For each segment we have 
+- location 
+- diameter 
+- angle
+
+#### Processing Steps
+- Binarization
+- Cleaning and Thinnging
+- Skeletonization
+- Spline-Fitting
+- Width 
+
+
+
 
 #### Parameters
 
