@@ -40,10 +40,12 @@ function Update_Depth_Map(PPA, ~)
   absSurfaceCut = PPA.MapGUI.topcutEditField.Value; % 0 <-> 0.5
   absDepthCut = PPA.MapGUI.depthcutEditField.Value; % -0.5 <-> 0 
   % NOTE minus sign for depthoffsetSlider is correct as range is -100<->0
-  globalOffset = PPA.MapGUI.OffsetmmEditField.Value; 
+  globalOffset = PPA.MapGUI.OffsetEditField.Value; 
   shiftFinalDepthMap = PPA.MapGUI.shiftEditField.Value; 
     % absolute, global offset, addded in the end, shifts cmap up/down
   depthMapSmooth = PPA.MapGUI.SmoothEditField.Value;
+  doRemoveGlobalTrend = PPA.MapGUI.RemoveTrendCheckBox.Value; 
+  doUsePolyFit = PPA.MapGUI.UsePolyFitBox.Value;
   maskBackCMap = 'gray';
   num_colors = 256;
   transparency = transparency ./ 100; % 100% -> 1
@@ -82,10 +84,59 @@ function Update_Depth_Map(PPA, ~)
   % mip = processed mip to used as background for depth map
   mip = normalize(mip);
 
-  
-  % process depth map...lot more happenning here--------------------------------
+    % process depth map...lot more happenning here--------------------------------
   % depth = raw depth info, usually max location of procVol
   depth = depth + globalOffset; % like the name suggest, add the global offset
+
+  if doRemoveGlobalTrend
+    [fullDepth] = wrap_outlier_data(depth,[10 90]);
+  end
+
+  if doRemoveGlobalTrend && ~doUsePolyFit
+    depthMapSmooth = max(depthMapSmooth,1); % make sure smoothing > 0
+    PPA.MapGUI.SmoothEditField.Value = depthMapSmooth;
+    smoothDepth = imgaussfilt(depth, depthMapSmooth);
+    depth = depth - smoothDepth;
+    depth = depth*1e3; % convert to micron
+  elseif doRemoveGlobalTrend && doUsePolyFit
+    % convert our support locations for the fit from a 2D image into X-Y vectors----
+    x = 1:size(depth,1);
+    y = 1:size(depth,2);
+    keepMip = mip > 0.25;
+    % fitWeights = depth(keepMip(:));
+
+    [X, Y] = meshgrid(y, x);
+    IDX = [X(:), Y(:)];
+    depthLocations = IDX(keepMip, :);
+    depthX = depthLocations(:, 1);
+    depthY = depthLocations(:, 2);
+    fitDepth = depth(keepMip(:));
+
+    % fit polynomial ---------------------------------------------------------------
+    tic;
+    fprintf('Fitting surface polynomial ...');
+    % use amplitude of depth location as weights
+
+    % Set up fittype and options.
+    ft = fittype('poly55');
+    opts = fitoptions('Method', 'LinearLeastSquares');
+    opts.Normalize = 'on';
+    % opts.Robust = 'LAR';
+    % opts.Weights = fitWeights;
+
+    % Fit model to data.
+    surfFit = fit([depthX, depthY], fitDepth, ft, opts);
+    smoothDepth = surfFit(X, Y);
+    done(toc);
+
+    % smoothDepth = uint16(round(smoothDepth));
+    % smoothDepth = double(smoothDepth);
+    depth = depth - smoothDepth;
+    depth = depth*1e3; % convert to micron
+  % apply gaussian smoothing of depthmap for smoother depth map...
+  elseif depthMapSmooth
+    depth = imgaussfilt(depth, depthMapSmooth);
+  end
   
   % ignore pixels with amps less that minAmp
   depthRangeMap = depth;
@@ -122,6 +173,9 @@ function Update_Depth_Map(PPA, ~)
   fullDepth = depth; % full depth before cropping, used for histograms later
   depth(depth < surfaceLimit) = surfaceLimit;
   depth(depth > depthLimit) = depthLimit;
+  % remove outliers, quite aggresivley for full depth, very moderately for displayed
+  [fullDepth, lowLim, upLim] = wrap_outlier_data(fullDepth,[10 90]);
+  [depth, lowLim, upLim] = wrap_outlier_data(depth,[1 99]);
   PPA.Update_Status(sprintf('   Surface: %2.1f Depth: %2.1f', surfaceLimit, depthLimit));
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,11 +196,9 @@ function Update_Depth_Map(PPA, ~)
   frontIm = depth; 
   frontIm = frontIm - surfaceLimit;
   frontIm = frontIm ./ (depthLimit - surfaceLimit);
-  % apply optional gaussian smoothing of depth map
-  if depthMapSmooth 
-    frontIm = imgaussfilt(frontIm, depthMapSmooth);
-  end
+
   frontIm = round(num_colors .* frontIm);
+
   % convert the depth mask to true color
   frontIm = ind2rgb(frontIm, maskFrontCMap);
 
@@ -190,26 +242,37 @@ function Update_Depth_Map(PPA, ~)
   PPA.zLabels = zLabels;
 
   % plot/update depth histograms --------------------------------------------------------
+
   % settings for histogram, could be put somewhere else some day but here is fine for now
   nbins = round(numel(unique(depth(:)))./5); % get a bin for every 100 um
   nbins = max([nbins 10]); % have at least 10 bins
   nbins = min([nbins 75]); % have no more than 75 bins
-  H = histogram(PPA.MapGUI.histoAx, fullDepth, nbins, 'Normalization', 'countdensity');
-  H.FaceColor = Colors.sherpaBlue; 
-  H.FaceAlpha = 0.50;
-  H.EdgeColor = 'none';
-  hold(PPA.MapGUI.histoAx, 'on');
-  axis(PPA.MapGUI.histoAx, 'tight');
-  origYLim = PPA.MapGUI.histoAx.YLim;
 
-  H = histogram(PPA.MapGUI.histoAx, depth, nbins, 'Normalization', 'countdensity');
+  if ~doRemoveGlobalTrend
+    H = histogram(PPA.MapGUI.histoAx, fullDepth(:), nbins, 'Normalization', 'countdensity');
+    H.FaceColor = Colors.sherpaBlue; 
+    H.FaceAlpha = 0.40;
+    H.EdgeColor = 'none';
+    hold(PPA.MapGUI.histoAx, 'on');
+    axis(PPA.MapGUI.histoAx, 'tight');
+    origYLim = PPA.MapGUI.histoAx.YLim;
+  end
+
+  H = histogram(PPA.MapGUI.histoAx, depth(:), nbins, 'Normalization', 'countdensity');
   H.FaceColor = Colors.capeHoney;
-  H.FaceAlpha = 0.75;
+  H.FaceAlpha = 1;
   H.EdgeColor = 'none';
   hold(PPA.MapGUI.histoAx, 'off');
   axis(PPA.MapGUI.histoAx, 'tight');
   % restore orig ylim so that truncating does not distort axis so much...
-  PPA.MapGUI.histoAx.YLim = origYLim; 
+  if ~doRemoveGlobalTrend
+    PPA.MapGUI.histoAx.YLim = origYLim; 
+  end
   PPA.ProgBar = [];
-  
+
+  % r = iqr(fullDepth,2)
+  % r = iqr(depth,2)
+  % prctile(fullDepth, [10; 90],2)
+  % prctile(depth, [10; 90],2)
+
 end
