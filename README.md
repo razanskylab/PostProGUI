@@ -7,12 +7,24 @@
 
 ## Installation
 
-- If you know how to use GIT
-  - clone to local folder, make sure to also initialize and pull all submodules
-- If you don't how to use GIT
-  - download and unzip the latest [release](https://github.com/razanskylab/PostProGUI/releases)
+### Simple Setup - No Matlab required
+- Download and run [PostProGUI_Installer.exe](https://github.com/razanskylab/PostProGUI/releases/download/1.0/PostProGUI_Installer.exe)
+- this will download and install the [Matlab Runtime](https://www.mathworks.com/products/compiler/matlab-runtime.html) which allows you to run PostProGUI without installing MATLAB
+- installation takes a moment, as the Matlab Runtime is quite large
+- once installed, you can run PostProGUI.exe to start post processing
+- does not rely on a full Matlab version installed on your computer
+ 
+### Normal Setup - Full Matlab 2020b required
+- download and unzip the latest [release](https://github.com/razanskylab/PostProGUI/releases/download/1.0/PostPro_v1.rar) to a local folder
+- make sure you have the required toolboxes installed (see below)
+- the zip-files contains all custom code files, but does not include the files provided by the Matlab toolboxes
 
-## Requirements
+### Expert Setup - GIT & Full Matlab 2020b required
+- clone this repository, if you don't know how, this is not the right option for you ;-)
+- make sure you have the required toolboxes installed (see below)
+- make sure to initialize and pull all submodules as well
+
+#### Matlab-Requirements
 
 - requires at least Matlab R2019b (not tested)
   - could be changed to 2018b if tiledlayouts are removed
